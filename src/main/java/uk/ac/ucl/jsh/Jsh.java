@@ -30,6 +30,7 @@ public class Jsh {
         Command command = new Command();
         command.parse(cmdline);
         command.eval(null, output);
+        currentDirectory = Command.currentDirectory;
     }
 
     public static void main(String[] args) {
