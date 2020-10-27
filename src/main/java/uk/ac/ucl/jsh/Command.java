@@ -22,8 +22,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class Command {
-    String appName; 
-    ArrayList<String> appArgs; 
+    ArrayList<ArrayList<String>> commandList = new ArrayList<ArrayList<String>>();
     static String currentDirectory = System.getProperty("user.dir");
     public void parse(String cmdline) throws IOException{
         CharStream parserInput = CharStreams.fromString(cmdline); 
@@ -66,42 +65,45 @@ public class Command {
                     tokens.addAll(globbingResult);
                 }
             }
-            appName = tokens.get(0);
-            appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
+            commandList.add(tokens);
         }
     }
 
     public void eval(String input, OutputStream output) throws IOException{
-        OutputStreamWriter writer = new OutputStreamWriter(output);
-        switch (appName) {
-            case "cd":
-                ChangeDirectory.evalArgs(appArgs, input, writer);
-                break;
-            case "pwd":
-                PrintWorkingDirectory.evalArgs(appArgs, writer);
-                break;
-            case "ls":
-                List.evalArgs(appArgs, writer);
-                break;
-            case "cat":
-                Concatenate.evalArgs(appArgs, writer);
-                break;
-            case "echo":
-                Echo.evalArgs(appArgs, writer);
-                break;
-            case "head":
-                Head.evalArgs(appArgs, writer);
-                break;
-            case "tail":
-                Tail.evalArgs(appArgs, writer);
-                break;
-            case "grep":
-                GlobalRegExPrint.evalArgs(appArgs, writer);
-                break;
-            default:
-                throw new RuntimeException(appName + ": unknown application");
+        for(ArrayList<String> token : commandList){
+            String appName = token.get(0);
+            ArrayList<String> appArgs = new ArrayList<String>(token.subList(1, token.size()));
+            OutputStreamWriter writer = new OutputStreamWriter(output);
+            switch (appName) {
+                case "cd":
+                    ChangeDirectory.evalArgs(appArgs, input, writer);
+                    break;
+                case "pwd":
+                    PrintWorkingDirectory.evalArgs(appArgs, writer);
+                    break;
+                case "ls":
+                    List.evalArgs(appArgs, writer);
+                    break;
+                case "cat":
+                    Concatenate.evalArgs(appArgs, writer);
+                    break;
+                case "echo":
+                    Echo.evalArgs(appArgs, writer);
+                    break;
+                case "head":
+                    Head.evalArgs(appArgs, writer);
+                    break;
+                case "tail":
+                    Tail.evalArgs(appArgs, writer);
+                    break;
+                case "grep":
+                    GlobalRegExPrint.evalArgs(appArgs, writer);
+                    break;
+                default:
+                    throw new RuntimeException(appName + ": unknown application");
             }
         }
+    }
 }
 
 class ChangeDirectory extends Command {
