@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Comparator;
+
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -22,7 +25,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class Command {
-    ArrayList<ArrayList<String>> commandList = new ArrayList<ArrayList<String>>();
+    String appName; 
+    ArrayList<String> appArgs; 
+    ArrayList<ArrayList> allTokens;
     static String currentDirectory = System.getProperty("user.dir");
     public void parse(String cmdline) throws IOException{
         CharStream parserInput = CharStreams.fromString(cmdline); 
@@ -65,45 +70,45 @@ public class Command {
                     tokens.addAll(globbingResult);
                 }
             }
-            commandList.add(tokens);
+            appName = tokens.get(0);
+            appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
         }
     }
 
     public void eval(String input, OutputStream output) throws IOException{
-        for(ArrayList<String> token : commandList){
-            String appName = token.get(0);
-            ArrayList<String> appArgs = new ArrayList<String>(token.subList(1, token.size()));
-            OutputStreamWriter writer = new OutputStreamWriter(output);
-            switch (appName) {
-                case "cd":
-                    ChangeDirectory.evalArgs(appArgs, input, writer);
-                    break;
-                case "pwd":
-                    PrintWorkingDirectory.evalArgs(appArgs, writer);
-                    break;
-                case "ls":
-                    List.evalArgs(appArgs, writer);
-                    break;
-                case "cat":
-                    Concatenate.evalArgs(appArgs, writer);
-                    break;
-                case "echo":
-                    Echo.evalArgs(appArgs, writer);
-                    break;
-                case "head":
-                    Head.evalArgs(appArgs, writer);
-                    break;
-                case "tail":
-                    Tail.evalArgs(appArgs, writer);
-                    break;
-                case "grep":
-                    GlobalRegExPrint.evalArgs(appArgs, writer);
-                    break;
-                default:
-                    throw new RuntimeException(appName + ": unknown application");
+        OutputStreamWriter writer = new OutputStreamWriter(output);
+        switch (appName) {
+            case "cd":
+                ChangeDirectory.evalArgs(appArgs, input, writer);
+                break;
+            case "pwd":
+                PrintWorkingDirectory.evalArgs(appArgs, writer);
+                break;
+            case "ls":
+                List.evalArgs(appArgs, writer);
+                break;
+            case "cat":
+                Concatenate.evalArgs(appArgs, writer);
+                break;
+            case "echo":
+                Echo.evalArgs(appArgs, writer);
+                break;
+            case "head":
+                Head.evalArgs(appArgs, writer);
+                break;
+            case "tail":
+                Tail.evalArgs(appArgs, writer);
+                break;
+            case "grep":
+                GlobalRegExPrint.evalArgs(appArgs, writer);
+                break;
+            case "sort":
+                Sort.evalArgs(appArgs, writer);
+                break;             
+            default:
+                throw new RuntimeException(appName + ": unknown application");
             }
         }
-    }
 }
 
 class ChangeDirectory extends Command {
@@ -339,6 +344,61 @@ class GlobalRegExPrint extends Command {
             } catch (IOException e) {
                 throw new RuntimeException("grep: cannot open " + appArgs.get(j + 1));
             }
+        }
+    }
+}
+
+
+class Sort extends Command {
+    public static void evalArgs(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+        if (appArgs.isEmpty()) {
+            throw new RuntimeException("sort: missing arguments");
+        }
+        if (appArgs.size() != 1 && appArgs.size() != 2) {
+            throw new RuntimeException("sort: wrong arguments");
+        }
+        if (appArgs.size() == 2 && !appArgs.get(0).equals("-r")) {
+            throw new RuntimeException("sort: wrong argument " + appArgs.get(0));
+        }
+
+        boolean reversed = false; 
+        String sortArg = appArgs.get(0);
+
+        if (appArgs.size() == 2){
+            reversed = true;
+            sortArg = appArgs.get(1);
+        }
+
+        String sortFile = currentDirectory + File.separator + sortArg;
+
+        try (Stream<String> stream = Files.lines(Paths.get(sortFile))) {
+            if (!reversed){
+            stream.sorted().forEach(line -> { 
+                    try {
+                        writer.write(line);
+                        writer.write(System.getProperty("line.separator"));
+                        writer.flush();
+                    } 
+                    catch (IOException e)  {
+                        throw new RuntimeException("sort: cannot open " + appArgs.get(0));
+                    }
+                }
+                );
+            } else {
+             stream.sorted(Comparator.reverseOrder()).forEach(line -> { 
+                    try {
+                        writer.write(line);
+                        writer.write(System.getProperty("line.separator"));
+                        writer.flush();
+                    } 
+                    catch (IOException e)  {
+                        throw new RuntimeException("sort: cannot open " + appArgs.get(0));
+                    }
+                } 
+             );              
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("sort: cannot open " + appArgs.get(0));
         }
     }
 }
