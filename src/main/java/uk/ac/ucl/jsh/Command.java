@@ -104,6 +104,9 @@ public class Command {
                 break;
             case "sort":
                 Sort.evalArgs(appArgs, writer);
+                break;   
+            case "uniq":
+                Unique.evalArgs(appArgs, writer);
                 break;             
             default:
                 throw new RuntimeException(appName + ": unknown application");
@@ -402,3 +405,57 @@ class Sort extends Command {
         }
     }
 }
+
+class Unique extends Command {
+    public static void evalArgs(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+        if (appArgs.isEmpty()) {
+            throw new RuntimeException("uniq: missing arguments");
+        }
+        if (appArgs.size() != 1 && appArgs.size() != 2) {
+            throw new RuntimeException("uniq: wrong arguments");
+        }
+        if (appArgs.size() == 2 && !appArgs.get(0).equals("-i")) {
+            throw new RuntimeException("uniq: wrong argument " + appArgs.get(0));
+        }
+
+        boolean caseSensitive = true; 
+        String uniqArg = appArgs.get(0);
+
+        if (appArgs.size() == 2){
+            caseSensitive = false;
+            uniqArg = appArgs.get(1);
+        }
+
+        String uniqFile = currentDirectory + File.separator + uniqArg;
+        String input = null;
+        String previousLine = "";
+
+        Scanner sc = new Scanner(new File(uniqFile));
+
+        while (sc.hasNextLine()) {
+
+            input = sc.nextLine();
+            if(caseSensitive){
+
+                if( !input.equals(previousLine)) {
+                    writer.append(input);
+                    writer.write(System.getProperty("line.separator"));
+                    writer.flush();
+                    previousLine = input;
+                }
+
+            } else{
+
+                if( !(input.toLowerCase()).equals(previousLine.toLowerCase()) ) {
+                    writer.append(input);
+                    writer.write(System.getProperty("line.separator"));
+                    writer.flush();
+                    previousLine = input;
+                }
+            }
+
+    }
+    }
+}
+
+
