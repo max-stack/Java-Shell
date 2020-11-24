@@ -20,6 +20,8 @@ public class ApplicationFactory{
                 return new Tail();
             case "grep":
                 return new GlobalRegExPrint();
+            case "cut":
+                return new Cut();
             case "sort":
                 return new Sort();
             case "uniq":
