@@ -19,7 +19,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import uk.ac.ucl.jsh.app.Application;
 import uk.ac.ucl.jsh.app.ApplicationFactory;
 
-
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
