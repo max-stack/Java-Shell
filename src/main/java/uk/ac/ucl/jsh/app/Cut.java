@@ -53,7 +53,7 @@ public class Cut implements Application {
                     startIndex = Integer.parseInt(indexParts[0]) - 1;
                     endIndex = Integer.parseInt(indexParts[1]);
                 } else {
-                    startIndex = Integer.parseInt(range);
+                    startIndex = Integer.parseInt(range) - 1;
                     endIndex = startIndex + 1;
                 }
 
