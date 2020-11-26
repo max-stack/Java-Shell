@@ -11,53 +11,60 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 import uk.ac.ucl.jsh.Jsh;
-
-/* WORK IN PROGESS */
 
 public class Cut implements Application {
     
     public void exec(ArrayList<String> appArgs, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         if (appArgs.isEmpty()) {
-           throw new RuntimeException("cut: missing arguments");
-        } else if (!appArgs.get(0).equals("-b")) {
+            throw new RuntimeException("cut: missing arguments");
+        }
+        if (appArgs.size() != 3) {
+            throw new RuntimeException("cut: wrong arguments");
+        }
+        if (!appArgs.get(0).equals("-b")) {
             throw new RuntimeException("cut: wrong argument " + appArgs.get(0));
-        } else if (appArgs.size() > 3) {
-           throw new RuntimeException("cut: too many arguments");
         }
 
-        String cutArg = appArgs.get(1);        
-        ArrayList<String> cutBytes = new ArrayList<String>(Arrays.asList(cutArg.split(",")));
+        String[] cutRanges = appArgs.get(1).split(",");
+        ArrayList<int[]> indexTuples = new ArrayList<int[]>();
 
-        // Convert to indexes:
-        ArrayList<ArrayList<Integer>> cutByteIndexes = new ArrayList<ArrayList<Integer>>();
-        for (String cutByte : cutBytes) {
-            int startIndex = 0;
-            int endIndex = cutByte.length() - 1;
-            if (cutByte.startsWith("-")) {
-                endIndex = Integer.parseInt(cutByte.substring(1));
-            } else if (cutByte.endsWith("-")) {
-                startIndex = Integer.parseInt(cutByte.substring(0, cutByte.length() - 1)) - 1;
+        /* 
+        This for loop validates each range given and extracts start/end indexes from them
+        It puts them in an ArrayList of int[] where each int[] holds the start and end indexes
+        */
+        for (String range : cutRanges) {
+            Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
+            if (!valid) {
+                throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
             } else {
-               ArrayList<String> temp = new ArrayList<String>(Arrays.asList(cutByte.split("-")));
-                if (temp.size() > 2) {
-                    throw new RuntimeException("cut: wrong argument " + cutByte);
+                int startIndex = 0;
+                int endIndex = -1;
+
+                if (range.endsWith("-")) {
+                    startIndex = Integer.parseInt(range.replace("-", "")) - 1;
+                } else if (range.startsWith("-")) {
+                    endIndex = Integer.parseInt(range.replace("-", ""));
+                } else if (range.contains("-")) {
+                    String[] indexParts = range.split("-");
+                    startIndex = Integer.parseInt(indexParts[0]) - 1;
+                    endIndex = Integer.parseInt(indexParts[1]);
                 } else {
-                    // n and n-n cases
-                    startIndex = Integer.parseInt(temp.get(0));
-                    endIndex = Integer.parseInt(temp.get(temp.size() - 1));
-                    if (startIndex == endIndex) {
-                        endIndex++;
-                    }
+                    startIndex = Integer.parseInt(range);
+                    endIndex = startIndex + 1;
                 }
+
+                indexTuples.add(new int[]{startIndex, endIndex});
             }
-            cutByteIndexes.add(new ArrayList<Integer>(Arrays.asList(startIndex, endIndex)));
         }
 
-        cutArg = appArgs.get(2);
+        /*
+        Each line in the file is iterated and the chars are extracted according to the index int[]
+        */
+        String cutArg = appArgs.get(2);
         File cutFile = new File(Jsh.currentDirectory + File.separator + cutArg);
         if (cutFile.exists()) {
             Charset encoding = StandardCharsets.UTF_8;
@@ -66,11 +73,11 @@ public class Cut implements Application {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    for (ArrayList<Integer> indexes : cutByteIndexes) {
+                    for (int[] indexes : indexTuples) {
                         try {
-                            writer.write(line.substring(indexes.get(0), indexes.get(1)));
+                            writer.write(line.substring(indexes[0], indexes[1]));
                         } catch (ArrayIndexOutOfBoundsException e) {
-                            writer.write(line.substring(indexes.get(0)));
+                            writer.write(line.substring(indexes[0]));
                         }
                     }
                     writer.write(System.getProperty("line.separator"));
