@@ -29,7 +29,7 @@ public class Cut implements Application {
             throw new RuntimeException("cut: wrong argument " + appArgs.get(0));
         }
 
-        String[] cutRanges = appArgs.get(1).split(",");
+        String[] cutRanges = appArgs.get(1).split("[,]+");
         ArrayList<int[]> indexTuples = new ArrayList<int[]>();
 
         if (cutRanges.length == 0) {
@@ -39,13 +39,6 @@ public class Cut implements Application {
         /* 
         This for loop validates each range given and extracts start/end indexes from them
         It puts them in an ArrayList of int[] where each int[] holds the start and end indexes
-
-        Currently validated for:
-            ,,,,,,,
-            ,,,3,,,
-        Not validated for:
-            1,2,3,,
-            n0-n1 where n1 exceeds line length
         */
         for (String range : cutRanges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
@@ -85,7 +78,9 @@ public class Cut implements Application {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     for (int[] indexes : indexTuples) {
-                        if (indexes[1] == -1 || indexes[1] > line.length()) {
+                        if (indexes[0] > line.length()) {
+                            writer.write("");
+                        } else if (indexes[1] == -1 || indexes[1] > line.length()) {
                             writer.write(line.substring(indexes[0]));
                         } else {
                             writer.write(line.substring(indexes[0], indexes[1]));
