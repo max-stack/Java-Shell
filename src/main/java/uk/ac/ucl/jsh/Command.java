@@ -16,6 +16,8 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.stream.Stream;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -98,6 +100,9 @@ public class Command {
                     break;
                 case "grep":
                     GlobalRegExPrint.evalArgs(appArgs, writer);
+                    break;
+                case "find":
+                    Find.evalArgs(appArgs, writer);
                     break;
                 default:
                     throw new RuntimeException(appName + ": unknown application");
@@ -185,6 +190,50 @@ class Concatenate extends Command {
                     throw new RuntimeException("cat: file does not exist");
                 }
             }
+        }
+    }
+}
+
+class Find extends Command {
+    public static void evalArgs(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException{
+        boolean atleastOnePrinted = false;
+        int filePosition = 0;
+        String dir;
+        if(appArgs.isEmpty()){
+            throw new RuntimeException("find: missing arguments");
+        }
+        else if(appArgs.get(0).equals("-name")){
+            dir = currentDirectory;
+            filePosition = 1;
+        }
+        else {
+            if(!appArgs.get(1).equals("-name")){
+                throw new RuntimeException("find: missing -name argument");
+            }
+            dir = appArgs.get(0);
+            filePosition = 2;
+        }
+        final int finalFilePosition = filePosition;
+        try (Stream<Path> stream = Files.walk(Paths.get(dir))) {
+            stream.forEach(line -> {
+                try{
+                    String folder = line.toString().substring(line.toString().lastIndexOf("/")+1);
+                    if(folder.equals(appArgs.get(finalFilePosition))){
+                        String relativePath = line.toString().replaceFirst(dir, "");
+                        writer.write(relativePath);
+                        writer.write(System.getProperty("line.separator"));
+                        writer.flush();
+                    }
+                    
+                }
+                catch (IOException e)  {
+                        throw new RuntimeException("find: cannot find directory " + dir);
+                    }
+                }
+                );
+        }
+        catch (IOException e) {
+            throw new RuntimeException("find: cannot find directory " + dir);
         }
     }
 }
