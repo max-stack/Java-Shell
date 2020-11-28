@@ -65,6 +65,7 @@ public class Jsh {
                     tokens.addAll(globbingResult);
                 }
             }
+            
             String appName = tokens.get(0);
             ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
             Application app = ApplicationFactory.make(appName);
