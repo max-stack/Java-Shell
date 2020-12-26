@@ -34,13 +34,16 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 <<<<<<< HEAD
 =======
 
-
 //Shell.Java interface
 //Takes run(shell, args, input,output)
 //output stout then output = stdout
 //if pipe give output = outputstream but needs to be on seperate threads
 //
+<<<<<<< HEAD
 >>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
+=======
+
+>>>>>>> 33f1a45 (Starting point for new execution using CommandVisitor)
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
@@ -76,8 +79,11 @@ public class Jsh {
     public static void eval(String cmdline, OutputStream output) throws IOException {
 =======
     public static ExecutionPlan parse(String cmdline){
+<<<<<<< HEAD
 >>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
 
+=======
+>>>>>>> 33f1a45 (Starting point for new execution using CommandVisitor)
         CharStream parserInput = CharStreams.fromString(cmdline); 
         JshGrammarLexer lexer = new JshGrammarLexer(parserInput);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
@@ -102,7 +108,6 @@ public class Jsh {
                     }
 =======
         return visitor.visit(tree);
-
     }
 
     public static void eval(String cmdline) throws IOException{
@@ -158,9 +163,12 @@ public class Jsh {
             // pipedIn.read(test1);
             // String testString = new String(test1);
             // System.out.println(testString);
+<<<<<<< HEAD
 
 
 >>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
+=======
+>>>>>>> 33f1a45 (Starting point for new execution using CommandVisitor)
         }
 
        
@@ -206,8 +214,6 @@ public class Jsh {
         //     app.exec(appArgs, output);
         // }
     }
-
-
 
 
     public static void main(String[] args) {
