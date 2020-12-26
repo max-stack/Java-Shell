@@ -32,12 +32,12 @@ import uk.ac.ucl.jsh.app.ApplicationFactory;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 
-
 //Shell.Java interface
 //Takes run(shell, args, input,output)
 //output stout then output = stdout
 //if pipe give output = outputstream but needs to be on seperate threads
 //
+
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
@@ -70,7 +70,6 @@ public class Jsh {
     }
 
     public static ExecutionPlan parse(String cmdline){
-
         CharStream parserInput = CharStreams.fromString(cmdline); 
         JshGrammarLexer lexer = new JshGrammarLexer(parserInput);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
@@ -78,7 +77,6 @@ public class Jsh {
         ParseTree tree = parser.command();
         CommandVisitor visitor = new CommandVisitor();
         return visitor.visit(tree);
-
     }
 
     public static void eval(String cmdline) throws IOException{
@@ -124,12 +122,8 @@ public class Jsh {
             // pipedIn.read(test1);
             // String testString = new String(test1);
             // System.out.println(testString);
-
-
         }
     }
-
-
 
 
     public static void main(String[] args) {
