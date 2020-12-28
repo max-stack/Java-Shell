@@ -95,6 +95,7 @@ public class Jsh {
                     lastInput = null;
                     output = System.out;
                     continue;
+
                 }
 
                 if(command == ConnectionType.PIPE.toString()){
