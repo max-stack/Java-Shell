@@ -2,6 +2,10 @@ package uk.ac.ucl.jsh;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,7 +81,7 @@ public class Jsh {
                         String appName = tokens.get(0);
                         ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
                         Application app = ApplicationFactory.make(appName);
-                        app.exec(appArgs, output);
+                        app.exec(appArgs, null, output);
                     }
                 }
             }
@@ -85,8 +89,17 @@ public class Jsh {
                 ArrayList<String> tokens = tokenSplit(command);
                 String appName = tokens.get(0);
                 ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
-                Application app = ApplicationFactory.make(appName);
-                app.exec(appArgs, output);
+                final PipedInputStream in = new PipedInputStream();
+                final OutputStream out = new PipedOutputStream(in);
+                ExecutorService executor = Executors.newCachedThreadPool();
+                executor.execute(new RunCommand(appArgs, out, in));
+                System.out.println("Hello");
+                byte[] test1 = new byte[100];
+                in.read(test1);
+                String testString = new String(test1);
+                System.out.println(testString);
+                // Application app = ApplicationFactory.make(appName);
+                // app.exec(appArgs, null, output);
             }
         }
 
