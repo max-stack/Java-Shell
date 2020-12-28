@@ -30,7 +30,7 @@ public class RunCommand implements Runnable{
             if(out.getClass().getName().toString() == "java.io.PipedOutputStream"){
                 out.close();
             }
-        } catch (IOException e){
+        } catch(IOException e){
             e.printStackTrace();
         }
     }
