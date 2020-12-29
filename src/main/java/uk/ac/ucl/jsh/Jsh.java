@@ -84,7 +84,6 @@ public class Jsh {
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
         ExecutorService executor = Executors.newCachedThreadPool();
-        
         InputStream lastInput = null;
 
 
@@ -108,7 +107,6 @@ public class Jsh {
                 }
                 command = commands.poll();
             }
-           
             ArrayList<String> tokens = tokenSplit(command);
             ApplicationFactory.make(tokens.get(0));
             executor.execute(new RunCommand(tokens, output, input));
@@ -121,7 +119,7 @@ public class Jsh {
                 catch (InterruptedException e){
                     e.printStackTrace();
                 }
-                executor = Executors.newCachedThreadPool()
+                executor = Executors.newCachedThreadPool();
             }
 
 
