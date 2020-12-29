@@ -2,6 +2,7 @@ package uk.ac.ucl.jsh.app;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 class Find implements Application {
 
-    public void exec(ArrayList<String> appArgs, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
         OutputStreamWriter writer = new OutputStreamWriter(out);
         boolean atleastOnePrinted = false;
         int filePosition = 0;

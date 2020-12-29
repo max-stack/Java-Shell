@@ -2,12 +2,13 @@ package uk.ac.ucl.jsh.app;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class Echo implements Application {
 
-    public void exec(ArrayList<String> appArgs, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
         OutputStreamWriter writer = new OutputStreamWriter(out);
         boolean atLeastOnePrinted = false;
         for (String arg : appArgs) {
