@@ -86,7 +86,6 @@ public class Jsh {
         ExecutorService executor = Executors.newCachedThreadPool();
         InputStream lastInput = null;
 
-
         while(!commands.isEmpty()){
             InputStream input = lastInput;
             OutputStream output = System.out;
@@ -101,7 +100,7 @@ public class Jsh {
                 }
 
                 if(command == ConnectionType.PIPE.toString()){
-                    final PipedInputStream pipedIn = new PipedInputStream();
+                    PipedInputStream pipedIn = new PipedInputStream();
                     output = new PipedOutputStream(pipedIn);
                     lastInput = pipedIn;
                 }
@@ -110,8 +109,8 @@ public class Jsh {
             ArrayList<String> tokens = tokenSplit(command);
             ApplicationFactory.make(tokens.get(0));
             executor.execute(new RunCommand(tokens, output, input));
-
-            if((command == ConnectionType.SEQUENCE.toString()) || !(ConnectionType.connectionExists(command))){
+            
+            if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
                 executor.shutdown();
                 try{
                     executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -121,12 +120,10 @@ public class Jsh {
                 }
                 executor = Executors.newCachedThreadPool();
             }
-
-
-            //byte[] test1 = new byte[100];
-            //pipedIn.read(test1);
-            //String testString = new String(test1);
-            //System.out.println(testString);
+            // byte[] test1 = new byte[100];
+            // pipedIn.read(test1);
+            // String testString = new String(test1);
+            // System.out.println(testString);
 
 
         }
