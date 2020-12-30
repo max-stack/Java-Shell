@@ -20,7 +20,6 @@ import uk.ac.ucl.jsh.Jsh;
 public class Head implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         /*

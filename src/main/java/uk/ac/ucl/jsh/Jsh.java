@@ -138,6 +138,7 @@ public class Jsh {
                 command = commands.poll();
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
             else{
                 ArrayList<String> tokens = tokenSplit(command);
                 String appName = tokens.get(0);
@@ -146,6 +147,8 @@ public class Jsh {
                 app.exec(appArgs, output);
             }
 =======
+=======
+>>>>>>> 2d99439 (Adding input streams as parameters to applicaitions - work with the)
             ArrayList<String> tokens = tokenSplit(command);
             ApplicationFactory.make(tokens.get(0));
             executor.execute(new RunCommand(tokens, output, input));
@@ -159,6 +162,23 @@ public class Jsh {
                     e.printStackTrace();
                 }
                 executor = Executors.newCachedThreadPool();
+=======
+            else{
+                ArrayList<String> tokens = tokenSplit(command);
+                String appName = tokens.get(0);
+                ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
+                final PipedInputStream in = new PipedInputStream();
+                final OutputStream out = new PipedOutputStream(in);
+                ExecutorService executor = Executors.newCachedThreadPool();
+                executor.execute(new RunCommand(appName, appArgs, in, out));
+                System.out.println("Test:");
+                byte[] test1 = new byte[100];
+                in.read(test1);
+                String testString = new String(test1);
+                System.out.println(testString);
+                // Application app = ApplicationFactory.make(appName);
+                // app.exec(appArgs, null, output);
+>>>>>>> 96e244c (Adding input streams as parameters to applicaitions - work with the)
             }
             // byte[] test1 = new byte[100];
             // pipedIn.read(test1);

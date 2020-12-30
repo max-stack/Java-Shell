@@ -19,6 +19,8 @@ public class RunCommand implements Runnable{
         this.tokens = tokens;
         this.out = out;
         this.in = in;
+        this.out = out;
+        this.appName = appName;
     }
 
     public void run(){
@@ -27,7 +29,6 @@ public class RunCommand implements Runnable{
             ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
             Application app = ApplicationFactory.make(appName);
             app.exec(appArgs, in, out);
-            
             if(out.getClass().getName().toString() == "java.io.PipedOutputStream"){
                 out.close();
             }
