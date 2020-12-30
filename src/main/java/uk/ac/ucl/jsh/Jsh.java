@@ -2,11 +2,21 @@ package uk.ac.ucl.jsh;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Deque;
+import java.util.Deque;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,59 +29,108 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import uk.ac.ucl.jsh.app.Application;
 import uk.ac.ucl.jsh.app.ApplicationFactory;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
+
+
+
+//Shell.Java interface
+//Takes run(shell, args, input,output)
+//output stout then output = stdout
+//if pipe give output = outputstream but needs to be on seperate threads
+//
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
 
-    public static void eval(String cmdline, OutputStream output) throws IOException {
+    public static ArrayList<String> tokenSplit(String rawCommand) throws IOException{
+        String spaceRegex = "\"([^\"]*)\"|'([^']*)'|[^\\s]+";
+        ArrayList<String> tokens = new ArrayList<String>();
+        Pattern regex = Pattern.compile(spaceRegex);
+        Matcher regexMatcher = regex.matcher(rawCommand);
+        String nonQuote;
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null || regexMatcher.group(2) != null) {
+                String quoted = regexMatcher.group(0).trim();
+                tokens.add(quoted.substring(1,quoted.length()-1));
+            } else {
+                nonQuote = regexMatcher.group().trim();
+                ArrayList<String> globbingResult = new ArrayList<String>();
+                Path dir = Paths.get(currentDirectory);
+                DirectoryStream<Path> stream = Files.newDirectoryStream(dir, nonQuote);
+                for (Path entry : stream) {
+                    globbingResult.add(entry.getFileName().toString());
+                }
+                if (globbingResult.isEmpty()) {
+                    globbingResult.add(nonQuote);
+                }
+                tokens.addAll(globbingResult);
+            }
+        }
+        return tokens;
+    }
+
+    public static ExecutionPlan parse(String cmdline){
 
         CharStream parserInput = CharStreams.fromString(cmdline); 
         JshGrammarLexer lexer = new JshGrammarLexer(parserInput);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
         JshGrammarParser parser = new JshGrammarParser(tokenStream);
         ParseTree tree = parser.command();
-        ArrayList<String> rawCommands = new ArrayList<String>();
-        String lastSubcommand = "";
-        for (int i=0; i<tree.getChildCount(); i++) {
-            if (!tree.getChild(i).getText().equals(";")) {
-                lastSubcommand += tree.getChild(i).getText();
-            } else {
-                rawCommands.add(lastSubcommand);
-                lastSubcommand = "";
-            }
-        }
-        rawCommands.add(lastSubcommand);
-        for (String rawCommand : rawCommands) {
-            String spaceRegex = "[^\\s\"']+|\"([^\"]*)\"|'([^']*)'";
-            ArrayList<String> tokens = new ArrayList<String>();
-            Pattern regex = Pattern.compile(spaceRegex);
-            Matcher regexMatcher = regex.matcher(rawCommand);
-            String nonQuote;
-            while (regexMatcher.find()) {
-                if (regexMatcher.group(1) != null || regexMatcher.group(2) != null) {
-                    String quoted = regexMatcher.group(0).trim();
-                    tokens.add(quoted.substring(1,quoted.length()-1));
-                } else {
-                    nonQuote = regexMatcher.group().trim();
-                    ArrayList<String> globbingResult = new ArrayList<String>();
-                    Path dir = Paths.get(currentDirectory);
-                    DirectoryStream<Path> stream = Files.newDirectoryStream(dir, nonQuote);
-                    for (Path entry : stream) {
-                        globbingResult.add(entry.getFileName().toString());
-                    }
-                    if (globbingResult.isEmpty()) {
-                        globbingResult.add(nonQuote);
-                    }
-                    tokens.addAll(globbingResult);
+        CommandVisitor visitor = new CommandVisitor();
+        return visitor.visit(tree);
+
+    }
+
+    public static void eval(String cmdline) throws IOException{
+        Queue<String> commands = parse(cmdline).getCommandQueue();
+        ExecutorService executor = Executors.newCachedThreadPool();
+        InputStream lastInput = null;
+
+        while(!commands.isEmpty()){
+            InputStream input = lastInput;
+            OutputStream output = System.out;
+
+            String command = commands.poll();
+
+            if(ConnectionType.connectionExists(command)){
+                if(command == ConnectionType.SEQUENCE.toString()){
+                    lastInput = null;
+                    output = System.out;
+                    continue;
                 }
+
+                if(command == ConnectionType.PIPE.toString()){
+                    PipedInputStream pipedIn = new PipedInputStream();
+                    output = new PipedOutputStream(pipedIn);
+                    lastInput = pipedIn;
+                }
+                command = commands.poll();
             }
+            ArrayList<String> tokens = tokenSplit(command);
+            ApplicationFactory.make(tokens.get(0));
+            executor.execute(new RunCommand(tokens, output, input));
             
-            String appName = tokens.get(0);
-            ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
-            Application app = ApplicationFactory.make(appName);
-            app.exec(appArgs, output);
+            if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
+                executor.shutdown();
+                try{
+                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                }
+                catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+                executor = Executors.newCachedThreadPool();
+            }
+            // byte[] test1 = new byte[100];
+            // pipedIn.read(test1);
+            // String testString = new String(test1);
+            // System.out.println(testString);
+
+
         }
     }
+
+
+
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -83,7 +142,7 @@ public class Jsh {
                 System.out.println("jsh: " + args[0] + ": unexpected argument");
             }
             try {
-                eval(args[1], System.out);
+                eval(args[1]);
             } catch (Exception e) {
                 System.out.println("jsh: " + e.getMessage());
             }
@@ -95,7 +154,7 @@ public class Jsh {
                     System.out.print(prompt);
                     try {
                         String cmdline = input.nextLine();
-                        eval(cmdline, System.out);
+                        eval(cmdline);
                     } catch (Exception e) {
                         System.out.println("jsh: " + e.getMessage());
                     }

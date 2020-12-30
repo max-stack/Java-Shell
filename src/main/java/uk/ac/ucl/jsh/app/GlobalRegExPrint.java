@@ -3,6 +3,7 @@ package uk.ac.ucl.jsh.app;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class GlobalRegExPrint implements Application {
 
-    public void exec(ArrayList<String> appArgs, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
         OutputStreamWriter writer = new OutputStreamWriter(out);
         if (appArgs.size() < 2) {
             throw new RuntimeException("grep: wrong number of arguments");
