@@ -7,7 +7,10 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class Echo implements Application {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 96e244c (Adding input streams as parameters to applicaitions - work with the)
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
         OutputStreamWriter writer = new OutputStreamWriter(out);
         boolean atLeastOnePrinted = false;

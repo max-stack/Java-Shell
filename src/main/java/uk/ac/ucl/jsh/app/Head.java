@@ -6,7 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
+<<<<<<< HEAD
 import java.io.InputStreamReader;
+=======
+>>>>>>> 96e244c (Adding input streams as parameters to applicaitions - work with the)
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +23,6 @@ import uk.ac.ucl.jsh.Jsh;
 public class Head implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         /*
