@@ -127,7 +127,11 @@ public class Jsh {
 
                 if(command == ConnectionType.REDIRECT_FROM.toString()){
                     command = commands.poll();
+<<<<<<< HEAD
                     File readFile;
+=======
+                    File readFile = new File(commands.peek().trim());
+>>>>>>> 2f16b960b01e4fcd0a5dbe4f88d4707e87b2e41c
                     while(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
                         commands.poll();
                         readFile = new File(commands.peek().trim());
@@ -136,7 +140,10 @@ public class Jsh {
                         }
                         commands.poll();
                     }
+<<<<<<< HEAD
                     readFile = new File(commands.poll().trim());
+=======
+>>>>>>> 2f16b960b01e4fcd0a5dbe4f88d4707e87b2e41c
                     input = new FileInputStream(readFile);
 
                 }
