@@ -4,7 +4,8 @@ enum ConnectionType  {
     PIPE ("|"),
     SEQUENCE (";"),
     REDIRECT_TO (">"),
-    REDIRECT_FROM ("<");
+    REDIRECT_FROM ("<"),
+    END_COMMAND("£");
 
     private final String name;
 
