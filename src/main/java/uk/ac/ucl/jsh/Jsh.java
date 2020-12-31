@@ -5,6 +5,13 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +28,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.FileWriter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -112,6 +120,7 @@ public class Jsh {
 
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
+        System.out.println(commands);
         ExecutorService executor = Executors.newCachedThreadPool();
         InputStream lastInput = null;
 
@@ -126,17 +135,54 @@ public class Jsh {
                     lastInput = null;
                     output = System.out;
                     continue;
+                }
 
+                if(command == ConnectionType.REDIRECT_TO.toString()){
+                    command = commands.poll();
+                    while(commands.peek() == ConnectionType.REDIRECT_TO.toString()){
+                        commands.poll();
+                        File writeFile = new File (commands.peek().trim());
+                        if(writeFile.exists()){
+                            PrintWriter writer = new PrintWriter(commands.peek().trim());
+                            writer.print("");
+                            writer.close();
+                        }
+                        else{
+                            writeFile.createNewFile();
+                        }
+                        commands.poll();
+                    }
+                    output = new FileOutputStream(commands.peek().trim(), true);
+                    commands.poll();
+                }
+
+                if(command == ConnectionType.REDIRECT_FROM.toString()){
+                    command = commands.poll();
+                    File readFile = new File(commands.peek().trim());
+                    while(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
+                        commands.poll();
+                        readFile = new File(commands.peek().trim());
+                        if(!readFile.exists()){
+                            throw new IOException("File " + readFile.getName() + " Does not exist.");
+                        }
+                        commands.poll();
+                    }
+                    input = new FileInputStream(readFile);
                 }
 
                 if(command == ConnectionType.PIPE.toString()){
                     PipedInputStream pipedIn = new PipedInputStream();
                     output = new PipedOutputStream(pipedIn);
                     lastInput = pipedIn;
+<<<<<<< HEAD
 >>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
+=======
+                    command = commands.poll();
+>>>>>>> a01b8a3 (Adding redirect to and from commands)
                 }
-                command = commands.poll();
+                
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             else{
@@ -149,6 +195,9 @@ public class Jsh {
 =======
 =======
 >>>>>>> 2d99439 (Adding input streams as parameters to applicaitions - work with the)
+=======
+
+>>>>>>> a01b8a3 (Adding redirect to and from commands)
             ArrayList<String> tokens = tokenSplit(command);
             ApplicationFactory.make(tokens.get(0));
             executor.execute(new RunCommand(tokens, output, input));
@@ -162,23 +211,6 @@ public class Jsh {
                     e.printStackTrace();
                 }
                 executor = Executors.newCachedThreadPool();
-=======
-            else{
-                ArrayList<String> tokens = tokenSplit(command);
-                String appName = tokens.get(0);
-                ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
-                final PipedInputStream in = new PipedInputStream();
-                final OutputStream out = new PipedOutputStream(in);
-                ExecutorService executor = Executors.newCachedThreadPool();
-                executor.execute(new RunCommand(appName, appArgs, in, out));
-                System.out.println("Test:");
-                byte[] test1 = new byte[100];
-                in.read(test1);
-                String testString = new String(test1);
-                System.out.println(testString);
-                // Application app = ApplicationFactory.make(appName);
-                // app.exec(appArgs, null, output);
->>>>>>> 96e244c (Adding input streams as parameters to applicaitions - work with the)
             }
             // byte[] test1 = new byte[100];
             // pipedIn.read(test1);

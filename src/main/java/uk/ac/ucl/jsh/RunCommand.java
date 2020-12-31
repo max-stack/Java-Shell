@@ -19,8 +19,6 @@ public class RunCommand implements Runnable{
         this.tokens = tokens;
         this.out = out;
         this.in = in;
-        this.out = out;
-        this.appName = appName;
     }
 
     public void run(){
