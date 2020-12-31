@@ -6,10 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
-<<<<<<< HEAD
 import java.io.InputStreamReader;
-=======
->>>>>>> 96e244c (Adding input streams as parameters to applicaitions - work with the)
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
