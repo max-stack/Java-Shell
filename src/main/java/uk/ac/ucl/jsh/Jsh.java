@@ -2,6 +2,12 @@ package uk.ac.ucl.jsh;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +31,16 @@ import uk.ac.ucl.jsh.app.ApplicationFactory;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+<<<<<<< HEAD
+=======
+
+
+//Shell.Java interface
+//Takes run(shell, args, input,output)
+//output stout then output = stdout
+//if pipe give output = outputstream but needs to be on seperate threads
+//
+>>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
@@ -56,7 +72,11 @@ public class Jsh {
         return tokens;
     }
 
+<<<<<<< HEAD
     public static void eval(String cmdline, OutputStream output) throws IOException {
+=======
+    public static ExecutionPlan parse(String cmdline){
+>>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
 
         CharStream parserInput = CharStreams.fromString(cmdline); 
         JshGrammarLexer lexer = new JshGrammarLexer(parserInput);
@@ -64,6 +84,7 @@ public class Jsh {
         JshGrammarParser parser = new JshGrammarParser(tokenStream);
         ParseTree tree = parser.command();
         CommandVisitor visitor = new CommandVisitor();
+<<<<<<< HEAD
         System.out.println(visitor.visit(tree).getCommandQueue());
         Queue<String> commands = visitor.visit(tree).getCommandQueue();
         LinkedList<String> pipeCommands = new LinkedList<>();
@@ -79,8 +100,38 @@ public class Jsh {
                         Application app = ApplicationFactory.make(appName);
                         app.exec(appArgs, output);
                     }
+=======
+        return visitor.visit(tree);
+
+    }
+
+    public static void eval(String cmdline) throws IOException{
+        Queue<String> commands = parse(cmdline).getCommandQueue();
+        ExecutorService executor = Executors.newCachedThreadPool();
+        InputStream lastInput = null;
+
+        while(!commands.isEmpty()){
+            InputStream input = lastInput;
+            OutputStream output = System.out;
+
+            String command = commands.poll();
+
+            if(ConnectionType.connectionExists(command)){
+                if(command == ConnectionType.SEQUENCE.toString()){
+                    lastInput = null;
+                    output = System.out;
+                    continue;
                 }
+
+                if(command == ConnectionType.PIPE.toString()){
+                    PipedInputStream pipedIn = new PipedInputStream();
+                    output = new PipedOutputStream(pipedIn);
+                    lastInput = pipedIn;
+>>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
+                }
+                command = commands.poll();
             }
+<<<<<<< HEAD
             else{
                 ArrayList<String> tokens = tokenSplit(command);
                 String appName = tokens.get(0);
@@ -88,6 +139,28 @@ public class Jsh {
                 Application app = ApplicationFactory.make(appName);
                 app.exec(appArgs, output);
             }
+=======
+            ArrayList<String> tokens = tokenSplit(command);
+            ApplicationFactory.make(tokens.get(0));
+            executor.execute(new RunCommand(tokens, output, input));
+            
+            if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
+                executor.shutdown();
+                try{
+                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                }
+                catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+                executor = Executors.newCachedThreadPool();
+            }
+            // byte[] test1 = new byte[100];
+            // pipedIn.read(test1);
+            // String testString = new String(test1);
+            // System.out.println(testString);
+
+
+>>>>>>> 1165f9e8d4dec7c9bfd8565e196699bf780a9f0a
         }
 
        
@@ -134,6 +207,9 @@ public class Jsh {
         // }
     }
 
+
+
+
     public static void main(String[] args) {
         if (args.length > 0) {
             if (args.length != 2) {
@@ -144,7 +220,7 @@ public class Jsh {
                 System.out.println("jsh: " + args[0] + ": unexpected argument");
             }
             try {
-                eval(args[1], System.out);
+                eval(args[1]);
             } catch (Exception e) {
                 System.out.println("jsh: " + e.getMessage());
             }
@@ -156,7 +232,7 @@ public class Jsh {
                     System.out.print(prompt);
                     try {
                         String cmdline = input.nextLine();
-                        eval(cmdline, System.out);
+                        eval(cmdline);
                     } catch (Exception e) {
                         System.out.println("jsh: " + e.getMessage());
                     }
