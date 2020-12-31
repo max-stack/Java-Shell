@@ -137,6 +137,7 @@ public class Jsh {
                         commands.poll();
                     }
                     input = new FileInputStream(readFile);
+
                 }
 
                 if(command == ConnectionType.PIPE.toString()){

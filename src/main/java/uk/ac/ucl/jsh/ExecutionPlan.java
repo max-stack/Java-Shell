@@ -56,7 +56,11 @@ class ExecutionPlan{
             subCommands.clear();
             commands.addAll(joinPlan.getCommandQueue());
         }
+<<<<<<< HEAD
         else if(topElement == ConnectionType.PIPE.toString() ||
+=======
+        else if(topElement == ConnectionType.PIPE.toString() || 
+>>>>>>> ff8a819fb563fcdb246ba49a44d2a3c173d3a449
                 topElement == ConnectionType.REDIRECT_FROM.toString() ||
                 topElement == ConnectionType.REDIRECT_TO.toString()){
             commands.addAll(joinPlan.getCommandQueue());

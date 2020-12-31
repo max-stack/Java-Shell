@@ -12,7 +12,6 @@ atomicCommand : (NONSPECIAL | DOUBLEQUOTED | SINGLEQUOTED)+;
  * Lexer Rules
  */
 
-
 NONSPECIAL : ~[;|<>]+;
 SEPARATOR : ';' | '|' | '>' | '<';
 DOUBLEQUOTED : '"' (~'"')* '"';
