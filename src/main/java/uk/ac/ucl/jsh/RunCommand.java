@@ -26,7 +26,11 @@ public class RunCommand implements Runnable{
             String appName = tokens.get(0);
             ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
             Application app = ApplicationFactory.make(appName);
-            app.exec(appArgs, out);
+            app.exec(appArgs, in, out);
+            
+            if(out.getClass().getName().toString() == "java.io.PipedOutputStream"){
+                out.close();
+            }
         } catch (IOException e){
             e.printStackTrace();
         }
