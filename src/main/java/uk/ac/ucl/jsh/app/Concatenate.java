@@ -1,8 +1,11 @@
 package uk.ac.ucl.jsh.app;
 
+import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -17,11 +20,30 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Concatenate implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+
         OutputStreamWriter writer = new OutputStreamWriter(out);
+
         if (appArgs.isEmpty()) {
-            throw new RuntimeException("cat: missing arguments");
+            
+            final int bufferSize = 1024 * 1024;
+            final char[] buffer = new char[bufferSize];
+            final StringBuilder pipeStr = new StringBuilder();
+            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
+            int charsRead;
+            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
+            pipeStr.append(buffer, 0, charsRead);
+            }
+            String[] catPipe = pipeStr.toString().split("\n");
+
+            for (String line : catPipe) {
+                writer.write(line);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+            }
+
         } else {
+
             for (String arg : appArgs) {
                 Charset encoding = StandardCharsets.UTF_8;
                 File currFile = new File(Jsh.currentDirectory + File.separator + arg);
@@ -41,6 +63,7 @@ public class Concatenate implements Application {
                     throw new RuntimeException("cat: file does not exist");
                 }
             }
+
         }
     
     }
