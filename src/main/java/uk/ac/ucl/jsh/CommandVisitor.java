@@ -19,6 +19,8 @@ public class CommandVisitor extends AbstractParseTreeVisitor<ExecutionPlan> {
                 return new ExecutionPlan(ConnectionType.REDIRECT_TO);
             case "<":
                 return new ExecutionPlan(ConnectionType.REDIRECT_FROM);
+            case "`":
+                return new ExecutionPlan(ConnectionType.SUBSTITUTION);
             default:
                 throw new RuntimeException("Something is wrong with the grammar.");
         }
