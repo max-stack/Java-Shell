@@ -54,7 +54,7 @@ class ExecutionPlan {
         //     default:
         //         subCommands.addAll(joinPlan.getCommandQueue());
         // }
-        if (topElement == ConnectionType.SEQUENCE.toString()) {
+        if(topElement == ConnectionType.SEQUENCE.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
             commands.addAll(joinPlan.getCommandQueue());
@@ -66,12 +66,12 @@ class ExecutionPlan {
             commands.addAll(subCommands);
             subCommands.clear();
         }
-        else if (topElement == ConnectionType.SUBSTITUTION.toString()) {
-            if (substitutionCommand == null) {
+        else if(topElement == ConnectionType.SUBSTITUTION.toString()){
+            if(substitutionCommand == null){
                 substitutionCommand = subCommands.remove();
                 commands.addAll(joinPlan.getCommandQueue());
             }
-            else {
+            else{
                 commands.addAll(subCommands);
                 subCommands.clear();
                 commands.addAll(joinPlan.getCommandQueue());
@@ -79,7 +79,7 @@ class ExecutionPlan {
                 substitutionCommand = null;
             }
         }
-        else if (topElement == ConnectionType.END_COMMAND.toString()) {
+        else if(topElement == ConnectionType.END_COMMAND.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
         }
