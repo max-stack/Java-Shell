@@ -167,9 +167,7 @@ public class Jsh {
                     lastInput = pipedIn;
                     command = commands.poll();
                 }
-                
             }
-
             ArrayList<String> tokens = tokenSplit(command);
             ApplicationFactory.make(tokens.get(0));
             executor.execute(new RunCommand(tokens, output, input));
