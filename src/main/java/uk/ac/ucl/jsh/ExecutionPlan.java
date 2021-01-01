@@ -50,8 +50,7 @@ class ExecutionPlan{
         //     default:
         //         subCommands.addAll(joinPlan.getCommandQueue());
         // }
-
-        if(topElement == ConnectionType.SEQUENCE.toString()){
+        if(topElement == ConnectionType.SEQUENCE.toString() || topElement == ConnectionType.SUBSTITUTION.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
             commands.addAll(joinPlan.getCommandQueue());
