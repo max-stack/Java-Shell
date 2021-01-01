@@ -6,7 +6,7 @@ import re
 
 class TestJSH(unittest.TestCase):
 
-    JSH_IMAGE = "jsh-test"
+    JSH_IMAGE = "jsh"
     TEST_VOLUME = "jsh-system-test-volume"
     TEST_IMAGE = "jsh-system-test"
     TEST_DIR = "/system-test"
