@@ -16,24 +16,24 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import uk.ac.ucl.jsh.Jsh;
 
 public class GlobalRegExPrint implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        /*
-        if (appArgs.size() < 2) {
-            throw new RuntimeException("grep: wrong number of arguments");
+        Pattern grepPattern;
+        try {
+            grepPattern = Pattern.compile(appArgs.get(0));
+        } catch (PatternSyntaxException e) {
+            throw new RuntimeException("grep: wrong pattern syntax " + appArgs.get(0));
         }
-        */
-
-        Pattern grepPattern = Pattern.compile(appArgs.get(0));
+        
         int numOfFiles = appArgs.size() - 1;
-        if (numOfFiles == 0) {
+        if (numOfFiles == 0) { // Take InputStream
 
             final int bufferSize = 1024 * 1024;
             final char[] buffer = new char[bufferSize];
@@ -54,7 +54,7 @@ public class GlobalRegExPrint implements Application {
                 }
             }
 
-        } else {
+        } else { // Use file path(s)
 
             Path filePath;
             Path[] filePathArray = new Path[numOfFiles];
