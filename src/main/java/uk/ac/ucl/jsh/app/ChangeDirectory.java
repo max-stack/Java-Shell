@@ -10,7 +10,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class ChangeDirectory implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
 
         if (appArgs.isEmpty()) {
             throw new RuntimeException("cd: missing argument");

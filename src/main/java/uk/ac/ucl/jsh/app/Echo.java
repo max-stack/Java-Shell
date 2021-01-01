@@ -10,6 +10,7 @@ public class Echo implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
         OutputStreamWriter writer = new OutputStreamWriter(out);
+        
         boolean atLeastOnePrinted = false;
         for (String arg : appArgs) {
             writer.write(arg);
@@ -21,7 +22,6 @@ public class Echo implements Application {
             writer.write(System.getProperty("line.separator"));
             writer.flush();
         }
-    
     }
 
 }
