@@ -25,17 +25,15 @@ public class Cut implements Application {
 
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        /*
         if (appArgs.isEmpty()) {
             throw new RuntimeException("cut: missing arguments");
         }
-        if (appArgs.size() != 3) {
+        if (appArgs.size() != 3 && appArgs.size() != 2) {
             throw new RuntimeException("cut: wrong arguments");
         }
         if (!appArgs.get(0).equals("-b")) {
             throw new RuntimeException("cut: wrong argument " + appArgs.get(0));
         }
-        */
 
         String[] cutRanges = appArgs.get(1).split("[,]+");
         ArrayList<int[]> indexTuples = new ArrayList<int[]>();
@@ -44,10 +42,14 @@ public class Cut implements Application {
             throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
         }
 
-        /* 
+        /*
         This for loop validates each range given and extracts start/end indexes from them
         It puts them in an ArrayList of int[] where each int[] holds the start and end indexes
         */
+        ArrayList<int[]> startOverlaps = new ArrayList<int[]>();
+        ArrayList<int[]> endOverlaps = new ArrayList<int[]>();
+        int count = 0;
+
         for (String range : cutRanges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
             if (!valid || range.isEmpty()) {
@@ -58,8 +60,10 @@ public class Cut implements Application {
 
                 if (range.endsWith("-")) {
                     startIndex = Integer.parseInt(range.replace("-", "")) - 1;
+                    endOverlaps.add(new int[]{startIndex, count});
                 } else if (range.startsWith("-")) {
                     endIndex = Integer.parseInt(range.replace("-", ""));
+                    startOverlaps.add(new int[]{endIndex, count});
                 } else if (range.contains("-")) {
                     String[] indexParts = range.split("-");
                     startIndex = Integer.parseInt(indexParts[0]) - 1;
@@ -74,8 +78,22 @@ public class Cut implements Application {
                 }
 
                 indexTuples.add(new int[]{startIndex, endIndex});
+                count++;
             }
         }
+
+        /*/ Check for overlaps e.g. 3-,4-
+        int boundary = -1;
+        int indexToKeep = -1;
+        for (int[] overlap : startOverlaps) {
+            if (overlap[0] > boundary) {
+                boundary = overlap[0];
+                indexToKeep = overlap[1];
+            }
+        }
+        for (int[] overlap : endOverlaps) {
+
+        }*/
         
         if (appArgs.size() == 2) {
 
@@ -104,6 +122,7 @@ public class Cut implements Application {
             }
 
         } else if (appArgs.size() == 3) {
+
             String cutArg = appArgs.get(2);
 
             File cutFile = new File(Jsh.currentDirectory + File.separator + cutArg);
