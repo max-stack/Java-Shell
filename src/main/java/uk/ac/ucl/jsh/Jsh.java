@@ -5,6 +5,13 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +28,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.FileWriter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -32,12 +40,12 @@ import uk.ac.ucl.jsh.app.ApplicationFactory;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 
-
 //Shell.Java interface
 //Takes run(shell, args, input,output)
 //output stout then output = stdout
 //if pipe give output = outputstream but needs to be on seperate threads
 //
+
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
@@ -70,7 +78,6 @@ public class Jsh {
     }
 
     public static ExecutionPlan parse(String cmdline){
-
         CharStream parserInput = CharStreams.fromString(cmdline); 
         JshGrammarLexer lexer = new JshGrammarLexer(parserInput);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
@@ -78,11 +85,23 @@ public class Jsh {
         ParseTree tree = parser.command();
         CommandVisitor visitor = new CommandVisitor();
         return visitor.visit(tree);
+    }
 
+    private static File creatRedirectFile(String filePath){
+        File returnFile;
+        char slash = '/';
+        if(filePath.charAt(0) == slash){
+            returnFile = new File(filePath);
+        } 
+        else{
+            returnFile = new File(currentDirectory + "/" + filePath);
+        }
+        return returnFile;
     }
 
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
+        System.out.println(commands);
         ExecutorService executor = Executors.newCachedThreadPool();
         InputStream lastInput = null;
 
@@ -99,12 +118,55 @@ public class Jsh {
                     continue;
                 }
 
+                if(command == ConnectionType.REDIRECT_TO.toString()){
+                    command = commands.poll();
+                    File writeFile;
+                    String filePath;
+                    while(commands.peek() == ConnectionType.REDIRECT_TO.toString()){
+                        commands.poll();
+                        filePath = commands.poll().trim();
+                        writeFile = creatRedirectFile(filePath);
+
+                        if(writeFile.exists()){
+                            PrintWriter writer = new PrintWriter(filePath);
+                            writer.print("");
+                            writer.close();
+                        }
+                        else{
+                            writeFile.getParentFile().mkdir();
+                            writeFile.createNewFile();
+                        }
+                    }
+                    filePath = commands.poll().trim();
+                    writeFile = creatRedirectFile(filePath);
+                    writeFile.getParentFile().mkdir();
+                    output = new FileOutputStream(writeFile, true);
+                }
+
+                if(command == ConnectionType.REDIRECT_FROM.toString()){
+                    command = commands.poll();
+                    File readFile;
+                    String filePath;
+                    while(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
+                        commands.poll();
+                        filePath = commands.poll().trim();
+                        readFile = creatRedirectFile(filePath);
+                        if(!readFile.exists()){
+                            throw new IOException("File " + readFile.getName() + " Does not exist.");
+                        }
+                    }
+                    filePath = commands.poll().trim();
+                    readFile = creatRedirectFile(filePath);
+                    input = new FileInputStream(readFile);
+
+                }
+
                 if(command == ConnectionType.PIPE.toString()){
                     PipedInputStream pipedIn = new PipedInputStream();
                     output = new PipedOutputStream(pipedIn);
                     lastInput = pipedIn;
+                    command = commands.poll();
                 }
-                command = commands.poll();
             }
             ArrayList<String> tokens = tokenSplit(command);
             ApplicationFactory.make(tokens.get(0));
@@ -124,12 +186,8 @@ public class Jsh {
             // pipedIn.read(test1);
             // String testString = new String(test1);
             // System.out.println(testString);
-
-
         }
     }
-
-
 
 
     public static void main(String[] args) {

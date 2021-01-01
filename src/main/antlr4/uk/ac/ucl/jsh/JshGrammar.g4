@@ -15,4 +15,4 @@ atomicCommand : (NONSPECIAL | DOUBLEQUOTED | SINGLEQUOTED)+;
 NONSPECIAL : ~[;|<>`]+;
 SEPARATOR : ';' | '|' | '>' | '<' | '`';
 DOUBLEQUOTED : '"' (~'"')* '"';
-SINGLEQUOTED : '\'' (~'\'')* '\'';
+SINGLEQUOTED : '\'' (~'\'')* '\''; 
