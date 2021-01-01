@@ -5,7 +5,8 @@ enum ConnectionType  {
     SEQUENCE (";"),
     REDIRECT_TO (">"),
     REDIRECT_FROM ("<"),
-    END_COMMAND("£");
+    END_COMMAND("£"),
+    SUBSTITUTION("`");
 
     private final String name;
 
