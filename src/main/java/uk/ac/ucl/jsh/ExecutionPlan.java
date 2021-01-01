@@ -8,6 +8,7 @@ class ExecutionPlan{
     Queue<String> commands = new LinkedList<>();
     LinkedList<String> subCommands = new LinkedList<>();
     boolean prevTerminal = false;
+    String substitutionCommand = null;
 
     public ExecutionPlan(String[] args){
         for(String arg : args){
@@ -50,7 +51,6 @@ class ExecutionPlan{
         //     default:
         //         subCommands.addAll(joinPlan.getCommandQueue());
         // }
-
         if(topElement == ConnectionType.SEQUENCE.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
@@ -62,6 +62,19 @@ class ExecutionPlan{
             commands.addAll(joinPlan.getCommandQueue());
             commands.addAll(subCommands);
             subCommands.clear();
+        }
+        else if(topElement == ConnectionType.SUBSTITUTION.toString()){
+            if(substitutionCommand == null){
+                substitutionCommand = subCommands.remove();
+                commands.addAll(joinPlan.getCommandQueue());
+            }
+            else{
+                commands.addAll(subCommands);
+                subCommands.clear();
+                commands.addAll(joinPlan.getCommandQueue());
+                commands.add(substitutionCommand);
+                substitutionCommand = null;
+            }
         }
         else if(topElement == ConnectionType.END_COMMAND.toString()){
             commands.addAll(subCommands);
