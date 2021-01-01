@@ -81,6 +81,7 @@ public class Cut implements Application {
                 count++;
             }
         }
+        
 
         /*/ Check for overlaps e.g. 3-,4-
         int boundary = -1;
@@ -122,7 +123,6 @@ public class Cut implements Application {
             }
 
         } else if (appArgs.size() == 3) {
-
             String cutArg = appArgs.get(2);
 
             File cutFile = new File(Jsh.currentDirectory + File.separator + cutArg);
