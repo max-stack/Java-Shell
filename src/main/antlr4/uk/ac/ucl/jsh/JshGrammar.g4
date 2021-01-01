@@ -4,7 +4,7 @@ grammar JshGrammar;
  * Parser Rules
  */
 
-command : atomicCommand (SEPARATOR atomicCommand)*;
+command : WHITESPACE* | atomicCommand (SEPARATOR atomicCommand)* | (atomicCommand SEPARATOR)+;
 
 atomicCommand : (NONSPECIAL | DOUBLEQUOTED | SINGLEQUOTED)+;
 
@@ -12,7 +12,7 @@ atomicCommand : (NONSPECIAL | DOUBLEQUOTED | SINGLEQUOTED)+;
  * Lexer Rules
  */
 
-NONSPECIAL : ~[;|<>]+;
-SEPARATOR : ';' | '|' | '>' | '<';
+NONSPECIAL : ~[;|<>`]+;
+SEPARATOR : ';' | '|' | '>' | '<' | '`';
 DOUBLEQUOTED : '"' (~'"')* '"';
 SINGLEQUOTED : '\'' (~'\'')* '\'';
