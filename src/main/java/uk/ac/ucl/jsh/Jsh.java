@@ -87,6 +87,18 @@ public class Jsh {
         return visitor.visit(tree);
     }
 
+    private static File creatRedirectFile(String filePath){
+        File returnFile;
+        char slash = '/';
+        if(filePath.charAt(0) == slash){
+            returnFile = new File(filePath);
+        } 
+        else{
+            returnFile = new File(currentDirectory + "/" + filePath);
+        }
+        return returnFile;
+    }
+
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
         System.out.println(commands);
@@ -108,42 +120,43 @@ public class Jsh {
 
                 if(command == ConnectionType.REDIRECT_TO.toString()){
                     command = commands.poll();
+                    File writeFile;
+                    String filePath;
                     while(commands.peek() == ConnectionType.REDIRECT_TO.toString()){
                         commands.poll();
-                        File writeFile = new File (commands.peek().trim());
+                        filePath = commands.poll().trim();
+                        writeFile = creatRedirectFile(filePath);
+
                         if(writeFile.exists()){
-                            PrintWriter writer = new PrintWriter(commands.peek().trim());
+                            PrintWriter writer = new PrintWriter(filePath);
                             writer.print("");
                             writer.close();
                         }
                         else{
+                            writeFile.getParentFile().mkdir();
                             writeFile.createNewFile();
                         }
-                        commands.poll();
                     }
-                    output = new FileOutputStream(commands.peek().trim(), true);
-                    commands.poll();
+                    filePath = commands.poll().trim();
+                    writeFile = creatRedirectFile(filePath);
+                    writeFile.getParentFile().mkdir();
+                    output = new FileOutputStream(writeFile, true);
                 }
 
                 if(command == ConnectionType.REDIRECT_FROM.toString()){
                     command = commands.poll();
-<<<<<<< HEAD
                     File readFile;
-=======
-                    File readFile = new File(commands.peek().trim());
->>>>>>> 2f16b960b01e4fcd0a5dbe4f88d4707e87b2e41c
+                    String filePath;
                     while(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
                         commands.poll();
-                        readFile = new File(commands.peek().trim());
+                        filePath = commands.poll().trim();
+                        readFile = creatRedirectFile(filePath);
                         if(!readFile.exists()){
                             throw new IOException("File " + readFile.getName() + " Does not exist.");
                         }
-                        commands.poll();
                     }
-<<<<<<< HEAD
-                    readFile = new File(commands.poll().trim());
-=======
->>>>>>> 2f16b960b01e4fcd0a5dbe4f88d4707e87b2e41c
+                    filePath = commands.poll().trim();
+                    readFile = creatRedirectFile(filePath);
                     input = new FileInputStream(readFile);
 
                 }
