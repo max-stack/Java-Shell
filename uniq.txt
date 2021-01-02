@@ -1,9 +1,3 @@
-AA
-CBA
-AA
-Aa
-AA
-aa
-a
-b
-b
+AAA
+aaa
+AAA
