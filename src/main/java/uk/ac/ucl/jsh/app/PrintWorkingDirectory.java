@@ -10,7 +10,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class PrintWorkingDirectory implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         writer.write(Jsh.currentDirectory);
