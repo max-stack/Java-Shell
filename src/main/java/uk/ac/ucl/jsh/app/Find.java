@@ -18,24 +18,31 @@ import uk.ac.ucl.jsh.app.HelperMethods;
 
 
 class Find implements Application {
-    // find -name sort.txt
-    // find jsh -name sort.txt
+    
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
         int filePosition = 0;
         String dir;
-        if(appArgs.isEmpty()){
+        
+        if (appArgs.isEmpty()) {
             HelperMethods.outputError(unsafe, out, "find: missing arguments"); return;
         }
-        else if(appArgs.get(0).equals("-name")){
+        else if (appArgs.size() > 3) {
+            HelperMethods.outputError(unsafe, out, "find: too many arguments"); return;
+        } 
+        else if (appArgs.size() == 3 && !appArgs.get(1).equals("-name")) {
+            HelperMethods.outputError(unsafe, out, "find: missing -name argument"); return;
+        }
+        else if (appArgs.size() == 2 && !appArgs.get(0).equals("-name")) {
+            HelperMethods.outputError(unsafe, out, "find: missing -name argument"); return;
+        }
+
+        if (appArgs.get(0).equals("-name")) {
             dir = Jsh.currentDirectory;
             filePosition = 1;
         }
         else {
-            if(!appArgs.get(1).equals("-name")){
-                HelperMethods.outputError(unsafe, out, "find: missing -name argument"); return;
-            }
             dir = appArgs.get(0);
             filePosition = 2;
         }

@@ -20,10 +20,10 @@ public class Unique implements Application {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.size() > 2) {
-            HelperMethods.outputError(unsafe, out, "uniq: too many arguments");
+            HelperMethods.outputError(unsafe, out, "uniq: too many arguments"); return;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-i")) {
-            HelperMethods.outputError(unsafe, out, "uniq: wrong argument " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "uniq: wrong argument " + appArgs.get(0)); return;
         }
 
         boolean caseSensitive = true; 
@@ -42,17 +42,18 @@ public class Unique implements Application {
         String previousLine = "";
 
         if (uniqArg.isEmpty()) { // Take InputStream
-            
+            String adjustedLine = null;
+
             String[] pipeInput = HelperMethods.readInputStream(in);
             for (String line : pipeInput) {
                 if (!caseSensitive) {
-                    line = line.toLowerCase();
+                    adjustedLine = line.toLowerCase();
                 }
-                if (!line.equals(previousLine)) {
+                if (!adjustedLine.equals(previousLine)) {
                     writer.append(line);
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
-                    previousLine = line;
+                    previousLine = adjustedLine;
                 }
             }
 
@@ -60,19 +61,21 @@ public class Unique implements Application {
 
             String uniqFile = Jsh.currentDirectory + File.separator + uniqArg;
             String input = null;
+            String adjustedInput = null;
 
             Scanner sc = new Scanner(new File(uniqFile));
 
             while (sc.hasNextLine()) {
                 input = sc.nextLine();
+                adjustedInput = input;
                 if (!caseSensitive) {
-                    input = input.toLowerCase();
+                    adjustedInput = input.toLowerCase();
                 }
-                if (!(input.toLowerCase()).equals(previousLine.toLowerCase())) {
+                if (!adjustedInput.equals(previousLine)) {
                     writer.append(input);
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
-                    previousLine = input;
+                    previousLine = adjustedInput;
                 }
             }
 
