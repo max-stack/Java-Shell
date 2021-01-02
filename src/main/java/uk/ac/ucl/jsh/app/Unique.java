@@ -51,16 +51,18 @@ public class Unique implements Application {
                 pipeStr.append(buffer, 0, charsRead);
             }
             String[] uniqPipe = pipeStr.toString().split("\n");
-            
+            String adjustedLine = null;
+
             for (String line : uniqPipe) {
+                adjustedLine = line;
                 if (!caseSensitive) {
-                    line = line.toLowerCase();
+                    adjustedLine = line.toLowerCase();
                 }
-                if (!line.equals(previousLine)) {
+                if (!adjustedLine.equals(previousLine)) {
                     writer.append(line);
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
-                    previousLine = line;
+                    previousLine = adjustedLine;
                 }
             }
 
@@ -68,19 +70,21 @@ public class Unique implements Application {
 
             String uniqFile = Jsh.currentDirectory + File.separator + uniqArg;
             String input = null;
+            String adjustedInput = null;
 
             Scanner sc = new Scanner(new File(uniqFile));
 
             while (sc.hasNextLine()) {
                 input = sc.nextLine();
+                adjustedInput = input;
                 if (!caseSensitive) {
-                    input = input.toLowerCase();
+                    adjustedInput = input.toLowerCase();
                 }
-                if (!(input.toLowerCase()).equals(previousLine.toLowerCase())) {
+                if (!adjustedInput.equals(previousLine)) {
                     writer.append(input);
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
-                    previousLine = input;
+                    previousLine = adjustedInput;
                 }
             }
 
