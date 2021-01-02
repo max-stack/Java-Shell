@@ -24,17 +24,25 @@ class Find implements Application {
         boolean atleastOnePrinted = false;
         int filePosition = 0;
         String dir;
+        
         if(appArgs.isEmpty()){
             throw new RuntimeException("find: missing arguments");
         }
-        else if(appArgs.get(0).equals("-name")){
+        else if(appArgs.size() > 3){
+            throw new RuntimeException("find: too many arguments");
+        } 
+        else if(appArgs.size() == 3 && !appArgs.get(1).equals("-name")){
+            throw new RuntimeException("find: missing -name argument");
+        }
+        else if(appArgs.size() == 2 && !appArgs.get(0).equals("-name")){
+            throw new RuntimeException("find:missing -name argument");
+        }
+
+        if(appArgs.get(0).equals("-name")){
             dir = Jsh.currentDirectory;
             filePosition = 1;
         }
         else {
-            if(!appArgs.get(1).equals("-name")){
-                throw new RuntimeException("find: missing -name argument");
-            }
             dir = appArgs.get(0);
             filePosition = 2;
         }

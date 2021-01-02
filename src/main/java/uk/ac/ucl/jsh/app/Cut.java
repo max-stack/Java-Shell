@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,6 @@ import uk.ac.ucl.jsh.Jsh;
 public class Cut implements Application {
     
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.isEmpty()) {
@@ -36,67 +36,55 @@ public class Cut implements Application {
         }
 
         String[] cutRanges = appArgs.get(1).split("[,]+");
-        ArrayList<int[]> indexTuples = new ArrayList<int[]>();
+        ArrayList<Integer> indexes = new ArrayList<Integer>();
 
         if (cutRanges.length == 0) {
             throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
         }
-
-        /*
-        This for loop validates each range given and extracts start/end indexes from them
-        It puts them in an ArrayList of int[] where each int[] holds the start and end indexes
-        */
-        ArrayList<int[]> startOverlaps = new ArrayList<int[]>();
-        ArrayList<int[]> endOverlaps = new ArrayList<int[]>();
-        int count = 0;
+        
+        // Get boundary values first (e.g. -4, 8-)
+        Integer startBoundary = -1;
+        Integer endBoundary = Integer.MAX_VALUE;
 
         for (String range : cutRanges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
             if (!valid || range.isEmpty()) {
                 throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
             } else {
-                int startIndex = 0;
-                int endIndex = -1;
-
+                int value;
                 if (range.endsWith("-")) {
-                    startIndex = Integer.parseInt(range.replace("-", "")) - 1;
-                    endOverlaps.add(new int[]{startIndex, count});
+                    value = Integer.parseInt(range.replace("-", "")) - 1;
+                    if (value < endBoundary) { endBoundary = value; }
                 } else if (range.startsWith("-")) {
-                    endIndex = Integer.parseInt(range.replace("-", ""));
-                    startOverlaps.add(new int[]{endIndex, count});
-                } else if (range.contains("-")) {
-                    String[] indexParts = range.split("-");
-                    startIndex = Integer.parseInt(indexParts[0]) - 1;
-                    endIndex = Integer.parseInt(indexParts[1]);
-                } else {
-                    startIndex = Integer.parseInt(range) - 1;
-                    endIndex = startIndex + 1;
+                    value = Integer.parseInt(range.replace("-", ""));
+                    if (value > startBoundary) { startBoundary = value; }
                 }
+            }
+        }
 
-                if (endIndex != -1 && startIndex > endIndex) {
+        // Get individual and range values
+        for (String range : cutRanges) {
+            int l_value = 0;
+            int r_value = 0;
+            if (range.matches("^[0-9]+[-][0-9]+")) {
+                String[] indexParts = range.split("-");
+                l_value = Integer.parseInt(indexParts[0]) - 1;
+                r_value = Integer.parseInt(indexParts[1]);
+                if (l_value > r_value) {
                     throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
                 }
-
-                indexTuples.add(new int[]{startIndex, endIndex});
-                count++;
+            } else if (!range.contains("-")) {
+                l_value = Integer.parseInt(range) - 1;
+                r_value = l_value + 1;
+            }
+            for (int num = l_value; num < r_value; num++) {
+                if (!indexes.contains(num) && num > startBoundary && num < endBoundary) { indexes.add(num); }
             }
         }
-        
 
-        /*/ Check for overlaps e.g. 3-,4-
-        int boundary = -1;
-        int indexToKeep = -1;
-        for (int[] overlap : startOverlaps) {
-            if (overlap[0] > boundary) {
-                boundary = overlap[0];
-                indexToKeep = overlap[1];
-            }
-        }
-        for (int[] overlap : endOverlaps) {
-
-        }*/
+        Collections.sort(indexes);
         
-        if (appArgs.size() == 2) {
+        if (appArgs.size() == 2) { // Take InputStream
 
             final int bufferSize = 1024 * 1024;
             final char[] buffer = new char[bufferSize];
@@ -109,20 +97,26 @@ public class Cut implements Application {
             String[] cutPipe = pipeStr.toString().split("\n");
 
             for (String line : cutPipe) {
-                for (int[] indexes : indexTuples) {
-                    if (indexes[0] > line.length()) {
+                int start = Math.min(startBoundary, line.length());
+                int end = Math.min(endBoundary, line.length());
+
+                if (start != -1) { writer.write(line.substring(0, start)); }
+                
+                for (Integer index : indexes) {
+                    if (index >= line.length()) {
                         writer.write("");
-                    } else if (indexes[1] == -1 || indexes[1] > line.length()) {
-                        writer.write(line.substring(indexes[0]));
                     } else {
-                        writer.write(line.substring(indexes[0], indexes[1]));
+                        writer.write(line.charAt(index));
                     }
                 }
+                
+                if (end != Integer.MAX_VALUE) { writer.write(line.substring(end)); }
+
                 writer.write(System.getProperty("line.separator"));
                 writer.flush();
             }
 
-        } else if (appArgs.size() == 3) {
+        } else if (appArgs.size() == 3) { // Use file path
             String cutArg = appArgs.get(2);
 
             File cutFile = new File(Jsh.currentDirectory + File.separator + cutArg);
@@ -133,15 +127,21 @@ public class Cut implements Application {
 
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        for (int[] indexes : indexTuples) {
-                            if (indexes[0] > line.length()) {
+                        int start = Math.min(startBoundary, line.length());
+                        int end = Math.min(endBoundary, line.length());
+
+                        if (start != -1) { writer.write(line.substring(0, start)); }
+                        
+                        for (Integer index : indexes) {
+                            if (index >= line.length()) {
                                 writer.write("");
-                            } else if (indexes[1] == -1 || indexes[1] > line.length()) {
-                                writer.write(line.substring(indexes[0]));
                             } else {
-                                writer.write(line.substring(indexes[0], indexes[1]));
+                                writer.write(line.charAt(index));
                             }
                         }
+                        
+                        if (end != Integer.MAX_VALUE) { writer.write(line.substring(end)); }
+        
                         writer.write(System.getProperty("line.separator"));
                         writer.flush();
                     }
