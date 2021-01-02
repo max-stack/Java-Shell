@@ -1,0 +1,10 @@
+AA
+AAAB
+ABB
+ABC
+CBA
+AA
+AA
+AA
+CBA
+A

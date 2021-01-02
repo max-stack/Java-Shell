@@ -50,13 +50,12 @@ class ExecutionPlan{
         //     default:
         //         subCommands.addAll(joinPlan.getCommandQueue());
         // }
-
-        if(topElement == ConnectionType.SEQUENCE.toString()){
+        if(topElement == ConnectionType.SEQUENCE.toString() || topElement == ConnectionType.SUBSTITUTION.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
             commands.addAll(joinPlan.getCommandQueue());
         }
-        else if(topElement == ConnectionType.PIPE.toString() || 
+        else if(topElement == ConnectionType.PIPE.toString() ||
                 topElement == ConnectionType.REDIRECT_FROM.toString() ||
                 topElement == ConnectionType.REDIRECT_TO.toString()){
             commands.addAll(joinPlan.getCommandQueue());
