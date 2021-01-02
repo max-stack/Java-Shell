@@ -19,27 +19,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class Cut implements Application {
     
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.isEmpty()) {
-            throw new RuntimeException("cut: missing arguments");
+            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); return;
         }
         if (appArgs.size() != 3 && appArgs.size() != 2) {
-            throw new RuntimeException("cut: wrong arguments");
+            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); return;
         }
         if (!appArgs.get(0).equals("-b")) {
-            throw new RuntimeException("cut: wrong argument " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); return;
         }
 
         String[] cutRanges = appArgs.get(1).split("[,]+");
         ArrayList<Integer> indexes = new ArrayList<Integer>();
 
         if (cutRanges.length == 0) {
-            throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
+            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return;
         }
         
         // Get boundary values first (e.g. -4, 8-)
@@ -49,7 +50,7 @@ public class Cut implements Application {
         for (String range : cutRanges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
             if (!valid || range.isEmpty()) {
-                throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
+                HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return;
             } else {
                 int value;
                 if (range.endsWith("-")) {
@@ -71,7 +72,7 @@ public class Cut implements Application {
                 l_value = Integer.parseInt(indexParts[0]) - 1;
                 r_value = Integer.parseInt(indexParts[1]);
                 if (l_value > r_value) {
-                    throw new RuntimeException("cut: wrong argument " + appArgs.get(1));
+                    HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return;
                 }
             } else if (!range.contains("-")) {
                 l_value = Integer.parseInt(range) - 1;
@@ -86,17 +87,8 @@ public class Cut implements Application {
         
         if (appArgs.size() == 2) { // Take InputStream
 
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.append(buffer, 0, charsRead);
-            }
-            String[] cutPipe = pipeStr.toString().split("\n");
-
-            for (String line : cutPipe) {
+            String[] pipeInput = HelperMethods.readInputStream(in);
+            for (String line : pipeInput) {
                 int start = Math.min(startBoundary, line.length());
                 int end = Math.min(endBoundary, line.length());
 
@@ -147,10 +139,10 @@ public class Cut implements Application {
                     }
                     
                 } catch (IOException e) {
-                    throw new RuntimeException("cut: cannot open " + cutArg);
+                    HelperMethods.outputError(unsafe, out, "cut: cannot open " + cutArg); return;
                 }
             } else {
-                throw new RuntimeException("cut: " + cutArg + " does not exist");
+                HelperMethods.outputError(unsafe, out, "cut: " + cutArg + " does not exist"); return;
             }
 
         }

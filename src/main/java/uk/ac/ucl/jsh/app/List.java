@@ -11,7 +11,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class List implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
         File currDir;
@@ -20,7 +20,7 @@ public class List implements Application {
         } else if (appArgs.size() == 1) {
             currDir = new File(appArgs.get(0));
         } else {
-            throw new RuntimeException("ls: too many arguments");
+            HelperMethods.outputError(unsafe, out, "ls: too many arguments"); return;
         }
         try {
             File[] listOfFiles = currDir.listFiles();
@@ -38,7 +38,7 @@ public class List implements Application {
                 writer.flush();
             }
         } catch (NullPointerException e) {
-            throw new RuntimeException("ls: no such directory");
+            HelperMethods.outputError(unsafe, out, "ls: no such directory"); return;
         }
     }
 

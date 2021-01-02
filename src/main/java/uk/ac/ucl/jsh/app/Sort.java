@@ -19,19 +19,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 
 
 public class Sort implements Application{
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.size() > 2) {
-            throw new RuntimeException("sort: too many arguments");
+            HelperMethods.outputError(unsafe, out, "sort: too many arguments"); return;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-r")) {
-            throw new RuntimeException("sort: wrong argument " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "sort: wrong argument " + appArgs.get(0)); return;
         }
 
         boolean reversed = false;
@@ -48,23 +49,11 @@ public class Sort implements Application{
         }
 
         if (sortArg.isEmpty()) { // Take InputStream
-
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.append(buffer, 0, charsRead);
-            }
-            String[] sortPipe = pipeStr.toString().split("\n");
             
-            List<String> sortList = Arrays.asList(sortPipe);
+            String[] pipeInput = HelperMethods.readInputStream(in);
+            List<String> sortList = Arrays.asList(pipeInput);
             Collections.sort(sortList);
-
-            if (reversed) {
-                Collections.reverse(sortList);
-            }
+            if (reversed) { Collections.reverse(sortList); }
 
             sortList.forEach(line -> { 
                 try {
@@ -72,7 +61,15 @@ public class Sort implements Application{
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
                 } catch (IOException e) {
-                    throw new RuntimeException("sort: unable to write");
+
+                    /* Not sure why outputError doesn't work without the try-catch block */
+                    try {
+                        //throw new RuntimeException("sort: unable to write");
+                        HelperMethods.outputError(unsafe, out, "sort: unable to write"); return;
+                    } catch (Exception f) {
+                        throw new RuntimeException("sort: unexpected error 1 - " + f);
+                    }
+                    
                 }
             });
 
@@ -88,7 +85,15 @@ public class Sort implements Application{
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();
                         } catch (IOException e) {
-                            throw new RuntimeException("sort: cannot open " + appArgs.get(0));
+
+                            /* Not sure why outputError doesn't work without the try-catch block */
+                            try {
+                                //throw new RuntimeException("sort: cannot open " + appArgs.get(0));
+                                HelperMethods.outputError(unsafe, out, "sort: cannot open " + appArgs.get(0)); return;
+                            } catch (Exception f) {
+                                throw new RuntimeException("sort: unexpected error 2 - " + f);
+                            }
+
                         }
                     });
                 } else {
@@ -98,12 +103,20 @@ public class Sort implements Application{
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();
                         } catch (IOException e)  {
-                            throw new RuntimeException("sort: unchecked exception " + appArgs.get(0));
+
+                            /* Not sure why outputError doesn't work without the try-catch block */
+                            try {
+                                //throw new RuntimeException("sort: unchecked exception " + appArgs.get(0));
+                                HelperMethods.outputError(unsafe, out, "sort: unchecked exception " + appArgs.get(0)); return;
+                            } catch (Exception f) {
+                                throw new RuntimeException("sort: unexpected error 3 - " + f);
+                            }
+
                         }
                     });              
                 }
             } catch (IOException e) {
-                throw new RuntimeException("sort: cannot open " + appArgs.get(0));
+                HelperMethods.outputError(unsafe, out, "sort: cannot open " + appArgs.get(0)); return;
             }
 
         }

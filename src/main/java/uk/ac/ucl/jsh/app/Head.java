@@ -16,17 +16,18 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class Head implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
         if (appArgs.size() > 3) {
-            throw new RuntimeException("head: too many arguments");
+            HelperMethods.outputError(unsafe, out, "head: too many arguments"); return;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            throw new RuntimeException("head: wrong argument " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "head: wrong argument " + appArgs.get(0)); return;
         }        
 
         int headLines = 10;
@@ -41,25 +42,16 @@ public class Head implements Application {
             try {
                 headLines = Integer.parseInt(appArgs.get(1));
             } catch (NumberFormatException e) {
-                throw new RuntimeException("head: wrong number " + appArgs.get(1));
+                HelperMethods.outputError(unsafe, out, "head: wrong number " + appArgs.get(1)); return;
             }
         }
 
         if (headArg.isEmpty()) { // Take InputStream
             
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.append(buffer, 0, charsRead);
-            }
-            String[] headPipe = pipeStr.toString().split("\n");
-
+            String[] pipeInput = HelperMethods.readInputStream(in);
             for (int i = 0; i < headLines; i++) {
                 try {
-                    writer.write(headPipe[i]);
+                    writer.write(pipeInput[i]);
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
                 } catch (Exception e) {
@@ -83,10 +75,10 @@ public class Head implements Application {
                         }
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException("head: cannot open " + headArg);
+                    HelperMethods.outputError(unsafe, out, "head: cannot open " + headArg); return;
                 }
             } else {
-                throw new RuntimeException("head: " + headArg + " does not exist");
+                HelperMethods.outputError(unsafe, out, "head: " + headArg + " does not exist"); return;
             }
 
         }

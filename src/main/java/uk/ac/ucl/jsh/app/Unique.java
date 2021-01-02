@@ -12,17 +12,18 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class Unique implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.size() > 2) {
-            throw new RuntimeException("uniq: too many arguments");
+            HelperMethods.outputError(unsafe, out, "uniq: too many arguments"); return;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-i")) {
-            throw new RuntimeException("uniq: wrong argument " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "uniq: wrong argument " + appArgs.get(0)); return;
         }
 
         boolean caseSensitive = true; 
@@ -41,20 +42,10 @@ public class Unique implements Application {
         String previousLine = "";
 
         if (uniqArg.isEmpty()) { // Take InputStream
-
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.append(buffer, 0, charsRead);
-            }
-            String[] uniqPipe = pipeStr.toString().split("\n");
             String adjustedLine = null;
 
-            for (String line : uniqPipe) {
-                adjustedLine = line;
+            String[] pipeInput = HelperMethods.readInputStream(in);
+            for (String line : pipeInput) {
                 if (!caseSensitive) {
                     adjustedLine = line.toLowerCase();
                 }

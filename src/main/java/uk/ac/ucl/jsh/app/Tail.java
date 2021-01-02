@@ -14,18 +14,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class Tail implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
         if (appArgs.size() > 3) {
-            throw new RuntimeException("head: too many arguments");
+            HelperMethods.outputError(unsafe, out, "head: too many arguments"); return;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            throw new RuntimeException("head: wrong argument " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "head: wrong argument " + appArgs.get(0)); return;
         }        
 
         int tailLines = 10;
@@ -40,25 +42,16 @@ public class Tail implements Application {
             try {
                 tailLines = Integer.parseInt(appArgs.get(1));
             } catch (NumberFormatException e) {
-                throw new RuntimeException("head: wrong number " + appArgs.get(1));
+                HelperMethods.outputError(unsafe, out, "head: wrong number " + appArgs.get(1)); return;
             }
         }
 
         if (tailArg.isEmpty()) { // Take InputStream
-
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.insert(0,buffer, 0, charsRead);
-            }
-            String[] tailPipe = pipeStr.toString().split("\n");
-
+            
+            String[] pipeInput = HelperMethods.readInputStream(in);
             for (int i = 0; i < tailLines; i++) {
                 try {
-                    writer.write(tailPipe[i]);
+                    writer.write(pipeInput[i]);
                     writer.write(System.getProperty("line.separator"));
                     writer.flush();
                 } catch (Exception e) {
@@ -89,10 +82,10 @@ public class Tail implements Application {
                         writer.flush();
                     }            
                 } catch (IOException e) {
-                    throw new RuntimeException("tail: cannot open " + tailArg);
+                    HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return;
                 }
             } else {
-                throw new RuntimeException("tail: " + tailArg + " does not exist");
+                HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return;
             }
             
         }

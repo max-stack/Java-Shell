@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -17,25 +16,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class Concatenate implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.isEmpty()) { // Take InputStream
             
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.append(buffer, 0, charsRead);
-            }
-            String[] catPipe = pipeStr.toString().split("\n");
-
-            for (String line : catPipe) {
+            String[] pipeInput = HelperMethods.readInputStream(in);
+            for (String line : pipeInput) {
                 writer.write(line);
                 writer.write(System.getProperty("line.separator"));
                 writer.flush();
@@ -56,10 +47,10 @@ public class Concatenate implements Application {
                             writer.flush();
                         }
                     } catch (IOException e) {
-                        throw new RuntimeException("cat: cannot open " + arg);
+                        HelperMethods.outputError(unsafe, out, "cat: cannot open " + arg); return;
                     }
                 } else {
-                    throw new RuntimeException("cat: " + arg + " does not exist");
+                    HelperMethods.outputError(unsafe, out, "cat: " + arg + " does not exist"); return;
                 }
             }
 
