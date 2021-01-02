@@ -51,25 +51,35 @@ class Find implements Application {
                         PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(file);
                         if(pathMatcher.matches(line)){
                             if(finalFilePosition == 1){
-                                relativePath.append((line.toString()).replaceFirst(dir, ""));
-                                relativePath.insert(0, ".");
+                                relativePath.append(line.toString().replaceFirst(dir, ""));
+                                if((relativePath.charAt(0) == '/')){
+                                    relativePath.insert(0, ".");
+                                } else{
+                                    relativePath.insert(0, "./");
+                                }
+                                
                             } else if(finalFilePosition == 2){
-                                relativePath.append((line.toString()).replaceFirst(dir, ""));
+                                relativePath.append(line.toString());
                             }
-                            writer.write(relativePath.toString());
+                            writer.write((relativePath.toString()));
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();    
                         }
                     } else{//else look for equivalence in file names
                         if(folder.equals(file)){
                             if(finalFilePosition == 1){
-                                relativePath.append((line.toString()).replaceFirst(dir, ""));
-                                relativePath.insert(0, ".");
+                                relativePath.append(line.toString().replaceFirst(dir, ""));
+                                if((relativePath.charAt(0) == '/')){
+                                    relativePath.insert(0, ".");
+                                } else{
+                                    relativePath.insert(0, "./");
+                                }
                             } else if(finalFilePosition == 2){
-                                relativePath.append((line.toString()).replaceFirst(dir, ""));
+                                relativePath.append(line.toString());
                             }
 
-                            writer.write(relativePath.toString());
+
+                            writer.write((relativePath.toString()));
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();
                         }  
