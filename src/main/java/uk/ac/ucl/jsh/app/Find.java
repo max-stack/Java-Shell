@@ -17,7 +17,8 @@ import uk.ac.ucl.jsh.Jsh;
 
 
 class Find implements Application {
-
+    // find -name sort.txt
+    // find jsh -name sort.txt
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
         OutputStreamWriter writer = new OutputStreamWriter(out);
         boolean atleastOnePrinted = false;
@@ -45,16 +46,15 @@ class Find implements Application {
                     String file = appArgs.get(finalFilePosition);
                     StringBuilder relativePath = new StringBuilder("");
                     String folder = line.toString().substring(line.toString().lastIndexOf("/")+1);
-
                     if(file.substring(0,1).equals("*")){ //if wildcard then use pathMatcher to match on pattern
                         file = file.replace("*", "glob:**/*");
                         PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(file);
                         if(pathMatcher.matches(line)){
                             if(finalFilePosition == 1){
-                                relativePath.append(line.toString());
+                                relativePath.append((line.toString()).replaceFirst(dir, ""));
                                 relativePath.insert(0, ".");
                             } else if(finalFilePosition == 2){
-                                relativePath.append(line.toString());
+                                relativePath.append((line.toString()).replaceFirst(dir, ""));
                             }
                             writer.write(relativePath.toString());
                             writer.write(System.getProperty("line.separator"));
@@ -63,11 +63,12 @@ class Find implements Application {
                     } else{//else look for equivalence in file names
                         if(folder.equals(file)){
                             if(finalFilePosition == 1){
-                                relativePath.append(line.toString());
+                                relativePath.append((line.toString()).replaceFirst(dir, ""));
                                 relativePath.insert(0, ".");
                             } else if(finalFilePosition == 2){
-                                relativePath.append(line.toString());
+                                relativePath.append((line.toString()).replaceFirst(dir, ""));
                             }
+
                             writer.write(relativePath.toString());
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();
