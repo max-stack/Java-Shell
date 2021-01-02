@@ -52,7 +52,7 @@ public class Tail implements Application {
             Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
             int charsRead;
             while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-                pipeStr.insert(0,buffer, 0, charsRead);
+                pipeStr.append(buffer, 0, charsRead);
             }
             String[] tailPipe = pipeStr.toString().split("\n");
 
