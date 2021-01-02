@@ -66,13 +66,11 @@ class ExecutionPlan{
         else if(topElement == ConnectionType.SUBSTITUTION.toString()){
             if(substitutionCommand == null){
                 substitutionCommand = subCommands.remove();
-                commands.addAll(joinPlan.getCommandQueue());
+                subCommands.addAll(joinPlan.getCommandQueue());
             }
             else{
-                commands.addAll(subCommands);
-                subCommands.clear();
-                commands.addAll(joinPlan.getCommandQueue());
-                commands.add(substitutionCommand);
+                subCommands.addAll(joinPlan.getCommandQueue());
+                subCommands.add(substitutionCommand);
                 substitutionCommand = null;
             }
         }
