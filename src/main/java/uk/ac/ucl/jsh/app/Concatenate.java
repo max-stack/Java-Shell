@@ -21,10 +21,9 @@ import uk.ac.ucl.jsh.Jsh;
 public class Concatenate implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        if (appArgs.isEmpty()) {
+        if (appArgs.isEmpty()) { // Take InputStream
             
             final int bufferSize = 1024 * 1024;
             final char[] buffer = new char[bufferSize];
@@ -32,7 +31,7 @@ public class Concatenate implements Application {
             Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
             int charsRead;
             while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-            pipeStr.append(buffer, 0, charsRead);
+                pipeStr.append(buffer, 0, charsRead);
             }
             String[] catPipe = pipeStr.toString().split("\n");
 
@@ -42,7 +41,7 @@ public class Concatenate implements Application {
                 writer.flush();
             }
 
-        } else {
+        } else { // Use file path(s)
 
             for (String arg : appArgs) {
                 Charset encoding = StandardCharsets.UTF_8;
@@ -60,12 +59,11 @@ public class Concatenate implements Application {
                         throw new RuntimeException("cat: cannot open " + arg);
                     }
                 } else {
-                    throw new RuntimeException("cat: file does not exist");
+                    throw new RuntimeException("cat: " + arg + " does not exist");
                 }
             }
 
-        }
-    
+        }   
     }
 
 }

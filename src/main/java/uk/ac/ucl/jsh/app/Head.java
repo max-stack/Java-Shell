@@ -21,45 +21,32 @@ public class Head implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
-
-        /*
-        if (appArgs.isEmpty()) {
-            throw new RuntimeException("head: missing arguments");
+        
+        if (appArgs.size() > 3) {
+            throw new RuntimeException("head: too many arguments");
         }
-        if (appArgs.size() != 1 && appArgs.size() != 3) {
-            throw new RuntimeException("head: wrong arguments");
-        }
-        if (appArgs.size() == 3 && !appArgs.get(0).equals("-n")) {
+        if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
             throw new RuntimeException("head: wrong argument " + appArgs.get(0));
-        }
-        int headLines = 10;
-        String headArg;
-        if (appArgs.size() == 3) {
-            try {
-                headLines = Integer.parseInt(appArgs.get(1));
-            } catch (Exception e) {
-                throw new RuntimeException("head: wrong argument " + appArgs.get(1));
-            }
-            headArg = appArgs.get(2);
-        } else {
-            headArg = appArgs.get(0);
-        }
-        */
+        }        
 
         int headLines = 10;
         String headArg = "";
         if (appArgs.size() == 3) { // Number of lines and file path provided
-            headLines = Integer.parseInt(appArgs.get(1));
             headArg = appArgs.get(2);
-        } else if (appArgs.size() == 2) { // Number of lines provided (use pipedInput)
-            headLines = Integer.parseInt(appArgs.get(1));
         } else if (appArgs.size() == 1) { // File path provided (use default number of lines: 10)
             headArg = appArgs.get(0);
-        } else if (appArgs.isEmpty()) { // Use default number of lines and pipedInput
-            // Do nothing
         }
 
-        if (headArg.isEmpty()) { // Take pipedInputStream
+        if (appArgs.size() > 1) {
+            try {
+                headLines = Integer.parseInt(appArgs.get(1));
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("head: wrong number " + appArgs.get(1));
+            }
+        }
+
+        if (headArg.isEmpty()) { // Take InputStream
+            
             final int bufferSize = 1024 * 1024;
             final char[] buffer = new char[bufferSize];
             final StringBuilder pipeStr = new StringBuilder();
@@ -80,7 +67,7 @@ public class Head implements Application {
                 }
             }
 
-        } else { // Open file path
+        } else { // Use file path
 
             File headFile = new File(Jsh.currentDirectory + File.separator + headArg);
             if (headFile.exists()) {

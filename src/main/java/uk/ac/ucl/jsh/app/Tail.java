@@ -18,49 +18,34 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Tail implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        /*
-        if (appArgs.isEmpty()) {
-            throw new RuntimeException("tail: missing arguments");
+        if (appArgs.size() > 3) {
+            throw new RuntimeException("head: too many arguments");
         }
-        if (appArgs.size() != 1 && appArgs.size() != 3) {
-            throw new RuntimeException("tail: wrong arguments");
-        }
-        if (appArgs.size() == 3 && !appArgs.get(0).equals("-n")) {
-            throw new RuntimeException("tail: wrong argument " + appArgs.get(0));
-        }
-
-        int tailLines = 10;
-        String tailArg;
-        if (appArgs.size() == 3) {
-            try {
-                tailLines = Integer.parseInt(appArgs.get(1));
-            } catch (Exception e) {
-                throw new RuntimeException("tail: wrong argument " + appArgs.get(1));
-            }
-            tailArg = appArgs.get(2);
-        } else {
-            tailArg = appArgs.get(0);
-        }
-        */
+        if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
+            throw new RuntimeException("head: wrong argument " + appArgs.get(0));
+        }        
 
         int tailLines = 10;
         String tailArg = "";
-        
         if (appArgs.size() == 3) { // Number of lines and file path provided
-            tailLines = Integer.parseInt(appArgs.get(1));
             tailArg = appArgs.get(2);
-        } else if (appArgs.size() == 2) { // Number of lines provided (use pipedInput)
-            tailLines = Integer.parseInt(appArgs.get(1));
         } else if (appArgs.size() == 1) { // File path provided (use default number of lines: 10)
             tailArg = appArgs.get(0);
-        } else if (appArgs.isEmpty()) { // Use default number of lines and pipedInput
-            // Do nothing
         }
 
-        if (tailArg.isEmpty()){
+        if (appArgs.size() > 1) {
+            try {
+                tailLines = Integer.parseInt(appArgs.get(1));
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("head: wrong number " + appArgs.get(1));
+            }
+        }
+
+        if (tailArg.isEmpty()) { // Take InputStream
+
             final int bufferSize = 1024 * 1024;
             final char[] buffer = new char[bufferSize];
             final StringBuilder pipeStr = new StringBuilder();
@@ -81,7 +66,8 @@ public class Tail implements Application {
                 }
             }
 
-        } else {
+        } else { // Use file path
+
             File tailFile = new File(Jsh.currentDirectory + File.separator + tailArg);
             if (tailFile.exists()) {
                 Charset encoding = StandardCharsets.UTF_8;
@@ -108,6 +94,7 @@ public class Tail implements Application {
             } else {
                 throw new RuntimeException("tail: " + tailArg + " does not exist");
             }
+            
         }
     }
 

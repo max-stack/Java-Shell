@@ -11,8 +11,9 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class List implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException{
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
+        
         File currDir;
         if (appArgs.isEmpty()) {
             currDir = new File(Jsh.currentDirectory);
@@ -39,7 +40,6 @@ public class List implements Application {
         } catch (NullPointerException e) {
             throw new RuntimeException("ls: no such directory");
         }
-    
     }
 
 }
