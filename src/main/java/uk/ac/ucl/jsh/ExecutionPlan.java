@@ -30,6 +30,10 @@ class ExecutionPlan{
 
     public void join(ExecutionPlan joinPlan){
         String topElement = joinPlan.getCommandQueue().peek();
+        System.out.println(topElement);
+        if(topElement.equals(" ")){
+            return;
+        }
         // ConnectionType type = ConnectionType.valueOf(topElement);
         // switch(type){
         //     case SEQUENCE:
@@ -63,6 +67,7 @@ class ExecutionPlan{
             commands.addAll(subCommands);
             subCommands.clear();
         }
+
         else if(topElement == ConnectionType.SUBSTITUTION.toString()){
             if(substitutionCommand == null){
                 substitutionCommand = subCommands.remove();
@@ -76,6 +81,7 @@ class ExecutionPlan{
                 substitutionCommand = null;
             }
         }
+        
         else if(topElement == ConnectionType.END_COMMAND.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
