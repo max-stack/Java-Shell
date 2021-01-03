@@ -19,33 +19,25 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import uk.ac.ucl.jsh.Jsh;
+import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class GlobalRegExPrint implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         Pattern grepPattern;
         try {
             grepPattern = Pattern.compile(appArgs.get(0));
         } catch (PatternSyntaxException e) {
-            throw new RuntimeException("grep: wrong pattern syntax " + appArgs.get(0));
+            HelperMethods.outputError(unsafe, out, "grep: wrong pattern syntax " + appArgs.get(0)); return;
         }
         
         int numOfFiles = appArgs.size() - 1;
         if (numOfFiles == 0) { // Take InputStream
-
-            final int bufferSize = 1024 * 1024;
-            final char[] buffer = new char[bufferSize];
-            final StringBuilder pipeStr = new StringBuilder();
-            Reader rdr = new InputStreamReader(in, StandardCharsets.UTF_8);
-            int charsRead;
-            while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
-            pipeStr.append(buffer, 0, charsRead);
-            }
-            String[] grepPipe = pipeStr.toString().split("\n");
-
-            for (String line : grepPipe) {
+            
+            String[] pipeInput = HelperMethods.readInputStream(in);
+            for (String line : pipeInput) {
                 Matcher matcher = grepPattern.matcher(line);
                 if (matcher.find()) {
                     writer.write(line);
@@ -63,7 +55,7 @@ public class GlobalRegExPrint implements Application {
                 filePath = currentDir.resolve(appArgs.get(i + 1));
                 if (Files.notExists(filePath) || Files.isDirectory(filePath) || 
                     !Files.exists(filePath) || !Files.isReadable(filePath)) {
-                    throw new RuntimeException("grep: wrong file argument");
+                        HelperMethods.outputError(unsafe, out, "grep: wrong file argument"); return;
                 }
                 filePathArray[i] = filePath;
             }
@@ -85,7 +77,7 @@ public class GlobalRegExPrint implements Application {
                         }
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException("grep: cannot open " + appArgs.get(j + 1));
+                    HelperMethods.outputError(unsafe, out, "grep: cannot open " + appArgs.get(j + 1)); return;
                 }
             }
 

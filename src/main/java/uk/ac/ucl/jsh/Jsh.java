@@ -168,8 +168,11 @@ public class Jsh {
                 }
             }
             ArrayList<String> tokens = tokenSplit(command);
-            ApplicationFactory.make(tokens.get(0));
-            executor.execute(new RunCommand(tokens, output, input));
+            String appName = tokens.get(0);
+            ApplicationFactory.make(appName);
+            Boolean unsafe = false;
+            if (appName.length() > 1 && appName.substring(0,2).equals("__")) { unsafe = true; }
+            executor.execute(new RunCommand(tokens, output, input, unsafe));
             
             if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
                 executor.shutdown();
