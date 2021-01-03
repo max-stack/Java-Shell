@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import uk.ac.ucl.jsh.Jsh;
@@ -42,10 +43,12 @@ public class Unique implements Application {
         String previousLine = "";
 
         if (uniqArg.isEmpty()) { // Take InputStream
-            String adjustedLine = null;
-
+            String adjustedLine = "";
             String[] pipeInput = HelperMethods.readInputStream(in);
+            
             for (String line : pipeInput) {
+                adjustedLine = line;
+
                 if (!caseSensitive) {
                     adjustedLine = line.toLowerCase();
                 }
@@ -80,6 +83,7 @@ public class Unique implements Application {
             }
 
         }
+        
     }
    
 }
