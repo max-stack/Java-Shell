@@ -30,7 +30,6 @@ class ExecutionPlan {
 
     public void join(ExecutionPlan joinPlan) {
         String topElement = joinPlan.getCommandQueue().peek();
-        System.out.println(topElement);
         if(topElement.equals(" ")){
             return;
         }
