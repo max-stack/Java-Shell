@@ -4,7 +4,7 @@ grammar JshGrammar;
  * Parser Rules
  */
 
-command : WHITESPACE* | atomicCommand (SEPARATOR atomicCommand)* | (atomicCommand SEPARATOR)+;
+command : WHITESPACE* | atomicCommand (SEPARATOR atomicCommand)* | (atomicCommand SEPARATOR*)+;
 
 atomicCommand : (NONSPECIAL | DOUBLEQUOTED | SINGLEQUOTED)+;
 
