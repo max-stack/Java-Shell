@@ -64,9 +64,26 @@ public class Jsh {
                 nonQuote = regexMatcher.group().trim();
                 ArrayList<String> globbingResult = new ArrayList<String>();
                 Path dir = Paths.get(currentDirectory);
+               
+                String tempDir = currentDirectory;
+                String relativeDir = "";
+                if((nonQuote.indexOf("*") != -1) && !(nonQuote.charAt(0) == '*')){
+                    relativeDir = nonQuote.substring(0, nonQuote.indexOf("*"));
+                    tempDir = tempDir.concat("/");
+                    tempDir = tempDir.concat(relativeDir);
+                    dir = Paths.get(tempDir);
+                    nonQuote = nonQuote.substring(nonQuote.indexOf("*"), nonQuote.length());
+                }
+                
                 DirectoryStream<Path> stream = Files.newDirectoryStream(dir, nonQuote);
+                
                 for (Path entry : stream) {
-                    globbingResult.add(entry.getFileName().toString());
+                    if(tempDir.equals(currentDirectory)){
+                        globbingResult.add(entry.getFileName().toString());
+                    }
+                    else{
+                        globbingResult.add(relativeDir + entry.getFileName().toString());
+                    }
                 }
                 if (globbingResult.isEmpty()) {
                     globbingResult.add(nonQuote);
