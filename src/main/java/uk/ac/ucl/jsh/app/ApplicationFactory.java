@@ -4,29 +4,29 @@ public class ApplicationFactory {
 
     public static Application make(String name) {
         switch (name) {
-            case "cd": case "__cd":
+            case "cd": case "_cd":
                 return new ChangeDirectory();
-            case "pwd": case "__pwd":
+            case "pwd": case "_pwd":
                 return new PrintWorkingDirectory();
-            case "ls": case "__ls":
+            case "ls": case "_ls":
                 return new List();
-            case "cat": case "__cat":
+            case "cat": case "_cat":
                 return new Concatenate();
-            case "echo": case "__echo":
+            case "echo": case "_echo":
                 return new Echo();
-            case "head": case "__head":
+            case "head": case "_head":
                 return new Head();
-            case "tail": case "__tail":
+            case "tail": case "_tail":
                 return new Tail();
-            case "grep": case "__grep":
+            case "grep": case "_grep":
                 return new GlobalRegExPrint();
-            case "cut": case "__cut":
+            case "cut": case "_cut":
                 return new Cut();
-            case "sort": case "__sort":
+            case "sort": case "_sort":
                 return new Sort();
-            case "uniq": case "__uniq":
+            case "uniq": case "_uniq":
                 return new Unique();
-            case "find": case "__find":
+            case "find": case "_find":
                 return new Find();       
             default:
                 throw new RuntimeException(name + ": unknown application");

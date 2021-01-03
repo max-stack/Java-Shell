@@ -171,7 +171,7 @@ public class Jsh {
             String appName = tokens.get(0);
             ApplicationFactory.make(appName);
             Boolean unsafe = false;
-            if (appName.length() > 1 && appName.substring(0,2).equals("__")) { unsafe = true; }
+            if (appName.length() > 1 && appName.substring(0,1).equals("_")) { unsafe = true; }
             executor.execute(new RunCommand(tokens, output, input, unsafe));
             
             if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){

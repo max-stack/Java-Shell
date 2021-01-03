@@ -30,6 +30,9 @@ class ExecutionPlan {
 
     public void join(ExecutionPlan joinPlan) {
         String topElement = joinPlan.getCommandQueue().peek();
+        if(topElement.equals(" ")){
+            return;
+        }
         // ConnectionType type = ConnectionType.valueOf(topElement);
         // switch (type) {
         //     case SEQUENCE:
