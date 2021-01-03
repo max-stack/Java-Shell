@@ -120,6 +120,18 @@ public class Jsh {
         return returnFile;
     }
 
+    private static void emptyFile(File file) throws IOException{
+         if(file.exists()){
+            PrintWriter writer = new PrintWriter(file);
+            writer.print("");
+            writer.close();
+        }
+        else{
+            file.getParentFile().mkdir();
+            file.createNewFile();
+        }
+    }
+
     private static String readInputStream(InputStream input, OutputStream output) throws IOException{
         if(input != null && input.available() != 0){
             final int bufferSize = 1024 * 1024;
@@ -168,91 +180,84 @@ public class Jsh {
                 output = subOutput;
             }
             
-
             String command = commands.poll();
 
-            if(ConnectionType.connectionExists(command)){
-                if(command == ConnectionType.SUBSTITUTION.toString()){
-                    if(!substitution){
-                        substitution = true;
-                        pipedInput = new PipedInputStream();
-                        wholeSubOutput = new PipedOutputStream(pipedInput);
-                        wholeSubInput = pipedInput;
-                        continue;
-                    }
-                    else{
-                        substitution = false;
-                        command = commands.poll();
-                        if(command.substring(0, 4).equals("echo")){
-                            if(commands.peek() != null && !ConnectionType.connectionExists(commands.peek())){
-                                command = command + subCommand + commands.poll();
-                            }
-                            else{
-                                command = command + subCommand;
-                            }
-                        }
-                        else{
-                            input = wholeSubInput;
-                        }
-                        output.close();
-                        wholeSubOutput.close();
-                        output = System.out;
-                    }
-                }
-                if(command == ConnectionType.SEQUENCE.toString()){
-                    lastInput = null;
-                    output = System.out;
+            if(command == ConnectionType.SUBSTITUTION.toString()){
+                if(!substitution){
+                    substitution = true;
+                    pipedInput = new PipedInputStream();
+                    wholeSubOutput = new PipedOutputStream(pipedInput);
+                    wholeSubInput = pipedInput;
                     continue;
                 }
-
-                if(command == ConnectionType.REDIRECT_TO.toString()){
+                else{
+                    substitution = false;
                     command = commands.poll();
-                    File writeFile;
-                    String filePath;
-                    while(commands.peek() == ConnectionType.REDIRECT_TO.toString()){
-                        commands.poll();
-                        filePath = commands.poll().trim();
-                        writeFile = createRedirectFile(filePath);
-
-                        if(writeFile.exists()){
-                            PrintWriter writer = new PrintWriter(filePath);
-                            writer.print("");
-                            writer.close();
+                    if(command.substring(0, 4).equals("echo")){
+                        if(commands.peek() != null && !ConnectionType.connectionExists(commands.peek())){
+                            command = command + subCommand + commands.poll();
                         }
                         else{
-                            writeFile.getParentFile().mkdir();
-                            writeFile.createNewFile();
+                            command = command + subCommand;
                         }
                     }
-                    filePath = commands.poll().trim();
-                    writeFile = createRedirectFile(filePath);
-                    writeFile.getParentFile().mkdir();
-                    output = new FileOutputStream(writeFile, true);
+                    else{
+                        input = wholeSubInput;
+                    }
+                    output.close();
+                    wholeSubOutput.close();
+                    output = System.out;
+                }
+            }
+            if(ConnectionType.connectionExists(commands.peek())){
+                if(commands.peek() == ConnectionType.SEQUENCE.toString()){
+                    commands.poll();
+                    lastInput = null;
                 }
 
-                if(command == ConnectionType.REDIRECT_FROM.toString()){
-                    command = commands.poll();
-                    File readFile;
+                if(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
                     String filePath;
-                    while(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
+                    File readFile;
+                    do{
                         commands.poll();
                         filePath = commands.poll().trim();
                         readFile = createRedirectFile(filePath);
                         if(!readFile.exists()){
                             throw new IOException("File " + readFile.getName() + " Does not exist.");
                         }
-                    }
-                    filePath = commands.poll().trim();
-                    readFile = createRedirectFile(filePath);
+                    } while(commands.peek() == ConnectionType.REDIRECT_FROM.toString());                   
                     input = new FileInputStream(readFile);
-
                 }
 
-                if(command == ConnectionType.PIPE.toString()){
+                if(commands.peek() == ConnectionType.REDIRECT_TO.toString()){
+                    String filePath;
+                    File writeFile;
+                    do{
+                        commands.poll();
+                        filePath = commands.poll().trim();
+                        writeFile = createRedirectFile(filePath);
+                        emptyFile(writeFile);
+                    } while(commands.peek() == ConnectionType.REDIRECT_TO.toString());
+                    while(commands.peek() == ConnectionType.REDIRECT_FROM.toString() ||
+                          commands.peek() == ConnectionType.REDIRECT_TO.toString()){
+                        if(commands.peek() == ConnectionType.REDIRECT_FROM.toString()){
+                            commands.poll();
+                            commands.poll();
+                        }
+                        else if(commands.peek() == ConnectionType.REDIRECT_TO.toString()){
+                            commands.poll();
+                            filePath = commands.poll().trim();
+                            emptyFile(createRedirectFile(filePath));
+                        }
+                    }
+                    output = new FileOutputStream(writeFile, true);
+                }
+
+                if(commands.peek() == ConnectionType.PIPE.toString()){
                     pipedInput = new PipedInputStream();
                     output = new PipedOutputStream(pipedInput);
                     lastInput = pipedInput;
-                    command = commands.poll();
+                    commands.poll();
                 }
             }
             ArrayList<String> tokens = tokenSplit(command);
