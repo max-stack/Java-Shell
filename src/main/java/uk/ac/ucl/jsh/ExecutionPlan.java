@@ -30,6 +30,9 @@ class ExecutionPlan{
 
     public void join(ExecutionPlan joinPlan){
         String topElement = joinPlan.getCommandQueue().peek();
+        if(topElement.equals(" ")){
+            return;
+        }
         // ConnectionType type = ConnectionType.valueOf(topElement);
         // switch(type){
         //     case SEQUENCE:
@@ -51,26 +54,24 @@ class ExecutionPlan{
         //     default:
         //         subCommands.addAll(joinPlan.getCommandQueue());
         // }
-        if(topElement == ConnectionType.SEQUENCE.toString()){
+        if(topElement == ConnectionType.SEQUENCE.toString() ||
+           topElement == ConnectionType.PIPE.toString() ||
+           topElement == ConnectionType.REDIRECT_FROM.toString() ||
+           topElement == ConnectionType.REDIRECT_TO.toString()){
             commands.addAll(subCommands);
             subCommands.clear();
             commands.addAll(joinPlan.getCommandQueue());
-        }
-        else if(topElement == ConnectionType.PIPE.toString() ||
-                topElement == ConnectionType.REDIRECT_FROM.toString() ||
-                topElement == ConnectionType.REDIRECT_TO.toString()){
-            commands.addAll(joinPlan.getCommandQueue());
-            commands.addAll(subCommands);
-            subCommands.clear();
         }
         else if(topElement == ConnectionType.SUBSTITUTION.toString()){
             if(substitutionCommand == null){
                 substitutionCommand = subCommands.remove();
-                subCommands.addAll(joinPlan.getCommandQueue());
+                commands.addAll(joinPlan.getCommandQueue());
             }
             else{
-                subCommands.addAll(joinPlan.getCommandQueue());
-                subCommands.add(substitutionCommand);
+                commands.addAll(subCommands);
+                subCommands.clear();
+                commands.addAll(joinPlan.getCommandQueue());
+                commands.add(substitutionCommand);
                 substitutionCommand = null;
             }
         }
