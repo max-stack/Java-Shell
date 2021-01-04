@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import uk.ac.ucl.jsh.Jsh;
 import uk.ac.ucl.jsh.app.HelperMethods;
@@ -23,16 +24,20 @@ public class Concatenate implements Application {
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        if (appArgs.isEmpty()) { // Take InputStream
-            
+        if(in != null && in.getClass().getName().toString() == "java.io.FileInputStream"){
             String[] pipeInput = HelperMethods.readInputStream(in);
-            for (String line : pipeInput) {
-                writer.write(line);
+            for(String line : pipeInput){
+                writer.write(String.valueOf(line));
                 writer.write(System.getProperty("line.separator"));
                 writer.flush();
             }
-
-        } else { // Use file path(s)
+        }
+        else{
+            if (appArgs.isEmpty()) { // Take InputStream
+                
+                String[] pipeInput = HelperMethods.readInputStream(in);
+                appArgs = new ArrayList<String>(Arrays.asList(pipeInput));
+            }
 
             for (String arg : appArgs) {
                 Charset encoding = StandardCharsets.UTF_8;
@@ -53,8 +58,8 @@ public class Concatenate implements Application {
                     HelperMethods.outputError(unsafe, out, "cat: " + arg + " does not exist"); return;
                 }
             }
+        }
 
-        }   
     }
 
 }
