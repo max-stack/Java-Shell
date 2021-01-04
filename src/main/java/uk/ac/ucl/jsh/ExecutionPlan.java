@@ -3,11 +3,13 @@ package uk.ac.ucl.jsh;
 import java.util.ArrayList; 
 import java.util.Queue;
 import java.util.LinkedList;
+import org.apache.commons.lang3.StringUtils;
 
 class ExecutionPlan {
     Queue<String> commands = new LinkedList<>();
     LinkedList<String> subCommands = new LinkedList<>();
     boolean prevTerminal = false;
+    boolean findNextQuote = false;
     String substitutionCommand = null;
 
     public ExecutionPlan(String[] args) {
@@ -57,10 +59,18 @@ class ExecutionPlan {
         if(topElement == ConnectionType.SEQUENCE.toString() ||
            topElement == ConnectionType.PIPE.toString() ||
            topElement == ConnectionType.REDIRECT_FROM.toString() ||
-           topElement == ConnectionType.REDIRECT_TO.toString()){
-            commands.addAll(subCommands);
-            subCommands.clear();
-            commands.addAll(joinPlan.getCommandQueue());
+           topElement == ConnectionType.REDIRECT_TO.toString()){          
+            if(findNextQuote || ( !subCommands.isEmpty() && 
+               (StringUtils.countMatches(subCommands.getLast(), "\"") == 1 ||
+                StringUtils.countMatches(subCommands.getLast(), "'") == 1))){
+                findNextQuote = true;
+                subCommands.add(subCommands.removeLast() + topElement);
+            }
+            else{
+                commands.addAll(subCommands);
+                subCommands.clear();
+                commands.addAll(joinPlan.getCommandQueue());
+            }
         }
         else if(topElement == ConnectionType.SUBSTITUTION.toString()){
             if(substitutionCommand == null){
@@ -88,7 +98,16 @@ class ExecutionPlan {
             subCommands.clear();
         }
         else {
-            subCommands.addAll(joinPlan.getCommandQueue());
+            if(findNextQuote){
+                subCommands.add(subCommands.removeLast() + topElement);
+                if(StringUtils.countMatches(topElement, "\"") == 1 ||
+                   StringUtils.countMatches(topElement, "'") == 1){
+                    findNextQuote = false;
+                }
+            }
+            else{
+                subCommands.addAll(joinPlan.getCommandQueue());
+            }
         }
     }
 }
