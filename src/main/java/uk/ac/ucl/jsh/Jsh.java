@@ -27,6 +27,7 @@ import java.util.Deque;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Arrays;
 
 import java.io.FileWriter;
 import org.antlr.v4.runtime.CharStream;
@@ -56,12 +57,22 @@ public class Jsh {
         Pattern regex = Pattern.compile(spaceRegex);
         Matcher regexMatcher = regex.matcher(rawCommand);
         String nonQuote;
+        String tempToken;
+        boolean previousQuoted = false;
+
         while (regexMatcher.find()) {
             if (regexMatcher.group(1) != null || regexMatcher.group(2) != null) {
                 String quoted = regexMatcher.group(0).trim();
+                previousQuoted = true;
                 tokens.add(quoted.substring(1,quoted.length()-1));
             } else {
                 nonQuote = regexMatcher.group().trim();
+                if(previousQuoted && nonQuote.contains("\"")){
+                    String last = "";
+                    last = tokens.remove(tokens.size()-1);
+                    nonQuote = last + nonQuote.replaceAll("\"","");
+                }
+                previousQuoted = false;
                 ArrayList<String> globbingResult = new ArrayList<String>();
                 Path dir = Paths.get(currentDirectory);
                
@@ -184,7 +195,11 @@ public class Jsh {
                     command = commands.poll();
                 }
             }
+            //System.out.println("Command:");
+            //System.out.println(command);
             ArrayList<String> tokens = tokenSplit(command);
+            //System.out.print("tokens:");
+            //System.out.println(Arrays.toString(tokens.toArray()));
             String appName = tokens.get(0);
             ApplicationFactory.make(appName);
             Boolean unsafe = false;
