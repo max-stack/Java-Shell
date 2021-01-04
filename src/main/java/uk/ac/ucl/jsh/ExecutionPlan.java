@@ -38,27 +38,6 @@ class ExecutionPlan {
         if(topElement.equals(" ")){
             return;
         }
-        // ConnectionType type = ConnectionType.valueOf(topElement);
-        // switch (type) {
-        //     case SEQUENCE:
-        //         commands.addAll(subCommands);
-        //         subCommands.clear();
-        //         commands.addAll(joinPlan.getCommandQueue());
-        //         break;
-        //     case PIPE:
-        //     case REDIRECT_FROM:
-        //     case REDIRECT_TO:
-        //         commands.addAll(joinPlan.getCommandQueue());
-        //         commands.addAll(subCommands);
-        //         subCommands.clear();
-        //         break;
-        //     case END_COMMAND:
-        //         commands.addAll(subCommands);
-        //         subCommands.clear();
-        //         break;
-        //     default:
-        //         subCommands.addAll(joinPlan.getCommandQueue());
-        // }
         if(topElement == ConnectionType.SEQUENCE.toString() ||
            topElement == ConnectionType.PIPE.toString() ||
            topElement == ConnectionType.REDIRECT_FROM.toString() ||
