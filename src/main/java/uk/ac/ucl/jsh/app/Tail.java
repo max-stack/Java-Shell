@@ -24,10 +24,10 @@ public class Tail implements Application {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
         if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "head: too many arguments"); return;
+            HelperMethods.outputError(unsafe, out, "tail: too many arguments"); return;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            HelperMethods.outputError(unsafe, out, "head: wrong argument " + appArgs.get(0)); return;
+            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return;
         }        
 
         int tailLines = 10;
@@ -42,14 +42,20 @@ public class Tail implements Application {
             try {
                 tailLines = Integer.parseInt(appArgs.get(1));
             } catch (NumberFormatException e) {
-                HelperMethods.outputError(unsafe, out, "head: wrong number " + appArgs.get(1)); return;
+                HelperMethods.outputError(unsafe, out, "tail: wrong number " + appArgs.get(1)); return;
             }
         }
 
         if (tailArg.isEmpty()) { // Take InputStream
             
             String[] pipeInput = HelperMethods.readInputStream(in);
-            for (int i = 0; i < tailLines; i++) {
+            int index;
+            if (tailLines > pipeInput.length) {
+                index = 0;
+            } else {
+                index = pipeInput.length - tailLines;
+            }
+            for (int i = index; i < pipeInput.length; i++) {
                 try {
                     writer.write(pipeInput[i]);
                     writer.write(System.getProperty("line.separator"));
