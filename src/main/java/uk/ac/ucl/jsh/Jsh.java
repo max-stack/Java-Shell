@@ -97,7 +97,7 @@ public class Jsh {
                     }
                 }
                 if (globbingResult.isEmpty()) {
-                    globbingResult.add(nonQuote);
+                    globbingResult.add(nonQuote.replaceAll("\"",""));
                 }
                 tokens.addAll(globbingResult);
             }
