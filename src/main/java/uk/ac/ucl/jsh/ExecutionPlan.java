@@ -64,14 +64,22 @@ class ExecutionPlan {
         }
         else if(topElement == ConnectionType.SUBSTITUTION.toString()){
             if(substitutionCommand == null){
-                substitutionCommand = subCommands.remove();
+                if(!subCommands.isEmpty()){
+                    substitutionCommand = subCommands.remove();
+                }
+                else{
+                    commands.add("appsub");
+                    substitutionCommand = "";
+                }
                 commands.addAll(joinPlan.getCommandQueue());
             }
             else{
                 commands.addAll(subCommands);
                 subCommands.clear();
                 commands.addAll(joinPlan.getCommandQueue());
-                commands.add(substitutionCommand);
+                if(substitutionCommand != ""){
+                    commands.add(substitutionCommand);
+                }
                 substitutionCommand = null;
             }
         }
