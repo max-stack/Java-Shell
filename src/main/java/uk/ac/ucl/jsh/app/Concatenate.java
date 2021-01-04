@@ -54,11 +54,9 @@ public class Concatenate implements Application {
                     } catch (IOException e) {
                         HelperMethods.outputError(unsafe, out, "cat: cannot open " + arg); return;
                     }
-                } catch (IOException e) {
-                    HelperMethods.outputError(unsafe, out, "cat: cannot open " + arg); return;
+                } else {
+                    HelperMethods.outputError(unsafe, out, "cat: " + arg + " does not exist"); return;
                 }
-            } else {
-                HelperMethods.outputError(unsafe, out, "cat: " + arg + " does not exist"); return;
             }
         }
 
