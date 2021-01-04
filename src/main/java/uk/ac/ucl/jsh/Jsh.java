@@ -197,7 +197,6 @@ public class Jsh {
         }
         return writeFile;
     }
-
     // private static void inputToOutput (OutputStream out, InputStream in){
     //     int charRead;
     //     while((charRead = in.read()) > 0){
@@ -218,6 +217,7 @@ public class Jsh {
         String subCommand = "";
         PipedInputStream pipedInput;
         boolean appSub = false;
+
 
         while(!commands.isEmpty()){
             InputStream input = lastInput;

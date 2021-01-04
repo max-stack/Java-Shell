@@ -9,7 +9,10 @@ class ExecutionPlan {
     Queue<String> commands = new LinkedList<>();
     LinkedList<String> subCommands = new LinkedList<>();
     boolean prevTerminal = false;
+<<<<<<< HEAD
     boolean findNextQuote = false;
+=======
+>>>>>>> cdc64fd61f6e83d3d0938dee2b2417b53a3c9750
     String substitutionCommand = null;
 
     public ExecutionPlan(String[] args) {
@@ -59,6 +62,7 @@ class ExecutionPlan {
         if(topElement == ConnectionType.SEQUENCE.toString() ||
            topElement == ConnectionType.PIPE.toString() ||
            topElement == ConnectionType.REDIRECT_FROM.toString() ||
+<<<<<<< HEAD
            topElement == ConnectionType.REDIRECT_TO.toString()){          
             if(findNextQuote || ( !subCommands.isEmpty() && 
                (StringUtils.countMatches(subCommands.getLast(), "\"") == 1 ||
@@ -81,15 +85,29 @@ class ExecutionPlan {
                     commands.add("appsub");
                     substitutionCommand = "";
                 }
+=======
+           topElement == ConnectionType.REDIRECT_TO.toString()){
+            commands.addAll(subCommands);
+            subCommands.clear();
+            commands.addAll(joinPlan.getCommandQueue());
+        }
+        else if(topElement == ConnectionType.SUBSTITUTION.toString()){
+            if(substitutionCommand == null){
+                substitutionCommand = subCommands.remove();
+>>>>>>> cdc64fd61f6e83d3d0938dee2b2417b53a3c9750
                 commands.addAll(joinPlan.getCommandQueue());
             }
             else{
                 commands.addAll(subCommands);
                 subCommands.clear();
                 commands.addAll(joinPlan.getCommandQueue());
+<<<<<<< HEAD
                 if(substitutionCommand != ""){
                     commands.add(substitutionCommand);
                 }
+=======
+                commands.add(substitutionCommand);
+>>>>>>> cdc64fd61f6e83d3d0938dee2b2417b53a3c9750
                 substitutionCommand = null;
             }
         }
