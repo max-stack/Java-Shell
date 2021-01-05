@@ -44,11 +44,6 @@ import uk.ac.ucl.jsh.app.ApplicationFactory;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 
-//Shell.Java interface
-//Takes run(shell, args, input,output)
-//output stout then output = stdout
-//if pipe give output = outputstream but needs to be on seperate threads
-//
 
 public class Jsh {
 
@@ -60,7 +55,6 @@ public class Jsh {
         Pattern regex = Pattern.compile(spaceRegex);
         Matcher regexMatcher = regex.matcher(rawCommand);
         String nonQuote;
-        String tempToken;
         boolean previousQuoted = false;
 
         while (regexMatcher.find()) {
@@ -197,16 +191,9 @@ public class Jsh {
         }
         return writeFile;
     }
-    // private static void inputToOutput (OutputStream out, InputStream in){
-    //     int charRead;
-    //     while((charRead = in.read()) > 0){
-    //         out.write(charRead);
-    //     }
-    // }
 
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
-        //System.out.println(commands);
         ExecutorService executor = Executors.newCachedThreadPool();
         InputStream lastInput = null;
         OutputStream subOutput = null;
@@ -251,7 +238,6 @@ public class Jsh {
                     substitution = false;
                     command = commands.poll();
                     if(subCommand.charAt(0) == '\''){
-                        String temp = subCommand;
                         subCommand = "\"" + subCommand + "\"";
                     }
                     if(appSub){
@@ -319,11 +305,7 @@ public class Jsh {
                     commands.poll();
                 }
             }
-            //System.out.println("Command:");
-            //System.out.println(command);
             ArrayList<String> tokens = tokenSplit(command);
-            //System.out.print("tokens:");
-            //System.out.println(Arrays.toString(tokens.toArray()));
             String appName = tokens.get(0);
             ApplicationFactory.make(appName);
             Boolean unsafe = false;
@@ -340,10 +322,6 @@ public class Jsh {
                 }
                 executor = Executors.newCachedThreadPool();
             }
-            // byte[] test1 = new byte[100];
-            // pipedIn.read(test1);
-            // String testString = new String(test1);
-            // System.out.println(testString);
         }
     }
 
