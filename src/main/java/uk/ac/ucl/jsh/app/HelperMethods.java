@@ -32,6 +32,7 @@ public class HelperMethods {
             writer.write(System.getProperty("line.separator"));
             writer.flush();
         } else {
+            System.err.println(message);
             System.exit(0);
         }
     }
