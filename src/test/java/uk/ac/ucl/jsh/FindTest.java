@@ -17,16 +17,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+
+import uk.ac.ucl.jsh.app.Find;
 
 
-
-public class JshTest {
+public class FindTest {
 
     static File dir;
     static File file;
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-
 
     @BeforeAll
     static void setup() throws Exception{
@@ -51,8 +52,14 @@ public class JshTest {
     }
 
     @Test
-    public void testEcho() throws Exception {
-        Jsh.eval("echo foo");
-        assertEquals("foo" , outputStreamCaptor.toString().trim());
+    public void testFindSafe() throws Exception {
+        //find -name file1.txt
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("-name");
+        args.add("file1.txt");
+
+        new Find().exec(args, null, System.out, false);
+        assertEquals("./file1.txt" , outputStreamCaptor.toString().trim());
     }
 }

@@ -17,7 +17,7 @@ import uk.ac.ucl.jsh.Jsh;
 import uk.ac.ucl.jsh.app.HelperMethods;
 
 
-class Find implements Application {
+public class Find implements Application {
     
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
