@@ -198,7 +198,12 @@ public class Jsh {
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
         //System.out.println(commands);
+<<<<<<< HEAD
         ExecutorService executor = Executors.newCachedThreadPool();
+=======
+        executor = Executors.newCachedThreadPool();
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+>>>>>>> 9bae942c9c71f20439a6b4bcaa88c1d7c585a521
         InputStream lastInput = null;
         OutputStream subOutput = null;
         InputStream subInput = null;
