@@ -27,14 +27,16 @@ public class FindTest {
     static File dir;
     static File file;
     private final PrintStream standardOut = System.out;
+    private final PrintStream standardErr = System.err;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream outputStreamErrCaptor = new ByteArrayOutputStream();
 
     @BeforeAll
     static void setup() throws Exception{
-        dir = Files.createTempDirectory(Paths.get(""), "dir1").toFile();
+        dir = Files.createTempDirectory(Paths.get(""), "tmp").toFile();
         dir.deleteOnExit();
-        file = File.createTempFile("file1", ".txt", dir);
-        file.deleteOnExit();
+        file = new File("file1.txt");
+        file.createNewFile();
         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
         bw.write("AAA\nBBB\nCCC");
         bw.close();
@@ -43,12 +45,14 @@ public class FindTest {
     @BeforeEach
     public void changeStream() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
+        System.setErr(new PrintStream(outputStreamErrCaptor));
        
     }
 
     @AfterEach
     public void tearDown() {
         System.setOut(standardOut);
+        System.setErr(standardErr);
     }
 
     @Test
