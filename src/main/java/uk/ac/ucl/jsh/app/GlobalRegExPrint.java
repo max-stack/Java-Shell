@@ -26,6 +26,10 @@ public class GlobalRegExPrint implements Application {
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
+        if(Thread.currentThread().isInterrupted()){
+            return;
+        }
+
         Pattern grepPattern;
         try {
             grepPattern = Pattern.compile(appArgs.get(0));

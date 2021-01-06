@@ -22,6 +22,10 @@ public class Head implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
+
+        if(Thread.currentThread().isInterrupted()){
+            return;
+        }
         
         if (appArgs.size() > 3) {
             HelperMethods.outputError(unsafe, out, "head: too many arguments"); return;

@@ -13,6 +13,10 @@ public class ChangeDirectory implements Application {
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
 
+        if(Thread.currentThread().isInterrupted()){
+            return;
+        }
+
         if (appArgs.isEmpty()) {
             HelperMethods.outputError(unsafe, out, "cd: missing argument"); return;
         } else if (appArgs.size() > 1) {
