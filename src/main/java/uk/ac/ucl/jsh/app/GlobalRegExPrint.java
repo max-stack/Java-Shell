@@ -30,6 +30,10 @@ public class GlobalRegExPrint implements Application {
             return;
         }
 
+        if (appArgs.isEmpty()) {
+            HelperMethods.outputError(unsafe, out, "grep: missing arguments"); return;
+        }
+
         Pattern grepPattern;
         try {
             grepPattern = Pattern.compile(appArgs.get(0));
