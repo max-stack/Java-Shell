@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,8 +17,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.Cut;
 
@@ -123,11 +126,11 @@ public class CutTest {
 
         ArrayList<String> args = new  ArrayList<String>();
         args.add("-b");
-        args.add("1,3,5,7,9");
+        args.add("1,3,5,7,9,10,11");
         args.add("file1.txt");
 
         new Cut().exec(args, null, System.out, false);
-        assertEquals("ACEGI\n13579\nABCDE", outputStreamCaptor.toString().trim());
+        assertEquals("ACEGIJ\n135790\nABCDEE", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -159,7 +162,7 @@ public class CutTest {
 
         ArrayList<String> args = new  ArrayList<String>();
         args.add("-b");
-        args.add("2,-3,5,7-,8-,100");
+        args.add("2,-3,5,7-,8-,10,11");
         args.add("file1.txt");
 
         new Cut().exec(args, null, System.out, false);
@@ -176,6 +179,20 @@ public class CutTest {
 
         new Cut().exec(args, null, System.out, false);
         assertEquals("cut: invalid.abc does not exist", outputStreamErrCaptor.toString().trim());
+    }
+
+    @Test
+    public void testCutStdin() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-b");
+        args.add("1,3,5,7");
+
+        String content = "ABCDEF\nInput Stream\n123456";
+        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+
+        new Cut().exec(args, in, System.out, false);
+        assertEquals("ACE\nIptS\n135", outputStreamCaptor.toString().trim());
     }
 
 }

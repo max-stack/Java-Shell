@@ -198,8 +198,7 @@ public class Jsh {
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
         //System.out.println(commands);
-        executor = Executors.newCachedThreadPool();
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+        ExecutorService executor = Executors.newCachedThreadPool();
         InputStream lastInput = null;
         OutputStream subOutput = null;
         InputStream subInput = null;
@@ -210,7 +209,6 @@ public class Jsh {
         PipedInputStream pipedInput;
         boolean appSub = false;
         int taskCount = 0;
-
 
         while(!commands.isEmpty()){
             InputStream input = lastInput;

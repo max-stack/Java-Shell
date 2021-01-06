@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,8 +17,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.Unique;
 
@@ -116,6 +119,19 @@ public class UniqTest {
 
         new Unique().exec(args, null, System.out, false);
         assertEquals("uniq: wrong file argument", outputStreamErrCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUniqStdin() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-i");
+
+        String content = "AAAA\naaaa\nBBBB\nbbbb";
+        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+
+        new Unique().exec(args, in, System.out, false);
+        assertEquals("AAAA\nBBBB", outputStreamCaptor.toString().trim());
     }
 
 }
