@@ -72,7 +72,7 @@ public class Cut implements Application {
                 l_value = Integer.parseInt(indexParts[0]) - 1;
                 r_value = Integer.parseInt(indexParts[1]);
                 if (l_value > r_value) {
-                    HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return;
+                    HelperMethods.outputError(unsafe, out, "cut: invalid range " + appArgs.get(1)); return;
                 }
             } else if (!range.contains("-")) {
                 l_value = Integer.parseInt(range) - 1;

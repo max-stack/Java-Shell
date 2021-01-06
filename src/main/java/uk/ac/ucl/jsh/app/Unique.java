@@ -65,8 +65,13 @@ public class Unique implements Application {
             String uniqFile = Jsh.currentDirectory + File.separator + uniqArg;
             String input = null;
             String adjustedInput = null;
+            Scanner sc;
 
-            Scanner sc = new Scanner(new File(uniqFile));
+            try {
+                sc = new Scanner(new File(uniqFile));
+            } catch (Exception e) {
+                HelperMethods.outputError(unsafe, out, "uniq: wrong file argument"); return;
+            }
 
             while (sc.hasNextLine()) {
                 input = sc.nextLine();
