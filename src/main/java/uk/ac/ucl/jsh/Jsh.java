@@ -200,7 +200,6 @@ public class Jsh {
         //System.out.println(commands);
         executor = Executors.newCachedThreadPool();
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
-        ExecutorCompletionService ecs = new ExecutorCompletionService(executor);
         InputStream lastInput = null;
         OutputStream subOutput = null;
         InputStream subInput = null;

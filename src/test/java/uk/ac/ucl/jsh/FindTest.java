@@ -66,6 +66,6 @@ public class FindTest {
         args.add("file1.txt");
 
         new Find().exec(args, null, System.out, false);
-        assertEquals("./file1.txt" , outputStreamCaptor.toString().trim());
+        assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 }

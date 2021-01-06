@@ -18,21 +18,15 @@ public class Echo implements Application {
         if (appArgs.isEmpty()) {
             HelperMethods.outputError(unsafe, out, "echo: missing arguments"); return;
         }
-        
-        boolean atLeastOnePrinted = false;
+
         for(int i = 0; i < appArgs.size() - 1; i++){
             writer.write(appArgs.get(i));
             writer.write(" ");
             writer.flush();
         }
         writer.write(appArgs.get(appArgs.size() - 1));
+        writer.write(System.getProperty("line.separator"));
         writer.flush();
-        atLeastOnePrinted = true;
-
-        if (atLeastOnePrinted) {
-            writer.write(System.getProperty("line.separator"));
-            writer.flush();
-        }
     }
 
 }
