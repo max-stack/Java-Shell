@@ -33,9 +33,11 @@ public class FindTest {
 
     @BeforeAll
     static void setup() throws Exception{
-        dir = Files.createTempDirectory(Paths.get(""), "tmp").toFile();
-        dir.deleteOnExit();
-        file = new File("file1.txt");
+        dir = new File("./dir1");
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        file = new File("./dir1/file1.txt");
         file.createNewFile();
         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
         bw.write("AAA\nBBB\nCCC");
