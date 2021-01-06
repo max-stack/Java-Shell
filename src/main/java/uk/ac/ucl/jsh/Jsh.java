@@ -50,7 +50,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
-    public static boolean testBoolean = false;
+    public static boolean quitCommand = false;
 
       public static ArrayList<String> tokenSplit(String rawCommand) throws IOException{
         String spaceRegex = "\"([^\"]*)\"|'([^']*)'|[^\\s]+";
@@ -208,7 +208,6 @@ public class Jsh {
         String subCommand = "";
         PipedInputStream pipedInput;
         boolean appSub = false;
-        int taskCount = 0;
 
         while(!commands.isEmpty()){
             InputStream input = lastInput;
@@ -315,7 +314,6 @@ public class Jsh {
             Boolean unsafe = false;
             if (appName.length() > 1 && appName.substring(0,1).equals("_")) { unsafe = true; }
             executor.execute(new RunCommand(tokens, output, input, unsafe));
-            taskCount ++;
             
             if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
                 executor.shutdown();
@@ -325,11 +323,11 @@ public class Jsh {
                 catch (InterruptedException e){
                     e.printStackTrace();
                 }
-               if(!testBoolean){
+               if(!quitCommand){
                    executor = Executors.newCachedThreadPool();
                }
                else{
-                   testBoolean = false;
+                   quitCommand = false;
                    break;
                }
             }

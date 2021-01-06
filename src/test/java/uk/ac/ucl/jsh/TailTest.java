@@ -1,6 +1,7 @@
 package uk.ac.ucl.jsh;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +63,14 @@ public class TailTest {
         bw.write("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J\nK K");
         bw.close();
     }
+
+    @AfterAll
+    static void end() throws Exception{
+        file1.delete();
+        file2.delete();
+        file3.delete();
+    }
+
 
     @BeforeEach
     public void changeStream() throws Exception {

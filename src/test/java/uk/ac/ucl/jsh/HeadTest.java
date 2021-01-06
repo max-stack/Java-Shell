@@ -1,6 +1,7 @@
 package uk.ac.ucl.jsh;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -61,6 +63,13 @@ public class HeadTest {
         BufferedWriter bw = new BufferedWriter(new FileWriter(file1));
         bw.write("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J\nK K");
         bw.close();
+    }
+    
+    @AfterAll
+    static void end() throws Exception{
+        file1.delete();
+        file2.delete();
+        file3.delete();
     }
 
     @BeforeEach
@@ -146,15 +155,17 @@ public class HeadTest {
         assertEquals("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J", outputStreamCaptor.toString().trim());
     }
 
-    // @Test
-    // public void testSafeThrowsExceptionInputStream() throws Exception {
-    //     //Throw exception - unable to open the file.
-    //     ArrayList<String> args = new  ArrayList<String>();
-    //     FileInputStream testInput = new FileInputStream(dir);
+    @Test
+    public void testSafeThrowsExceptionInputStream() throws Exception {
+        //Throw exception - unable to open the file.
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+        ArrayList<String> args = new  ArrayList<String>();
+        FileInputStream testInput = new FileInputStream(file1);
 
-    //     new Head().exec(args, testInput, System.out, false);
-    //     assertEquals("" + args.get(1), outputStreamCaptor.toString().trim());
-    // }
+        new Head().exec(args, testInput, closedOutputStream, false);
+        assertEquals("", outputStreamCaptor.toString().trim());
+    }
 
     @Test
     public void testSafeThrowsExceptionCannotOpenFile() throws Exception {
