@@ -13,6 +13,10 @@ public class PrintWorkingDirectory implements Application {
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
+        if(Thread.currentThread().isInterrupted()){
+            return;
+        }
+
         writer.write(Jsh.currentDirectory);
         writer.write(System.getProperty("line.separator"));
         writer.flush();
