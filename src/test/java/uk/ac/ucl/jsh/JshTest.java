@@ -31,9 +31,7 @@ public class JshTest {
     @BeforeAll
     static void setup() throws Exception{
         dir = Files.createTempDirectory(Paths.get(""), "dir1").toFile();
-        dir.deleteOnExit();
         file = File.createTempFile("file1", ".txt", dir);
-        file.deleteOnExit();
         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
         bw.write("AAA\nBBB\nCCC");
         bw.close();
@@ -51,8 +49,15 @@ public class JshTest {
     }
 
     @Test
-    public void testEcho() throws Exception {
+    public void testSafeEcho() throws Exception {
         Jsh.eval("echo foo");
         assertEquals("foo" , outputStreamCaptor.toString().trim());
     }
+
+    @Test
+    public void testSafeLS() throws Exception {
+        Jsh.eval("ls dir1");
+        assertEquals("file1.txt" , outputStreamCaptor.toString().trim());
+    }
+
 }
