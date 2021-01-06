@@ -28,10 +28,6 @@ public class Sort implements Application{
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        if(Thread.currentThread().isInterrupted()){
-            return;
-        }
-
         if (appArgs.size() > 2) {
             HelperMethods.outputError(unsafe, out, "sort: too many arguments"); return;
         }
