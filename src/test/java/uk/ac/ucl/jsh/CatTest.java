@@ -23,10 +23,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 
-import uk.ac.ucl.jsh.app.Find;
+import uk.ac.ucl.jsh.app.Concatenate;
 
 
-public class FindTest {
+public class CatTest {
 
     static File dir;
     static File dir2;
@@ -67,53 +67,62 @@ public class FindTest {
     }
 
     @Test
-    public void testFindMissingArgs() throws Exception {
+    public void testCatSafe() throws Exception {
+
         ArrayList<String> args = new  ArrayList<String>();
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: missing arguments" , outputStreamErrCaptor.toString().trim());
+        args.add("dir1/file1.txt");
+
+        new Concatenate().exec(args, null, System.out, false);
+        assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
 
     @Test
-    public void testFindTooManyArgs() throws Exception {
+    public void testCatUnsafe() throws Exception {
         ArrayList<String> args = new  ArrayList<String>();
-        args.add("a");
-        args.add("b");
-        args.add("c");
-        args.add("d");
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: too many arguments" , outputStreamErrCaptor.toString().trim());
+        args.add("dir1/file1.txt");
+        new Concatenate().exec(args, null, System.out, true);
+        assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
 
     @Test
-    public void testFindMissingArg() throws Exception {
+    public void testCatMissingDir() throws Exception {
+
         ArrayList<String> args = new  ArrayList<String>();
-        args.add("a");
-        args.add("b");
-        args.add("c");
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: missing -name argument" , outputStreamErrCaptor.toString().trim());
+        args.add("dir3");
+
+        new Concatenate().exec(args, null, System.out, false);
+        assertEquals("cat: dir3 does not exist" , outputStreamErrCaptor.toString().trim());
     }
 
     @Test
-    public void testFindMissingArg2() throws Exception {
+    public void testCatDir() throws Exception {
+
         ArrayList<String> args = new  ArrayList<String>();
-        args.add("a");
-        args.add("b");
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: missing -name argument" , outputStreamErrCaptor.toString().trim());
+        args.add("dir1");
+
+        new Concatenate().exec(args, null, System.out, false);
+        assertEquals("cat: cannot open dir1" , outputStreamErrCaptor.toString().trim());
     }
 
-    /*
+
     @Test
-    public void testFindGlob() throws Exception {
+    public void testCatStdin() throws Exception {
 
-        ArrayList<String> args = new ArrayList<String>();
-        args.add("-name");
-        args.add("file1.txt");
-
-        new Find().exec(args, null, System.out, false);
-        assertEquals("./dir1/file1.txt" , outputStreamErrCaptor.toString().trim());
+        ArrayList<String> args = new  ArrayList<String>();
+        String content = "dir1/file1.txt";
+        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        new Concatenate().exec(args, in, System.out, false);
+        assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
-    */
+
+    @Test
+    public void testCatStdinFile() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        String content = "dir1/file1.txt";
+        InputStream in = new FileInputStream(content);
+        new Concatenate().exec(args, in, System.out, false);
+        assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
+    }
 
 }
