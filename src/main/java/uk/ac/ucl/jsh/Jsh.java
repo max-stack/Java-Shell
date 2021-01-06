@@ -50,7 +50,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
-    public static ExecutorService executor;
+    public static boolean testBoolean = false;
 
       public static ArrayList<String> tokenSplit(String rawCommand) throws IOException{
         String spaceRegex = "\"([^\"]*)\"|'([^']*)'|[^\\s]+";
@@ -198,8 +198,12 @@ public class Jsh {
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
         //System.out.println(commands);
+<<<<<<< HEAD
+        ExecutorService executor = Executors.newCachedThreadPool();
+=======
         executor = Executors.newCachedThreadPool();
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+>>>>>>> 9bae942c9c71f20439a6b4bcaa88c1d7c585a521
         InputStream lastInput = null;
         OutputStream subOutput = null;
         InputStream subInput = null;
@@ -318,32 +322,23 @@ public class Jsh {
             if (appName.length() > 1 && appName.substring(0,1).equals("_")) { unsafe = true; }
             executor.execute(new RunCommand(tokens, output, input, unsafe));
             taskCount ++;
-
-            if(command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command)){
-                long completedTaskCount = threadPoolExecutor.getCompletedTaskCount();
-                long tasksToDo = taskCount - completedTaskCount;
-                while(tasksToDo > 0){
-                    completedTaskCount = threadPoolExecutor.getCompletedTaskCount();
-                    tasksToDo = taskCount - completedTaskCount;
-                }
-            }
             
-            // if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
-            //     // executor.shutdown();
-               
-            //     // executor = Executors.newCachedThreadPool();
-            // }
-            // byte[] test1 = new byte[100];
-            // pipedIn.read(test1);
-            // String testString = new String(test1);
-            // System.out.println(testString);
-        }
-        executor.shutdown();
-        try{
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        }
-        catch (InterruptedException e){
-            e.printStackTrace();
+            if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
+                executor.shutdown();
+                try{
+                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                }
+                catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+               if(!testBoolean){
+                   executor = Executors.newCachedThreadPool();
+               }
+               else{
+                   testBoolean = false;
+                   break;
+               }
+            }
         }
     }
 
@@ -360,12 +355,7 @@ public class Jsh {
             try {
                 eval(args[1]);
             } catch (Exception e) {
-                if(executor.isShutdown()){
-                    ;
-                }
-                else{
-                    System.out.println("jsh: " + e.getMessage());
-                }
+                System.out.println("jsh: " + e.getMessage());
             }
         } else {
             Scanner input = new Scanner(System.in);
@@ -377,12 +367,7 @@ public class Jsh {
                         String cmdline = input.nextLine();
                         eval(cmdline);
                     } catch (Exception e) {
-                        if(executor.isShutdown()){
-                            ;
-                        }
-                        else{
-                            System.out.println("jsh: " + e.getMessage());
-                        }
+                        System.out.println("jsh: " + e.getMessage());
                     }
                 }
             } finally {

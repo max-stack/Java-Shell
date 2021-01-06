@@ -14,10 +14,6 @@ public class List implements Application {
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        if(Thread.currentThread().isInterrupted()){
-            return;
-        }
-        
         File currDir;
         if (appArgs.isEmpty()) {
             currDir = new File(Jsh.currentDirectory);
