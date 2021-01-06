@@ -210,7 +210,6 @@ public class Jsh {
         boolean appSub = false;
         int taskCount = 0;
 
-
         while(!commands.isEmpty()){
             InputStream input = lastInput;
             OutputStream output = System.out;

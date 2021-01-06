@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,16 +16,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.nio.charset.StandardCharsets;
+import java.util.*;
 
-import uk.ac.ucl.jsh.app.Find;
+import uk.ac.ucl.jsh.app.List;
 
 
-public class FindTest {
+public class ListTest {
 
     static File dir;
     static File dir2;
@@ -67,53 +63,71 @@ public class FindTest {
     }
 
     @Test
-    public void testFindMissingArgs() throws Exception {
+    public void testListSafe() throws Exception {
+
         ArrayList<String> args = new  ArrayList<String>();
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: missing arguments" , outputStreamErrCaptor.toString().trim());
+
+        new List().exec(args, null, System.out, false);
+        assertEquals("src jsh Dockerfile tools pom.xml dir2 target dir1" , outputStreamCaptor.toString().trim().replaceAll("[\\n\\t ]", " "));
     }
 
     @Test
-    public void testFindTooManyArgs() throws Exception {
-        ArrayList<String> args = new  ArrayList<String>();
-        args.add("a");
-        args.add("b");
-        args.add("c");
-        args.add("d");
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: too many arguments" , outputStreamErrCaptor.toString().trim());
-    }
+    public void testListMultiArg() throws Exception {
 
-    @Test
-    public void testFindMissingArg() throws Exception {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("a");
         args.add("b");
-        args.add("c");
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: missing -name argument" , outputStreamErrCaptor.toString().trim());
+
+        new List().exec(args, null, System.out, false);
+        assertEquals("ls: too many arguments" , outputStreamErrCaptor.toString().trim());
     }
 
     @Test
-    public void testFindMissingArg2() throws Exception {
+    public void testListEmptyArgsUnsafe() throws Exception {
+
         ArrayList<String> args = new  ArrayList<String>();
-        args.add("a");
-        args.add("b");
-        new Find().exec(args, null, System.out, false);
-        assertEquals("find: missing -name argument" , outputStreamErrCaptor.toString().trim());
+        new List().exec(args, null, System.out, true);
+        assertEquals("src jsh Dockerfile tools pom.xml dir2 target dir1" , outputStreamCaptor.toString().trim().replaceAll("[\\n\\t ]", " "));
     }
 
-    /*
     @Test
-    public void testFindGlob() throws Exception {
+    public void testListMissingDir() throws Exception {
 
-        ArrayList<String> args = new ArrayList<String>();
-        args.add("-name");
-        args.add("file1.txt");
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("dir3");
 
-        new Find().exec(args, null, System.out, false);
-        assertEquals("./dir1/file1.txt" , outputStreamErrCaptor.toString().trim());
+        new List().exec(args, null, System.out, false);
+        assertEquals("ls: no such directory" , outputStreamErrCaptor.toString().trim());
     }
-    */
+
+    @Test
+    public void testListDir() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("dir1");
+
+        new List().exec(args, null, System.out, false);
+        assertEquals("file1.txt" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testListMissingDirUnsafe() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("dir3");
+
+        new List().exec(args, null, System.out, true);
+        assertEquals("ls: no such directory" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testListEmptyDir() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("dir2");
+
+        new List().exec(args, null, System.out, true);
+        assertEquals("" , outputStreamCaptor.toString().trim());
+    }
 
 }
