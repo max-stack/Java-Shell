@@ -15,6 +15,8 @@ import java.io.PrintWriter;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.nio.file.DirectoryStream;
@@ -48,6 +50,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class Jsh {
 
     public static String currentDirectory = System.getProperty("user.dir");
+    public static ExecutorService executor;
 
       public static ArrayList<String> tokenSplit(String rawCommand) throws IOException{
         String spaceRegex = "\"([^\"]*)\"|'([^']*)'|[^\\s]+";
@@ -194,7 +197,10 @@ public class Jsh {
 
     public static void eval(String cmdline) throws IOException{
         Queue<String> commands = parse(cmdline).getCommandQueue();
-        ExecutorService executor = Executors.newCachedThreadPool();
+        //System.out.println(commands);
+        executor = Executors.newCachedThreadPool();
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+        ExecutorCompletionService ecs = new ExecutorCompletionService(executor);
         InputStream lastInput = null;
         OutputStream subOutput = null;
         InputStream subInput = null;
@@ -204,6 +210,7 @@ public class Jsh {
         String subCommand = "";
         PipedInputStream pipedInput;
         boolean appSub = false;
+        int taskCount = 0;
 
 
         while(!commands.isEmpty()){
@@ -219,7 +226,7 @@ public class Jsh {
                 subInput = pipedInput;
                 output = subOutput;
             }
-            
+
             String command = commands.poll();
             if(command.equals("appsub")){
                 appSub = true;
@@ -243,7 +250,7 @@ public class Jsh {
                     if(appSub){
                         command = subCommand + command;
                     }
-                    else if(command.substring(0, 4).equals("echo")){
+                    else if(command.stripLeading().substring(0, 4).equals("echo")){
                         command = command.stripLeading();
                         if(commands.peek() != null && !ConnectionType.connectionExists(commands.peek())){
                             command = command + subCommand + commands.poll();
@@ -311,17 +318,33 @@ public class Jsh {
             Boolean unsafe = false;
             if (appName.length() > 1 && appName.substring(0,1).equals("_")) { unsafe = true; }
             executor.execute(new RunCommand(tokens, output, input, unsafe));
-            
-            if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
-                executor.shutdown();
-                try{
-                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            taskCount ++;
+
+            if(command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command)){
+                long completedTaskCount = threadPoolExecutor.getCompletedTaskCount();
+                long tasksToDo = taskCount - completedTaskCount;
+                while(tasksToDo > 0){
+                    completedTaskCount = threadPoolExecutor.getCompletedTaskCount();
+                    tasksToDo = taskCount - completedTaskCount;
                 }
-                catch (InterruptedException e){
-                    e.printStackTrace();
-                }
-                executor = Executors.newCachedThreadPool();
             }
+            
+            // if((command == ConnectionType.SEQUENCE.toString() || !ConnectionType.connectionExists(command))){
+            //     // executor.shutdown();
+               
+            //     // executor = Executors.newCachedThreadPool();
+            // }
+            // byte[] test1 = new byte[100];
+            // pipedIn.read(test1);
+            // String testString = new String(test1);
+            // System.out.println(testString);
+        }
+        executor.shutdown();
+        try{
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        }
+        catch (InterruptedException e){
+            e.printStackTrace();
         }
     }
 
@@ -338,7 +361,12 @@ public class Jsh {
             try {
                 eval(args[1]);
             } catch (Exception e) {
-                System.out.println("jsh: " + e.getMessage());
+                if(executor.isShutdown()){
+                    ;
+                }
+                else{
+                    System.out.println("jsh: " + e.getMessage());
+                }
             }
         } else {
             Scanner input = new Scanner(System.in);
@@ -350,7 +378,12 @@ public class Jsh {
                         String cmdline = input.nextLine();
                         eval(cmdline);
                     } catch (Exception e) {
-                        System.out.println("jsh: " + e.getMessage());
+                        if(executor.isShutdown()){
+                            ;
+                        }
+                        else{
+                            System.out.println("jsh: " + e.getMessage());
+                        }
                     }
                 }
             } finally {
