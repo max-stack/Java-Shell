@@ -1,6 +1,7 @@
 package uk.ac.ucl.jsh;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,13 @@ public class SortTest {
         bw.write("Zebra\n19\na\nhappy\ntest\n291\nA\nMonopoly234");
         bw.close();
     }
+
+    @AfterAll
+    static void end() throws Exception{
+        file1.delete();
+        file2.delete();
+    }
+
 
     @BeforeEach
     public void changeStream() throws Exception {
