@@ -36,7 +36,7 @@ public class HelperMethods {
             writer.write(System.getProperty("line.separator"));
             writer.flush();
         } else {
-            Jsh.testBoolean = true;
+            Jsh.quitCommand = true;
             System.err.println(message);
         }
     }
