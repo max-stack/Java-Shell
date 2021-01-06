@@ -19,10 +19,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import uk.ac.ucl.jsh.app.Find;
+import uk.ac.ucl.jsh.app.Echo;
 
 
-public class FindTest {
+public class EchoTest {
 
     static File dir;
     static File file;
@@ -58,14 +58,40 @@ public class FindTest {
     }
 
     @Test
-    public void testFindSafe() throws Exception {
-        //find -name file1.txt
+    public void testEchoSafe() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        args.add("-name");
-        args.add("file1.txt");
+        args.add("Hello World!");
 
-        new Find().exec(args, null, System.out, false);
-        assertEquals("./file1.txt" , outputStreamCaptor.toString().trim());
+        new Echo().exec(args, null, System.out, false);
+        assertEquals("Hello World!" , outputStreamCaptor.toString().trim());
     }
+
+    @Test
+    public void testEchoMultiArg() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("Hello World!");
+        args.add("Goodbye World!");
+
+        new Echo().exec(args, null, System.out, false);
+        assertEquals("Hello World! Goodbye World!" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testEchoEmptyArgs() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        new Echo().exec(args, null, System.out, false);
+        assertEquals("echo: missing arguments" , outputStreamErrCaptor.toString().trim());
+    }
+
+    @Test
+    public void testEchoEmptyArgsUnsafe() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        new Echo().exec(args, null, System.out, true);
+        assertEquals("echo: missing arguments" , outputStreamCaptor.toString().trim());
+    }
+
 }
