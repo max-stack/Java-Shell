@@ -66,7 +66,7 @@ public class Find implements Application {
                                     relativePath.insert(0, "./");
                                 }
                                 
-                            } else if (finalFilePosition == 2) {
+                            } else {
                                 relativePath.append(line.toString());
                             }
                             writer.write((relativePath.toString()));
@@ -82,7 +82,7 @@ public class Find implements Application {
                                 } else {
                                     relativePath.insert(0, "./");
                                 }
-                            } else if(finalFilePosition == 2) {
+                            } else {
                                 relativePath.append(line.toString());
                             }
                             writer.write((relativePath.toString()));

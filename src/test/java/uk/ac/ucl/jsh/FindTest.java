@@ -163,6 +163,17 @@ public class FindTest {
     }
 
     @Test
+    public void testFindRelDirUnsafe() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-name");
+        args.add("file1.txt");
+
+        new Find().exec(args, null, System.out, true);
+        assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
     public void testFindMissingDir() throws Exception {
 
         ArrayList<String> args = new ArrayList<String>();
@@ -177,6 +188,47 @@ public class FindTest {
         String jshDir;
         jshDir = Jsh.currentDirectory;
         Jsh.currentDirectory = "";
+        args.add("-name");
+        args.add("file1.txt");
+        new Find().exec(args, null, System.out, false);
+        Jsh.currentDirectory = jshDir;
+        assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testFindAbsDirGlob() throws Exception {
+        ArrayList<String> args = new ArrayList<String>();
+        String jshDir;
+        jshDir = Jsh.currentDirectory;
+        Jsh.currentDirectory = "";
+        args.add("-name");
+        args.add("*.txt");
+        new Find().exec(args, null, System.out, false);
+        Jsh.currentDirectory = jshDir;
+        assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testFindRelDir2() throws Exception {
+        ArrayList<String> args = new ArrayList<String>();
+        String jshDir;
+        jshDir = Jsh.currentDirectory;
+        Jsh.currentDirectory = "";
+        args.add("./");
+        args.add("-name");
+        args.add("*.txt");
+        new Find().exec(args, null, System.out, false);
+        Jsh.currentDirectory = jshDir;
+        assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
+    }
+    
+    @Test
+    public void testFindRelDirGlob() throws Exception {
+        ArrayList<String> args = new ArrayList<String>();
+        String jshDir;
+        jshDir = Jsh.currentDirectory;
+        Jsh.currentDirectory = "";
+        args.add("./");
         args.add("-name");
         args.add("file1.txt");
         new Find().exec(args, null, System.out, false);
@@ -204,21 +256,50 @@ public class FindTest {
         args.add("file1.txt");
         assertThrows(RuntimeException.class, () -> new Find().exec(args, null, closedOutputStream , true));
     }
-
     
+    @Test
+    public void testFileNotFoundGlob() throws Exception {
 
-    // @Test
-    // public void testFindAbsDirGlob() throws Exception {
-    //     ArrayList<String> args = new ArrayList<String>();
-    //     String jshDir;
-    //     jshDir = Jsh.currentDirectory;
-    //     Jsh.currentDirectory = "";
-    //     args.add("dir1");
-    //     args.add("-name");
-    //     args.add("'*.txt'");
-    //     new Find().exec(args, null, System.out, false);
-    //     Jsh.currentDirectory = jshDir;
-    //     assertEquals("dir1/file1.txt" , outputStreamCaptor.toString().trim());
-    // }
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("dir2");
+        args.add("-name");
+        args.add("*.txt");
 
+        new Find().exec(args, null, System.out, false);
+        assertEquals("" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testFileNotFound() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("dir2");
+        args.add("-name");
+        args.add("file1.txt");
+
+        new Find().exec(args, null, System.out, false);
+        assertEquals("" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testFileNotFoundGlob2() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-name");
+        args.add("*.abc");
+
+        new Find().exec(args, null, System.out, false);
+        assertEquals("" , outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testFileNotFound2() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-name");
+        args.add("file2.txt");
+
+        new Find().exec(args, null, System.out, false);
+        assertEquals("" , outputStreamCaptor.toString().trim());
+    }
 }

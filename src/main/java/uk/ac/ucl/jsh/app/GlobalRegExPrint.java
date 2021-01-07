@@ -57,9 +57,8 @@ public class GlobalRegExPrint implements Application {
             Path currentDir = Paths.get(Jsh.currentDirectory);
             for (int i = 0; i < numOfFiles; i++) {
                 filePath = currentDir.resolve(appArgs.get(i + 1));
-                if (Files.notExists(filePath) || Files.isDirectory(filePath) || 
-                    !Files.exists(filePath) || !Files.isReadable(filePath)) {
-                        HelperMethods.outputError(unsafe, out, "grep: wrong file argument"); return;
+                if (Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
+                    HelperMethods.outputError(unsafe, out, "grep: wrong file argument"); return;
                 }
                 filePathArray[i] = filePath;
             }

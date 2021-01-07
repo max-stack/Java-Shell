@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import uk.ac.ucl.jsh.app.GlobalRegExPrint;
 
 public class GrepTest {
 
+    static File dir;
     static File file1;
     static File file2;
     private final PrintStream standardOut = System.out;
@@ -36,6 +38,10 @@ public class GrepTest {
 
     @BeforeAll
     static void setup() throws Exception {
+        dir = new File("./dir1");
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
         file1 = new File("./fruits.txt");
         file1.createNewFile();
         BufferedWriter bw1 = new BufferedWriter(new FileWriter(file1));
@@ -113,11 +119,22 @@ public class GrepTest {
     }
 
     @Test
-    public void testGrepInvalidFile() throws Exception {
+    public void testGrepFileDoesntExist() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
         args.add("[a-z]");
         args.add("invalid.abc");
+
+        new GlobalRegExPrint().exec(args, null, System.out, false);
+        assertEquals("grep: wrong file argument", outputStreamErrCaptor.toString().trim());
+    }
+
+    @Test
+    public void testGrepOnDirectory() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("[a-z]");
+        args.add("dir1");
 
         new GlobalRegExPrint().exec(args, null, System.out, false);
         assertEquals("grep: wrong file argument", outputStreamErrCaptor.toString().trim());
@@ -134,6 +151,20 @@ public class GrepTest {
 
         new GlobalRegExPrint().exec(args, in, System.out, false);
         assertEquals("abcdef", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testGrepClosedOutput() throws Exception {
+
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("[a-z]");
+        args.add("fruits.txt");
+
+        new GlobalRegExPrint().exec(args, null, closedOutputStream, false);
+        assertEquals("grep: cannot open fruits.txt", outputStreamErrCaptor.toString().trim());
     }
 
 }

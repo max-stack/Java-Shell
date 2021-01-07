@@ -49,8 +49,8 @@ public class Cut implements Application {
 
         for (String range : cutRanges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
-            if (!valid || range.isEmpty()) {
-                HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return;
+            if (!valid) {
+                HelperMethods.outputError(unsafe, out, "cut: invalid argument " + appArgs.get(1)); return;
             } else {
                 int value;
                 if (range.endsWith("-")) {
@@ -79,7 +79,7 @@ public class Cut implements Application {
                 r_value = l_value + 1;
             }
             for (int num = l_value; num < r_value; num++) {
-                if (!indexes.contains(num) && num > startBoundary && num < endBoundary) { indexes.add(num); }
+                if (!indexes.contains(num) && num > startBoundary - 1 && num < endBoundary) { indexes.add(num); }
             }
         }
 
@@ -90,7 +90,7 @@ public class Cut implements Application {
             String[] pipeInput = HelperMethods.readInputStream(in);
             for (String line : pipeInput) {
                 int start = Math.min(startBoundary, line.length());
-                int end = Math.min(endBoundary, line.length());
+                int end = endBoundary;
 
                 if (start != -1) { writer.write(line.substring(0, start)); }
                 
@@ -101,14 +101,14 @@ public class Cut implements Application {
                         writer.write(line.charAt(index));
                     }
                 }
-                
-                if (end != Integer.MAX_VALUE) { writer.write(line.substring(end)); }
+                        
+                if (end < line.length()) { writer.write(line.substring(end)); }
 
                 writer.write(System.getProperty("line.separator"));
                 writer.flush();
             }
 
-        } else if (appArgs.size() == 3) { // Use file path
+        } else { // Use file path
             String cutArg = appArgs.get(2);
 
             File cutFile = new File(Jsh.currentDirectory + File.separator + cutArg);
@@ -120,7 +120,7 @@ public class Cut implements Application {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         int start = Math.min(startBoundary, line.length());
-                        int end = Math.min(endBoundary, line.length());
+                        int end = endBoundary;
 
                         if (start != -1) { writer.write(line.substring(0, start)); }
                         
@@ -132,7 +132,7 @@ public class Cut implements Application {
                             }
                         }
                         
-                        if (end != Integer.MAX_VALUE) { writer.write(line.substring(end)); }
+                        if (end < line.length()) { writer.write(line.substring(end)); }
         
                         writer.write(System.getProperty("line.separator"));
                         writer.flush();
