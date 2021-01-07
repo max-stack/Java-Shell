@@ -3,8 +3,8 @@ package uk.ac.ucl.jsh.app;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
 import uk.ac.ucl.jsh.Jsh;
 
 public class Tail implements Application {
@@ -82,7 +81,7 @@ public class Tail implements Application {
         
         boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
         if(!successfullyPassed) {return; }
-
+     
         int tailLines = 10;
         String tailArg = "";
         if (appArgs.size() == 3) { // Number of lines and file path provided
@@ -95,19 +94,21 @@ public class Tail implements Application {
             try {
                 tailLines = Integer.parseInt(appArgs.get(1));
             } catch (NumberFormatException e) {
-                HelperMethods.outputError(unsafe, out, "tail: wrong number " + appArgs.get(1)); return;
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "tail: wrong number " + appArgs.get(1)
+                );
+                return;
             }
         }
 
         if (tailArg.isEmpty()) { // Take InputStream
             handleInput(writer, in, tailLines);
-
         } else { // Use file path
             successfullyPassed = handleOutput(writer, out, unsafe, tailLines, tailArg);
             if(!successfullyPassed) {return; }
-            
-            
+        
         }
     }
-
 }

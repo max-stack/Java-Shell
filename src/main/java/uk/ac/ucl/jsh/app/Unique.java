@@ -7,10 +7,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import uk.ac.ucl.jsh.Jsh;
-public class Unique implements Application {
 
+public class Unique implements Application {
 
     private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 2) {
@@ -77,7 +76,7 @@ public class Unique implements Application {
         boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
         if(!successfullyPassed) {return; }
 
-        boolean caseSensitive = true; 
+        boolean caseSensitive = true;
         String uniqArg = "";
         if (appArgs.size() == 2) { // -i tag AND file path provided
             caseSensitive = false;
@@ -100,7 +99,5 @@ public class Unique implements Application {
             if(!successfullyPassed) {return; }
 
         }
-        
     }
-   
 }

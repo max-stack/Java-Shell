@@ -2,11 +2,10 @@ package uk.ac.ucl.jsh.app;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-
 import uk.ac.ucl.jsh.Jsh;
 
 public class List implements Application {
@@ -32,6 +31,7 @@ public class List implements Application {
         }
         return true;
     }
+}
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);

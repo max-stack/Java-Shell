@@ -7,18 +7,15 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.stream.Stream;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
+import java.util.stream.Stream;
 import uk.ac.ucl.jsh.Jsh;
 
-
-
-public class Sort implements Application{
+public class Sort implements Application {
 
     private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 2) {
@@ -115,9 +112,9 @@ public class Sort implements Application{
         if (appArgs.size() == 2) { // -r tag and file path provided
             reversed = true;
             sortArg = appArgs.get(1);
-        } else if (appArgs.size() == 1) { 
+        } else if (appArgs.size() == 1) {
             if (appArgs.get(0).equals("-r")) { // Use InputSteam reversed
-                reversed = true; 
+                reversed = true;
             } else { // Use file path
                 sortArg = appArgs.get(0);
             }
@@ -132,5 +129,4 @@ public class Sort implements Application{
             if(!successfullyPassed) {return; }
         }
     }
-
 }
