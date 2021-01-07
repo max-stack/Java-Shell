@@ -7,9 +7,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -114,6 +116,18 @@ public class SortTest {
     }
 
     @Test
+    public void testUnsafeThrowsExceptionUnableToWriteReversed() throws Exception {
+        //Throw exception - unable to open the file.
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("-r");
+        args.add(file1.getPath());
+
+        assertThrows(RuntimeException.class, () -> new Sort().exec(args, null, closedOutputStream, true));
+    }
+
+    @Test
     public void testSafeSort() throws Exception {
         //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
@@ -121,6 +135,17 @@ public class SortTest {
 
         new Sort().exec(args, null, System.out, false);
         assertEquals("19\n291\nA\nMonopoly234\nZebra\na\nhappy\ntest", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testSafeThrowsExceptionUnableToWrite() throws Exception {
+        //Throw exception - unable to open the file.
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add(file1.getPath());
+
+        assertThrows(RuntimeException.class, () -> new Sort().exec(args, null, closedOutputStream, true));
     }
 
     @Test
@@ -143,6 +168,29 @@ public class SortTest {
         new Sort().exec(args, testInput, System.out, false);
         assertEquals("19\n291\nA\nMonopoly234\nZebra\na\nhappy\ntest", outputStreamCaptor.toString().trim());
     }
+
+    @Test
+    public void testSafeThrowsExceptionInputStreamUnableToWriteCatch() throws Exception {
+        //Throw exception - unable to open the file.
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+        ArrayList<String> args = new  ArrayList<String>();
+        FileInputStream testInput = new FileInputStream(file1);
+
+        assertThrows(RuntimeException.class, () -> new Sort().exec(args, testInput, closedOutputStream, true));
+    }
+
+    // @Test
+    // public void testSafeThrowsExceptionInputStreamUnableToWriteTry() throws Exception {
+    //     //Throw exception - unable to open the file.
+    //     OutputStream closedOutputStream = OutputStream.nullOutputStream();
+    //     closedOutputStream.close();
+    //     ArrayList<String> args = new  ArrayList<String>();
+    //     FileInputStream testInput = new FileInputStream(file1);
+
+    //     new Sort().exec(args, testInput, closedOutputStream, false);
+    //     assertEquals("sort: unable to write", outputStreamCaptor.toString().trim());
+    // }
 
     @Test
     public void testSafeThrowsExceptionCannotOpenFile() throws Exception {
