@@ -3,11 +3,8 @@ package uk.ac.ucl.jsh.app;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import uk.ac.ucl.jsh.Jsh;
 
 public class HelperMethods {
 
