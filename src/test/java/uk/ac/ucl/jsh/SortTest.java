@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -189,5 +190,5 @@ public class SortTest {
 
         new Sort().exec(args, null, System.out, true);
         assertEquals("sort: cannot open " + args.get(0), outputStreamCaptor.toString().trim());
-    }   
+    }
 }

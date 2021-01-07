@@ -1,6 +1,5 @@
 package uk.ac.ucl.jsh;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import org.apache.commons.lang3.StringUtils;
@@ -40,18 +39,8 @@ class ExecutionPlan {
             topElement == ConnectionType.REDIRECT_FROM.toString() ||
             topElement == ConnectionType.REDIRECT_TO.toString()
         ) {
-            if (
-                findNextQuote ||
-                (
-                    !subCommands.isEmpty() &&
-                    (
-                        StringUtils.countMatches(subCommands.getLast(), "\"") ==
-                        1 ||
-                        StringUtils.countMatches(subCommands.getLast(), "'") ==
-                        1
-                    )
-                )
-            ) {
+            if ( findNextQuote || !subCommands.isEmpty() && (StringUtils.countMatches(subCommands.getLast(), "\"") == 1 || StringUtils.countMatches(subCommands.getLast(), "'") == 1))
+            {
                 findNextQuote = true;
                 subCommands.add(subCommands.removeLast() + topElement);
             } else {
