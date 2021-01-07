@@ -516,4 +516,17 @@ public class JshTest {
     }
 
 
+    @Test
+    public void testMainWrongArgs() throws Exception {
+        Jsh.main(new String[] {""});
+        assertEquals("jsh: wrong number of arguments", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testMainUnexpectedArgs() throws Exception {
+        Jsh.main(new String[] {"a", "b"});
+        assertEquals("jsh: a: unexpected argument\njsh: b: unknown application", outputStreamCaptor.toString().trim());
+    }
+
+
 }
