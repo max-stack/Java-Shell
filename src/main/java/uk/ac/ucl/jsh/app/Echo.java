@@ -8,19 +8,24 @@ import java.util.ArrayList;
 
 public class Echo implements Application {
 
-    public void exec(
+    private boolean handleArguments(
         ArrayList<String> appArgs,
-        InputStream in,
         OutputStream out,
         Boolean unsafe
     )
         throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-
         if (appArgs.isEmpty()) {
             HelperMethods.outputError(unsafe, out, "echo: missing arguments");
-            return;
+            return false;
         }
+        return true;
+    }
+
+    private void handleOutput(
+        ArrayList<String> appArgs,
+        OutputStreamWriter writer
+    )
+        throws IOException {
         for (int i = 0; i < appArgs.size() - 1; i++) {
             writer.write(appArgs.get(i));
             writer.write(" ");
@@ -29,5 +34,19 @@ public class Echo implements Application {
         writer.write(appArgs.get(appArgs.size() - 1));
         writer.write(System.getProperty("line.separator"));
         writer.flush();
+    }
+
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        if (!handleArguments(appArgs, out, unsafe)) {
+            return;
+        }
+        handleOutput(appArgs, writer);
     }
 }

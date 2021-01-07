@@ -9,6 +9,22 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class ChangeDirectory implements Application {
 
+    private boolean handleArguments(
+        ArrayList<String> appArgs,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
+        if (appArgs.isEmpty()) {
+            HelperMethods.outputError(unsafe, out, "cd: missing argument");
+            return false;
+        } else if (appArgs.size() > 1) {
+            HelperMethods.outputError(unsafe, out, "cd: too many arguments");
+            return false;
+        }
+        return true;
+    }
+
     public void exec(
         ArrayList<String> appArgs,
         InputStream in,
@@ -16,13 +32,10 @@ public class ChangeDirectory implements Application {
         Boolean unsafe
     )
         throws IOException {
-        if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "cd: missing argument");
-            return;
-        } else if (appArgs.size() > 1) {
-            HelperMethods.outputError(unsafe, out, "cd: too many arguments");
+        if (!handleArguments(appArgs, out, unsafe)) {
             return;
         }
+
         String dirString = appArgs.get(0);
         File dir = new File(Jsh.currentDirectory, dirString);
         if (!dir.exists() || !dir.isDirectory()) {

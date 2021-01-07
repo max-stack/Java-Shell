@@ -15,48 +15,45 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Find implements Application {
 
-    public void exec(
+    private boolean handleArguments(
         ArrayList<String> appArgs,
-        InputStream in,
         OutputStream out,
         Boolean unsafe
     )
         throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-
-        int filePosition = 0;
-        String dir;
-
         if (appArgs.isEmpty()) {
             HelperMethods.outputError(unsafe, out, "find: missing arguments");
-            return;
+            return false;
         } else if (appArgs.size() > 3) {
             HelperMethods.outputError(unsafe, out, "find: too many arguments");
-            return;
+            return false;
         } else if (appArgs.size() == 3 && !appArgs.get(1).equals("-name")) {
             HelperMethods.outputError(
                 unsafe,
                 out,
                 "find: missing -name argument"
             );
-            return;
+            return false;
         } else if (appArgs.size() == 2 && !appArgs.get(0).equals("-name")) {
             HelperMethods.outputError(
                 unsafe,
                 out,
                 "find: missing -name argument"
             );
-            return;
+            return false;
         }
+        return true;
+    }
 
-        if (appArgs.get(0).equals("-name")) {
-            dir = Jsh.currentDirectory;
-            filePosition = 1;
-        } else {
-            dir = appArgs.get(0);
-            filePosition = 2;
-        }
-
+    private boolean handleOutput(
+        ArrayList<String> appArgs,
+        OutputStream out,
+        Boolean unsafe,
+        int filePosition,
+        String dir
+    )
+        throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
         final int finalFilePosition = filePosition;
         try (Stream<Path> stream = Files.walk(Paths.get(dir))) {
             stream.forEach(
@@ -136,6 +133,34 @@ public class Find implements Application {
                 out,
                 "find: cannot find directory " + dir
             );
+            return false;
+        }
+        return true;
+    }
+
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
+        int filePosition = 0;
+        String dir;
+
+        if (!handleArguments(appArgs, out, unsafe)) {
+            return;
+        }
+
+        if (appArgs.get(0).equals("-name")) {
+            dir = Jsh.currentDirectory;
+            filePosition = 1;
+        } else {
+            dir = appArgs.get(0);
+            filePosition = 2;
+        }
+
+        if (!handleOutput(appArgs, out, unsafe, filePosition, dir)) {
             return;
         }
     }

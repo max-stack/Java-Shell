@@ -17,6 +17,78 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Concatenate implements Application {
 
+    private ArrayList<String> handleInput(
+        ArrayList<String> appArgs,
+        InputStream in
+    )
+        throws IOException {
+        String[] pipeInput = HelperMethods.readInputStream(in);
+        appArgs = new ArrayList<String>(Arrays.asList(pipeInput));
+        return appArgs;
+    }
+
+    private void handleFileInput(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStreamWriter writer
+    )
+        throws IOException {
+        String[] pipeInput = HelperMethods.readInputStream(in);
+        for (String line : pipeInput) {
+            writer.write(String.valueOf(line));
+            writer.write(System.getProperty("line.separator"));
+            writer.flush();
+        }
+    }
+
+    private boolean handleOutput(
+        ArrayList<String> appArgs,
+        OutputStreamWriter writer,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
+        for (String arg : appArgs) {
+            Charset encoding = StandardCharsets.UTF_8;
+            File currFile = new File(
+                Jsh.currentDirectory + File.separator + arg
+            );
+            if (currFile.exists()) {
+                Path filePath = Paths.get(
+                    Jsh.currentDirectory + File.separator + arg
+                );
+                try (
+                    BufferedReader reader = Files.newBufferedReader(
+                        filePath,
+                        encoding
+                    )
+                ) {
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        writer.write(String.valueOf(line));
+                        writer.write(System.getProperty("line.separator"));
+                        writer.flush();
+                    }
+                } catch (IOException e) {
+                    HelperMethods.outputError(
+                        unsafe,
+                        out,
+                        "cat: cannot open " + arg
+                    );
+                    return false;
+                }
+            } else {
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "cat: " + arg + " does not exist"
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void exec(
         ArrayList<String> appArgs,
         InputStream in,
@@ -29,56 +101,14 @@ public class Concatenate implements Application {
         if (
             in != null &&
             in.getClass().getName().toString() == "java.io.FileInputStream"
-        ) {
-            String[] pipeInput = HelperMethods.readInputStream(in);
-            for (String line : pipeInput) {
-                writer.write(String.valueOf(line));
-                writer.write(System.getProperty("line.separator"));
-                writer.flush();
-            }
+        ) { // Take file InputStream
+            handleFileInput(appArgs, in, writer);
         } else {
             if (appArgs.isEmpty()) { // Take InputStream
-                String[] pipeInput = HelperMethods.readInputStream(in);
-                appArgs = new ArrayList<String>(Arrays.asList(pipeInput));
+                appArgs = handleInput(appArgs, in);
             }
-
-            for (String arg : appArgs) {
-                Charset encoding = StandardCharsets.UTF_8;
-                File currFile = new File(
-                    Jsh.currentDirectory + File.separator + arg
-                );
-                if (currFile.exists()) {
-                    Path filePath = Paths.get(
-                        Jsh.currentDirectory + File.separator + arg
-                    );
-                    try (
-                        BufferedReader reader = Files.newBufferedReader(
-                            filePath,
-                            encoding
-                        )
-                    ) {
-                        String line = null;
-                        while ((line = reader.readLine()) != null) {
-                            writer.write(String.valueOf(line));
-                            writer.write(System.getProperty("line.separator"));
-                            writer.flush();
-                        }
-                    } catch (IOException e) {
-                        HelperMethods.outputError(
-                            unsafe,
-                            out,
-                            "cat: cannot open " + arg
-                        );
-                        return;
-                    }
-                } else {
-                    HelperMethods.outputError(
-                        unsafe,
-                        out,
-                        "cat: " + arg + " does not exist"
-                    );
-                    return;
-                }
+            if (!handleOutput(appArgs, writer, out, unsafe)) {
+                return;
             }
         }
     }

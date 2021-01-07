@@ -16,6 +16,94 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Head implements Application {
 
+    private boolean handleArguments(
+        ArrayList<String> appArgs,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
+        if (appArgs.size() > 3) {
+            HelperMethods.outputError(unsafe, out, "head: too many arguments");
+            return false;
+        }
+        if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "head: wrong argument " + appArgs.get(0)
+            );
+            return false;
+        }
+        return true;
+    }
+
+    private void handleInput(
+        InputStream in,
+        OutputStreamWriter writer,
+        int headLines
+    )
+        throws IOException {
+        String[] pipeInput = HelperMethods.readInputStream(in);
+        for (int i = 0; i < headLines; i++) {
+            try {
+                writer.write(pipeInput[i]);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+            } catch (Exception e) {
+                break;
+            }
+        }
+    }
+
+    private boolean handleOutput(
+        OutputStreamWriter writer,
+        int headLines,
+        OutputStream out,
+        Boolean unsafe,
+        String headArg
+    )
+        throws IOException {
+        File headFile = new File(
+            Jsh.currentDirectory + File.separator + headArg
+        );
+        if (headFile.exists()) {
+            Charset encoding = StandardCharsets.UTF_8;
+            Path filePath = Paths.get(
+                (String) Jsh.currentDirectory + File.separator + headArg
+            );
+            try (
+                BufferedReader reader = Files.newBufferedReader(
+                    filePath,
+                    encoding
+                )
+            ) {
+                for (int i = 0; i < headLines; i++) {
+                    String line = null;
+                    if ((line = reader.readLine()) != null) {
+                        writer.write(line);
+                        writer.write(System.getProperty("line.separator"));
+                        writer.flush();
+                    }
+                }
+            } catch (IOException e) {
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "head: cannot open " + headArg
+                );
+                return false;
+            }
+        } else {
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "head: " + headArg + " does not exist"
+            );
+            return false;
+        }
+        return true;
+    }
+
     public void exec(
         ArrayList<String> appArgs,
         InputStream in,
@@ -25,16 +113,7 @@ public class Head implements Application {
         throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "head: too many arguments");
-            return;
-        }
-        if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "head: wrong argument " + appArgs.get(0)
-            );
+        if (!handleArguments(appArgs, out, unsafe)) {
             return;
         }
 
@@ -60,53 +139,9 @@ public class Head implements Application {
         }
 
         if (headArg.isEmpty()) { // Take InputStream
-            String[] pipeInput = HelperMethods.readInputStream(in);
-            for (int i = 0; i < headLines; i++) {
-                try {
-                    writer.write(pipeInput[i]);
-                    writer.write(System.getProperty("line.separator"));
-                    writer.flush();
-                } catch (Exception e) {
-                    break;
-                }
-            }
+            handleInput(in, writer, headLines);
         } else { // Use file path
-            File headFile = new File(
-                Jsh.currentDirectory + File.separator + headArg
-            );
-            if (headFile.exists()) {
-                Charset encoding = StandardCharsets.UTF_8;
-                Path filePath = Paths.get(
-                    (String) Jsh.currentDirectory + File.separator + headArg
-                );
-                try (
-                    BufferedReader reader = Files.newBufferedReader(
-                        filePath,
-                        encoding
-                    )
-                ) {
-                    for (int i = 0; i < headLines; i++) {
-                        String line = null;
-                        if ((line = reader.readLine()) != null) {
-                            writer.write(line);
-                            writer.write(System.getProperty("line.separator"));
-                            writer.flush();
-                        }
-                    }
-                } catch (IOException e) {
-                    HelperMethods.outputError(
-                        unsafe,
-                        out,
-                        "head: cannot open " + headArg
-                    );
-                    return;
-                }
-            } else {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "head: " + headArg + " does not exist"
-                );
+            if (!handleOutput(writer, headLines, out, unsafe, headArg)) {
                 return;
             }
         }
