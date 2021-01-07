@@ -28,7 +28,6 @@ public class Concatenate implements Application {
     }
 
     private void handleFileInput(
-        ArrayList<String> appArgs,
         InputStream in,
         OutputStreamWriter writer
     )
@@ -102,7 +101,7 @@ public class Concatenate implements Application {
             in != null &&
             in.getClass().getName().toString() == "java.io.FileInputStream"
         ) { // Take file InputStream
-            handleFileInput(appArgs, in, writer);
+            handleFileInput(in, writer);
         } else {
             if (appArgs.isEmpty()) { // Take InputStream
                 appArgs = handleInput(appArgs, in);
