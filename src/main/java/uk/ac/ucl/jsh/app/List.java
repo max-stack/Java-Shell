@@ -31,7 +31,6 @@ public class List implements Application {
         }
         return true;
     }
-}
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);

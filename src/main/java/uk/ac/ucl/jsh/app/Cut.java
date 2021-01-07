@@ -25,24 +25,6 @@ public class Cut implements Application {
     )
         throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
-<<<<<<< HEAD
-
-        if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "cut: missing arguments");
-            return;
-        }
-        if (appArgs.size() != 3 && appArgs.size() != 2) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong arguments");
-            return;
-        }
-        if (!appArgs.get(0).equals("-b")) {
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "cut: wrong argument " + appArgs.get(0)
-            );
-            return;
-=======
         
         boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
         if (!successfullyPassed) { return; }
@@ -87,26 +69,11 @@ public class Cut implements Application {
         }
         if (appArgs.get(1).split("[,]+").length == 0) {
             HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return false;
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
         }
         return true;
     }
 
 
-<<<<<<< HEAD
-        if (cutRanges.length == 0) {
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "cut: wrong argument " + appArgs.get(1)
-            );
-            return;
-        }
-
-        // Get boundary values first (e.g. -4, 8-)
-        Integer startBoundary = -1;
-        Integer endBoundary = Integer.MAX_VALUE;
-=======
     private void handleInput(OutputStreamWriter writer, InputStream in, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
         String[] pipeInput = HelperMethods.readInputStream(in);
         for (String line : pipeInput) { cutFromLine(writer, line, start, end, indexes); }
@@ -133,7 +100,6 @@ public class Cut implements Application {
         }
     }
 
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
 
     private int[] getBoundaries(String[] ranges) {
         Integer start = -1;
@@ -143,34 +109,14 @@ public class Cut implements Application {
         for (String range : ranges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
             if (!valid) {
-<<<<<<< HEAD
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "cut: invalid argument " + appArgs.get(1)
-                );
-                return;
-=======
                 return null;
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
             } else {
                 if (range.endsWith("-")) {
                     value = Integer.parseInt(range.replace("-", "")) - 1;
-<<<<<<< HEAD
-                    if (value < endBoundary) {
-                        endBoundary = value;
-                    }
-                } else if (range.startsWith("-")) {
-                    value = Integer.parseInt(range.replace("-", ""));
-                    if (value > startBoundary) {
-                        startBoundary = value;
-                    }
-=======
                     if (value < end) { end = value; }
                 } else if (range.startsWith("-")) {
                     value = Integer.parseInt(range.replace("-", ""));
                     if (value > start) { start = value; }
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
                 }
             }
         }
@@ -190,117 +136,13 @@ public class Cut implements Application {
                 l_value = Integer.parseInt(indexParts[0]) - 1;
                 r_value = Integer.parseInt(indexParts[1]);
                 if (l_value > r_value) {
-<<<<<<< HEAD
-                    HelperMethods.outputError(
-                        unsafe,
-                        out,
-                        "cut: invalid range " + appArgs.get(1)
-                    );
-                    return;
-=======
                     return null;
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
                 }
             } else if (!range.contains("-")) {
                 l_value = Integer.parseInt(range) - 1;
                 r_value = l_value + 1;
             }
             for (int num = l_value; num < r_value; num++) {
-<<<<<<< HEAD
-                if (
-                    !indexes.contains(num) &&
-                    num > startBoundary - 1 &&
-                    num < endBoundary
-                ) {
-                    indexes.add(num);
-                }
-            }
-        }
-
-        Collections.sort(indexes);
-
-        if (appArgs.size() == 2) { // Take InputStream
-            String[] pipeInput = HelperMethods.readInputStream(in);
-            for (String line : pipeInput) {
-                int start = Math.min(startBoundary, line.length());
-                int end = endBoundary;
-
-                if (start != -1) {
-                    writer.write(line.substring(0, start));
-                }
-
-                for (Integer index : indexes) {
-                    if (index >= line.length()) {
-                        writer.write("");
-                    } else {
-                        writer.write(line.charAt(index));
-                    }
-                }
-
-                if (end < line.length()) {
-                    writer.write(line.substring(end));
-                }
-
-                writer.write(System.getProperty("line.separator"));
-                writer.flush();
-            }
-        } else { // Use file path
-            String cutArg = appArgs.get(2);
-
-            File cutFile = new File(
-                Jsh.currentDirectory + File.separator + cutArg
-            );
-            if (cutFile.exists()) {
-                Charset encoding = StandardCharsets.UTF_8;
-                Path filePath = Paths.get(
-                    (String) Jsh.currentDirectory + File.separator + cutArg
-                );
-                try (
-                    BufferedReader reader = Files.newBufferedReader(
-                        filePath,
-                        encoding
-                    )
-                ) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        int start = Math.min(startBoundary, line.length());
-                        int end = endBoundary;
-
-                        if (start != -1) {
-                            writer.write(line.substring(0, start));
-                        }
-
-                        for (Integer index : indexes) {
-                            if (index >= line.length()) {
-                                writer.write("");
-                            } else {
-                                writer.write(line.charAt(index));
-                            }
-                        }
-
-                        if (end < line.length()) {
-                            writer.write(line.substring(end));
-                        }
-
-                        writer.write(System.getProperty("line.separator"));
-                        writer.flush();
-                    }
-                } catch (IOException e) {
-                    HelperMethods.outputError(
-                        unsafe,
-                        out,
-                        "cut: cannot open " + cutArg
-                    );
-                    return;
-                }
-            } else {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "cut: " + cutArg + " does not exist"
-                );
-                return;
-=======
                 if (!indexes.contains(num) && num > start - 1 && num < end) { indexes.add(num); }
             }
         }
@@ -320,7 +162,6 @@ public class Cut implements Application {
                 writer.write("");
             } else {
                 writer.write(line.charAt(index));
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
             }
         }
         if (end < line.length()) { writer.write(line.substring(end)); }
@@ -328,9 +169,5 @@ public class Cut implements Application {
         writer.write(System.getProperty("line.separator"));
         writer.flush();
     }
-<<<<<<< HEAD
-}
-=======
 
 }
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
