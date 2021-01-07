@@ -399,6 +399,71 @@ public class JshTest {
     }
 
     @Test
+    public void testUnSafeChangeDirectory() throws Exception {
+        temp = Jsh.currentDirectory;
+
+        Jsh.eval("_cd " + dir1.getPath().toString());
+        Jsh.eval("pwd");
+
+        Jsh.currentDirectory = temp;
+        assertEquals(dir1.getCanonicalPath(), outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeCat() throws Exception {
+        Jsh.eval("_cat test.txt");
+        assertEquals("''", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeEcho() throws Exception {
+        Jsh.eval("_echo hello world");
+        assertEquals("hello world", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeHead() throws Exception {
+        Jsh.eval("_head test.txt");
+        assertEquals("''", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeTail() throws Exception {
+        Jsh.eval("_tail test.txt");
+        assertEquals("''", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeGrep() throws Exception {
+        Jsh.eval("_grep DDD dir1/file1.txt");
+        assertEquals("", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeCut() throws Exception {
+        Jsh.eval("_cut -b 1 dir1/file1.txt");
+        assertEquals("A\nB\nA", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeSort() throws Exception {
+        Jsh.eval("_sort test.txt");
+        assertEquals("''", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeUniq() throws Exception {
+        Jsh.eval("_uniq test.txt");
+        assertEquals("''", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnSafeFind() throws Exception {
+        Jsh.eval("_find test.txt");
+        assertEquals("find: cannot find directory test.txt", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
     public void testSafePipeUniq() throws Exception {
         Jsh.eval("echo aaa > dir1/file2.txt; cat dir1/file1.txt dir1/file2.txt | uniq -i");
         assertEquals("AAA\nBBB\nAAA", outputStreamCaptor.toString().trim());
