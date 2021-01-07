@@ -1,12 +1,9 @@
 package uk.ac.ucl.jsh.app;
 
-import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +16,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import uk.ac.ucl.jsh.Jsh;
-import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class GlobalRegExPrint implements Application {
 
