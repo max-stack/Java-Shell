@@ -37,14 +37,7 @@ public class GlobalRegExPrint implements Application {
         if (numOfFiles == 0) { // Take InputStream
             
             String[] pipeInput = HelperMethods.readInputStream(in);
-            for (String line : pipeInput) {
-                Matcher matcher = grepPattern.matcher(line);
-                if (matcher.find()) {
-                    writer.write(line);
-                    writer.write(System.getProperty("line.separator"));
-                    writer.flush();
-                }
-            }
+            for (String line : pipeInput) { grepFromLine(writer, 0, null, line, grepPattern); }
 
         } else { // Use file path(s)
 
@@ -54,32 +47,33 @@ public class GlobalRegExPrint implements Application {
             for (int i = 0; i < numOfFiles; i++) {
                 filePath = currentDir.resolve(appArgs.get(i + 1));
                 if (Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
-                    HelperMethods.outputError(unsafe, out, "grep: wrong file argument"); return;
+                    HelperMethods.outputError(unsafe, out, "grep: wrong file argument"); writer.close(); return;
                 }
                 filePathArray[i] = filePath;
             }
 
             for (int j = 0; j < filePathArray.length; j++) {
+                String currentFile = appArgs.get(j+1);
                 Charset encoding = StandardCharsets.UTF_8;
                 try (BufferedReader reader = Files.newBufferedReader(filePathArray[j], encoding)) {
                     String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        Matcher matcher = grepPattern.matcher(line);
-                        if (matcher.find()) {
-                            if (numOfFiles > 1) {
-                                writer.write(appArgs.get(j+1));
-                                writer.write(":");
-                            }
-                            writer.write(line);
-                            writer.write(System.getProperty("line.separator"));
-                            writer.flush();
-                        }
-                    }
+                    while ((line = reader.readLine()) != null) { grepFromLine(writer, numOfFiles, currentFile, line, grepPattern); }
                 } catch (IOException e) {
                     HelperMethods.outputError(unsafe, out, "grep: cannot open " + appArgs.get(j + 1)); return;
                 }
             }
 
+        }
+    }
+
+
+    private void grepFromLine(OutputStreamWriter writer, int numOfFiles, String file, String line, Pattern grepPattern) throws IOException {
+        Matcher matcher = grepPattern.matcher(line);
+        if (matcher.find()) {
+            if (numOfFiles > 1) { writer.write(file + ":"); }
+            writer.write(line);
+            writer.write(System.getProperty("line.separator"));
+            writer.flush();
         }
     }
 
