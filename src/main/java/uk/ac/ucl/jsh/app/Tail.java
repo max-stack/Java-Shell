@@ -3,8 +3,8 @@ package uk.ac.ucl.jsh.app;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -12,20 +12,31 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
 import uk.ac.ucl.jsh.Jsh;
 
 public class Tail implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
-        
+
         if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "tail: too many arguments"); return;
+            HelperMethods.outputError(unsafe, out, "tail: too many arguments");
+            return;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return;
-        }        
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "tail: wrong argument " + appArgs.get(0)
+            );
+            return;
+        }
 
         int tailLines = 10;
         String tailArg = "";
@@ -39,12 +50,16 @@ public class Tail implements Application {
             try {
                 tailLines = Integer.parseInt(appArgs.get(1));
             } catch (NumberFormatException e) {
-                HelperMethods.outputError(unsafe, out, "tail: wrong number " + appArgs.get(1)); return;
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "tail: wrong number " + appArgs.get(1)
+                );
+                return;
             }
         }
 
         if (tailArg.isEmpty()) { // Take InputStream
-            
             String[] pipeInput = HelperMethods.readInputStream(in);
             int index;
             if (tailLines > pipeInput.length) {
@@ -61,15 +76,22 @@ public class Tail implements Application {
                     break;
                 }
             }
-
         } else { // Use file path
-
-            File tailFile = new File(Jsh.currentDirectory + File.separator + tailArg);
+            File tailFile = new File(
+                Jsh.currentDirectory + File.separator + tailArg
+            );
             if (tailFile.exists()) {
                 Charset encoding = StandardCharsets.UTF_8;
-                Path filePath = Paths.get((String) Jsh.currentDirectory + File.separator + tailArg);
+                Path filePath = Paths.get(
+                    (String) Jsh.currentDirectory + File.separator + tailArg
+                );
                 ArrayList<String> storage = new ArrayList<>();
-                try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
+                try (
+                    BufferedReader reader = Files.newBufferedReader(
+                        filePath,
+                        encoding
+                    )
+                ) {
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         storage.add(line);
@@ -81,17 +103,28 @@ public class Tail implements Application {
                         index = storage.size() - tailLines;
                     }
                     for (int i = index; i < storage.size(); i++) {
-                        writer.write(storage.get(i) + System.getProperty("line.separator"));
+                        writer.write(
+                            storage.get(i) +
+                            System.getProperty("line.separator")
+                        );
                         writer.flush();
-                    }            
+                    }
                 } catch (IOException e) {
-                    HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return;
+                    HelperMethods.outputError(
+                        unsafe,
+                        out,
+                        "tail: cannot open " + tailArg
+                    );
+                    return;
                 }
             } else {
-                HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return;
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "tail: " + tailArg + " does not exist"
+                );
+                return;
             }
-            
         }
     }
-
 }

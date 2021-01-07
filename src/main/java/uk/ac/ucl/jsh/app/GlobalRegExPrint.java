@@ -14,28 +14,38 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import uk.ac.ucl.jsh.Jsh;
 
 public class GlobalRegExPrint implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "grep: missing arguments"); return;
+            HelperMethods.outputError(unsafe, out, "grep: missing arguments");
+            return;
         }
 
         Pattern grepPattern;
         try {
             grepPattern = Pattern.compile(appArgs.get(0));
         } catch (PatternSyntaxException e) {
-            HelperMethods.outputError(unsafe, out, "grep: wrong pattern syntax " + appArgs.get(0)); return;
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "grep: wrong pattern syntax " + appArgs.get(0)
+            );
+            return;
         }
-        
+
         int numOfFiles = appArgs.size() - 1;
         if (numOfFiles == 0) { // Take InputStream
-            
             String[] pipeInput = HelperMethods.readInputStream(in);
             for (String line : pipeInput) {
                 Matcher matcher = grepPattern.matcher(line);
@@ -45,29 +55,39 @@ public class GlobalRegExPrint implements Application {
                     writer.flush();
                 }
             }
-
         } else { // Use file path(s)
-
             Path filePath;
             Path[] filePathArray = new Path[numOfFiles];
             Path currentDir = Paths.get(Jsh.currentDirectory);
             for (int i = 0; i < numOfFiles; i++) {
                 filePath = currentDir.resolve(appArgs.get(i + 1));
-                if (Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
-                    HelperMethods.outputError(unsafe, out, "grep: wrong file argument"); return;
+                if (
+                    Files.isDirectory(filePath) || !Files.isReadable(filePath)
+                ) {
+                    HelperMethods.outputError(
+                        unsafe,
+                        out,
+                        "grep: wrong file argument"
+                    );
+                    return;
                 }
                 filePathArray[i] = filePath;
             }
 
             for (int j = 0; j < filePathArray.length; j++) {
                 Charset encoding = StandardCharsets.UTF_8;
-                try (BufferedReader reader = Files.newBufferedReader(filePathArray[j], encoding)) {
+                try (
+                    BufferedReader reader = Files.newBufferedReader(
+                        filePathArray[j],
+                        encoding
+                    )
+                ) {
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         Matcher matcher = grepPattern.matcher(line);
                         if (matcher.find()) {
                             if (numOfFiles > 1) {
-                                writer.write(appArgs.get(j+1));
+                                writer.write(appArgs.get(j + 1));
                                 writer.write(":");
                             }
                             writer.write(line);
@@ -76,11 +96,14 @@ public class GlobalRegExPrint implements Application {
                         }
                     }
                 } catch (IOException e) {
-                    HelperMethods.outputError(unsafe, out, "grep: cannot open " + appArgs.get(j + 1)); return;
+                    HelperMethods.outputError(
+                        unsafe,
+                        out,
+                        "grep: cannot open " + appArgs.get(j + 1)
+                    );
+                    return;
                 }
             }
-
         }
     }
-
 }

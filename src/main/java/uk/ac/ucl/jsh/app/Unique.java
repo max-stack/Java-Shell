@@ -7,21 +7,33 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import uk.ac.ucl.jsh.Jsh;
+
 public class Unique implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         if (appArgs.size() > 2) {
-            HelperMethods.outputError(unsafe, out, "uniq: too many arguments"); return;
+            HelperMethods.outputError(unsafe, out, "uniq: too many arguments");
+            return;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-i")) {
-            HelperMethods.outputError(unsafe, out, "uniq: wrong argument " + appArgs.get(0)); return;
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "uniq: wrong argument " + appArgs.get(0)
+            );
+            return;
         }
 
-        boolean caseSensitive = true; 
+        boolean caseSensitive = true;
         String uniqArg = "";
         if (appArgs.size() == 2) { // -i tag AND file path provided
             caseSensitive = false;
@@ -39,7 +51,7 @@ public class Unique implements Application {
         if (uniqArg.isEmpty()) { // Take InputStream
             String adjustedLine = "";
             String[] pipeInput = HelperMethods.readInputStream(in);
-            
+
             for (String line : pipeInput) {
                 adjustedLine = line;
 
@@ -53,9 +65,7 @@ public class Unique implements Application {
                     previousLine = adjustedLine;
                 }
             }
-
         } else { // Use file path
-
             String uniqFile = Jsh.currentDirectory + File.separator + uniqArg;
             String input = null;
             String adjustedInput = null;
@@ -64,7 +74,12 @@ public class Unique implements Application {
             try {
                 sc = new Scanner(new File(uniqFile));
             } catch (Exception e) {
-                HelperMethods.outputError(unsafe, out, "uniq: wrong file argument"); return;
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "uniq: wrong file argument"
+                );
+                return;
             }
 
             while (sc.hasNextLine()) {
@@ -80,9 +95,6 @@ public class Unique implements Application {
                     previousLine = adjustedInput;
                 }
             }
-
         }
-        
     }
-   
 }

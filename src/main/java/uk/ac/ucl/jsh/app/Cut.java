@@ -11,33 +11,50 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.ArrayList;
-
+import java.util.Collections;
 import uk.ac.ucl.jsh.Jsh;
 
 public class Cut implements Application {
-    
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
+
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
-        
+
         if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); return;
+            HelperMethods.outputError(unsafe, out, "cut: missing arguments");
+            return;
         }
         if (appArgs.size() != 3 && appArgs.size() != 2) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); return;
+            HelperMethods.outputError(unsafe, out, "cut: wrong arguments");
+            return;
         }
         if (!appArgs.get(0).equals("-b")) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); return;
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "cut: wrong argument " + appArgs.get(0)
+            );
+            return;
         }
 
         String[] cutRanges = appArgs.get(1).split("[,]+");
         ArrayList<Integer> indexes = new ArrayList<Integer>();
 
         if (cutRanges.length == 0) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return;
+            HelperMethods.outputError(
+                unsafe,
+                out,
+                "cut: wrong argument " + appArgs.get(1)
+            );
+            return;
         }
-        
+
         // Get boundary values first (e.g. -4, 8-)
         Integer startBoundary = -1;
         Integer endBoundary = Integer.MAX_VALUE;
@@ -45,15 +62,24 @@ public class Cut implements Application {
         for (String range : cutRanges) {
             Boolean valid = range.matches("^[0-9]*[-]?[0-9]*");
             if (!valid) {
-                HelperMethods.outputError(unsafe, out, "cut: invalid argument " + appArgs.get(1)); return;
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "cut: invalid argument " + appArgs.get(1)
+                );
+                return;
             } else {
                 int value;
                 if (range.endsWith("-")) {
                     value = Integer.parseInt(range.replace("-", "")) - 1;
-                    if (value < endBoundary) { endBoundary = value; }
+                    if (value < endBoundary) {
+                        endBoundary = value;
+                    }
                 } else if (range.startsWith("-")) {
                     value = Integer.parseInt(range.replace("-", ""));
-                    if (value > startBoundary) { startBoundary = value; }
+                    if (value > startBoundary) {
+                        startBoundary = value;
+                    }
                 }
             }
         }
@@ -67,28 +93,40 @@ public class Cut implements Application {
                 l_value = Integer.parseInt(indexParts[0]) - 1;
                 r_value = Integer.parseInt(indexParts[1]);
                 if (l_value > r_value) {
-                    HelperMethods.outputError(unsafe, out, "cut: invalid range " + appArgs.get(1)); return;
+                    HelperMethods.outputError(
+                        unsafe,
+                        out,
+                        "cut: invalid range " + appArgs.get(1)
+                    );
+                    return;
                 }
             } else if (!range.contains("-")) {
                 l_value = Integer.parseInt(range) - 1;
                 r_value = l_value + 1;
             }
             for (int num = l_value; num < r_value; num++) {
-                if (!indexes.contains(num) && num > startBoundary - 1 && num < endBoundary) { indexes.add(num); }
+                if (
+                    !indexes.contains(num) &&
+                    num > startBoundary - 1 &&
+                    num < endBoundary
+                ) {
+                    indexes.add(num);
+                }
             }
         }
 
         Collections.sort(indexes);
-        
-        if (appArgs.size() == 2) { // Take InputStream
 
+        if (appArgs.size() == 2) { // Take InputStream
             String[] pipeInput = HelperMethods.readInputStream(in);
             for (String line : pipeInput) {
                 int start = Math.min(startBoundary, line.length());
                 int end = endBoundary;
 
-                if (start != -1) { writer.write(line.substring(0, start)); }
-                
+                if (start != -1) {
+                    writer.write(line.substring(0, start));
+                }
+
                 for (Integer index : indexes) {
                     if (index >= line.length()) {
                         writer.write("");
@@ -96,29 +134,40 @@ public class Cut implements Application {
                         writer.write(line.charAt(index));
                     }
                 }
-                        
-                if (end < line.length()) { writer.write(line.substring(end)); }
+
+                if (end < line.length()) {
+                    writer.write(line.substring(end));
+                }
 
                 writer.write(System.getProperty("line.separator"));
                 writer.flush();
             }
-
         } else { // Use file path
             String cutArg = appArgs.get(2);
 
-            File cutFile = new File(Jsh.currentDirectory + File.separator + cutArg);
+            File cutFile = new File(
+                Jsh.currentDirectory + File.separator + cutArg
+            );
             if (cutFile.exists()) {
                 Charset encoding = StandardCharsets.UTF_8;
-                Path filePath = Paths.get((String) Jsh.currentDirectory + File.separator + cutArg);
-                try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
-
+                Path filePath = Paths.get(
+                    (String) Jsh.currentDirectory + File.separator + cutArg
+                );
+                try (
+                    BufferedReader reader = Files.newBufferedReader(
+                        filePath,
+                        encoding
+                    )
+                ) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         int start = Math.min(startBoundary, line.length());
                         int end = endBoundary;
 
-                        if (start != -1) { writer.write(line.substring(0, start)); }
-                        
+                        if (start != -1) {
+                            writer.write(line.substring(0, start));
+                        }
+
                         for (Integer index : indexes) {
                             if (index >= line.length()) {
                                 writer.write("");
@@ -126,20 +175,30 @@ public class Cut implements Application {
                                 writer.write(line.charAt(index));
                             }
                         }
-                        
-                        if (end < line.length()) { writer.write(line.substring(end)); }
-        
+
+                        if (end < line.length()) {
+                            writer.write(line.substring(end));
+                        }
+
                         writer.write(System.getProperty("line.separator"));
                         writer.flush();
                     }
-                    
                 } catch (IOException e) {
-                    HelperMethods.outputError(unsafe, out, "cut: cannot open " + cutArg); return;
+                    HelperMethods.outputError(
+                        unsafe,
+                        out,
+                        "cut: cannot open " + cutArg
+                    );
+                    return;
                 }
             } else {
-                HelperMethods.outputError(unsafe, out, "cut: " + cutArg + " does not exist"); return;
+                HelperMethods.outputError(
+                    unsafe,
+                    out,
+                    "cut: " + cutArg + " does not exist"
+                );
+                return;
             }
-
         }
     }
 }

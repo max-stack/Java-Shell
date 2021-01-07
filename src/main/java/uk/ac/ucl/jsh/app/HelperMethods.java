@@ -1,13 +1,12 @@
 package uk.ac.ucl.jsh.app;
 
-import java.io.Reader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-
 import uk.ac.ucl.jsh.Jsh;
 
 public class HelperMethods {
@@ -26,10 +25,15 @@ public class HelperMethods {
         return pipeStr.toString().split("\n");
     }
 
-    public static void outputError(Boolean unsafe, OutputStream out, String message) throws IOException {
+    public static void outputError(
+        Boolean unsafe,
+        OutputStream out,
+        String message
+    )
+        throws IOException {
         if (unsafe) {
             OutputStreamWriter writer = new OutputStreamWriter(out);
-            
+
             writer.write(message);
             writer.write(System.getProperty("line.separator"));
             writer.flush();
@@ -38,5 +42,4 @@ public class HelperMethods {
             System.err.println(message);
         }
     }
-
 }

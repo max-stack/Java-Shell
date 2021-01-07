@@ -1,7 +1,6 @@
 package uk.ac.ucl.jsh;
 
-import java.util.ArrayList; 
-
+import java.util.ArrayList;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -9,8 +8,8 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class CommandVisitor extends AbstractParseTreeVisitor<ExecutionPlan> {
 
     @Override
-    public ExecutionPlan visitTerminal(TerminalNode node){
-        switch(node.getText()){
+    public ExecutionPlan visitTerminal(TerminalNode node) {
+        switch (node.getText()) {
             case ";":
                 return new ExecutionPlan(ConnectionType.SEQUENCE);
             case "|":
@@ -22,23 +21,28 @@ public class CommandVisitor extends AbstractParseTreeVisitor<ExecutionPlan> {
             case "`":
                 return new ExecutionPlan(ConnectionType.SUBSTITUTION);
             default:
-                throw new RuntimeException("Something is wrong with the grammar.");
+                throw new RuntimeException(
+                    "Something is wrong with the grammar."
+                );
         }
     }
 
     @Override
-    public ExecutionPlan visitChildren(RuleNode node){
-        if(node.getRuleContext().getRuleIndex() == JshGrammarParser.RULE_atomicCommand){
+    public ExecutionPlan visitChildren(RuleNode node) {
+        if (
+            node.getRuleContext().getRuleIndex() ==
+            JshGrammarParser.RULE_atomicCommand
+        ) {
             AtomicCommandVisitor atomicVisitor = new AtomicCommandVisitor();
             ArrayList<String> args = atomicVisitor.visitChildren(node);
             return new ExecutionPlan(args.toArray(new String[args.size()]));
         }
 
         ExecutionPlan plan = new ExecutionPlan();
-        for(int i = 0; i < node.getChildCount(); i++){
+        for (int i = 0; i < node.getChildCount(); i++) {
             plan.join(this.visit(node.getChild(i)));
         }
-        String[] endCommands = {"£"};
+        String[] endCommands = { "£" };
         plan.join(new ExecutionPlan(endCommands));
         return plan;
     }

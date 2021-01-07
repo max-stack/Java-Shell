@@ -2,25 +2,31 @@ package uk.ac.ucl.jsh.app;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-
 import uk.ac.ucl.jsh.Jsh;
 
 public class List implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
+    public void exec(
+        ArrayList<String> appArgs,
+        InputStream in,
+        OutputStream out,
+        Boolean unsafe
+    )
+        throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
-        
+
         File currDir;
         if (appArgs.isEmpty()) {
             currDir = new File(Jsh.currentDirectory);
         } else if (appArgs.size() == 1) {
             currDir = new File(appArgs.get(0));
         } else {
-            HelperMethods.outputError(unsafe, out, "ls: too many arguments"); return;
+            HelperMethods.outputError(unsafe, out, "ls: too many arguments");
+            return;
         }
         try {
             File[] listOfFiles = currDir.listFiles();
@@ -38,8 +44,8 @@ public class List implements Application {
                 writer.flush();
             }
         } catch (NullPointerException e) {
-            HelperMethods.outputError(unsafe, out, "ls: no such directory"); return;
+            HelperMethods.outputError(unsafe, out, "ls: no such directory");
+            return;
         }
     }
-
 }
