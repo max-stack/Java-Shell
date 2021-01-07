@@ -469,6 +469,12 @@ public class JshTest {
     }
 
     @Test
+    public void testSafeQuoteKeywordDouble() throws Exception {
+        Jsh.eval("echo \";\"");
+        assertEquals(";", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
     public void testSafeDoubleQuotes() throws Exception {
         Jsh.eval("");
         assertEquals("", outputStreamCaptor.toString().trim());
