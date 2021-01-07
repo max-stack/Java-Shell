@@ -18,13 +18,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class GlobalRegExPrint implements Application {
 
-  public void exec(
-    ArrayList<String> appArgs,
-    InputStream in,
-    OutputStream out,
-    Boolean unsafe
-  )
-    throws IOException {
+  public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
     OutputStreamWriter writer = new OutputStreamWriter(out);
 
     boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
@@ -42,12 +36,7 @@ public class GlobalRegExPrint implements Application {
     }
   }
 
-  private boolean handleArguments(
-    ArrayList<String> appArgs,
-    OutputStream out,
-    Boolean unsafe
-  )
-    throws IOException {
+  private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe)throws IOException {
     if (appArgs.isEmpty()) {
       HelperMethods.outputError(unsafe, out, "grep: missing arguments");
       return false;
@@ -55,35 +44,20 @@ public class GlobalRegExPrint implements Application {
     try {
       Pattern.compile(appArgs.get(0));
     } catch (PatternSyntaxException e) {
-      HelperMethods.outputError(
-        unsafe,
-        out,
-        "grep: wrong pattern syntax " + appArgs.get(0)
-      );
+      HelperMethods.outputError(unsafe, out, "grep: wrong pattern syntax " + appArgs.get(0));
       return false;
     }
     return true;
   }
 
-  private void handleInput(
-    OutputStreamWriter writer,
-    InputStream in,
-    Pattern grepPattern
-  )
-    throws IOException {
+  private void handleInput(OutputStreamWriter writer, InputStream in, Pattern grepPattern) throws IOException {
     String[] pipeInput = HelperMethods.readInputStream(in);
     for (String line : pipeInput) {
       grepFromLine(writer, 0, null, line, grepPattern);
     }
   }
 
-  private void handleOutput(
-    OutputStream out,
-    ArrayList<String> appArgs,
-    boolean unsafe,
-    Pattern grepPattern
-  )
-    throws IOException {
+  private void handleOutput(OutputStream out, ArrayList<String> appArgs, boolean unsafe, Pattern grepPattern) throws IOException {
     OutputStreamWriter writer = new OutputStreamWriter(out);
 
     int numOfFiles = appArgs.size() - 1;
@@ -104,34 +78,19 @@ public class GlobalRegExPrint implements Application {
       String currentFile = appArgs.get(j + 1);
       Charset encoding = StandardCharsets.UTF_8;
       try (
-        BufferedReader reader = Files.newBufferedReader(
-          filePathArray[j],
-          encoding
-        )
-      ) {
+        BufferedReader reader = Files.newBufferedReader(filePathArray[j], encoding)) {
         String line = null;
         while ((line = reader.readLine()) != null) {
           grepFromLine(writer, numOfFiles, currentFile, line, grepPattern);
         }
       } catch (IOException e) {
-        HelperMethods.outputError(
-          unsafe,
-          out,
-          "grep: cannot open " + appArgs.get(j + 1)
-        );
+        HelperMethods.outputError(unsafe, out, "grep: cannot open " + appArgs.get(j + 1));
         return;
       }
     }
   }
 
-  private void grepFromLine(
-    OutputStreamWriter writer,
-    int numOfFiles,
-    String file,
-    String line,
-    Pattern grepPattern
-  )
-    throws IOException {
+  private void grepFromLine(OutputStreamWriter writer, int numOfFiles, String file, String line, Pattern grepPattern) throws IOException {
     Matcher matcher = grepPattern.matcher(line);
     if (matcher.find()) {
       if (numOfFiles > 1) {

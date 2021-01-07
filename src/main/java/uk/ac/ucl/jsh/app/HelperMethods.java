@@ -25,12 +25,7 @@ public class HelperMethods {
         return pipeStr.toString().split("\n");
     }
 
-    public static void outputError(
-        Boolean unsafe,
-        OutputStream out,
-        String message
-    )
-        throws IOException {
+    public static void outputError(Boolean unsafe, OutputStream out, String message) throws IOException {
         if (unsafe) {
             OutputStreamWriter writer = new OutputStreamWriter(out);
 

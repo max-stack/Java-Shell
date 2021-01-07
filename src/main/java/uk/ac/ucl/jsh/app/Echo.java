@@ -8,12 +8,7 @@ import java.util.ArrayList;
 
 public class Echo implements Application {
 
-    private boolean handleArguments(
-        ArrayList<String> appArgs,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException {
         if (appArgs.isEmpty()) {
             HelperMethods.outputError(unsafe, out, "echo: missing arguments");
             return false;
@@ -21,11 +16,7 @@ public class Echo implements Application {
         return true;
     }
 
-    private void handleOutput(
-        ArrayList<String> appArgs,
-        OutputStreamWriter writer
-    )
-        throws IOException {
+    private void handleOutput(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
         for (int i = 0; i < appArgs.size() - 1; i++) {
             writer.write(appArgs.get(i));
             writer.write(" ");
@@ -36,13 +27,7 @@ public class Echo implements Application {
         writer.flush();
     }
 
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         if (!handleArguments(appArgs, out, unsafe)) {
             return;
