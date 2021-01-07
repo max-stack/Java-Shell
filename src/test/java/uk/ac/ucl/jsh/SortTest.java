@@ -83,7 +83,6 @@ public class SortTest {
 
     @Test
     public void testSafeThrowsExceptionTooManyArguments() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add("-r");
         args.add(file1.getPath());
@@ -95,7 +94,6 @@ public class SortTest {
 
     @Test
     public void testSafeThrowsExceptionNoRTag() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
         args.add(file2.getPath());
@@ -106,7 +104,6 @@ public class SortTest {
 
     @Test
     public void testSafeReversedSort() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add("-r");
         args.add(file1.getPath());
@@ -117,7 +114,6 @@ public class SortTest {
 
     @Test
     public void testUnsafeThrowsExceptionUnableToWriteReversed() throws Exception {
-        //Throw exception - unable to open the file.
         OutputStream closedOutputStream = OutputStream.nullOutputStream();
         closedOutputStream.close();
         ArrayList<String> args = new  ArrayList<String>();
@@ -129,7 +125,6 @@ public class SortTest {
 
     @Test
     public void testSafeSort() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
@@ -139,7 +134,6 @@ public class SortTest {
 
     @Test
     public void testSafeThrowsExceptionUnableToWrite() throws Exception {
-        //Throw exception - unable to open the file.
         OutputStream closedOutputStream = OutputStream.nullOutputStream();
         closedOutputStream.close();
         ArrayList<String> args = new  ArrayList<String>();
@@ -150,7 +144,6 @@ public class SortTest {
 
     @Test
     public void testSafeSortInputReverse() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
         args.add("-r");
@@ -161,7 +154,6 @@ public class SortTest {
 
     @Test
     public void testSafeSortInput() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
 
@@ -170,8 +162,7 @@ public class SortTest {
     }
 
     @Test
-    public void testSafeThrowsExceptionInputStreamUnableToWriteCatch() throws Exception {
-        //Throw exception - unable to open the file.
+    public void testSafeThrowsExceptionInputStreamUnableToWrite() throws Exception {
         OutputStream closedOutputStream = OutputStream.nullOutputStream();
         closedOutputStream.close();
         ArrayList<String> args = new  ArrayList<String>();
@@ -180,21 +171,8 @@ public class SortTest {
         assertThrows(RuntimeException.class, () -> new Sort().exec(args, testInput, closedOutputStream, true));
     }
 
-    // @Test
-    // public void testSafeThrowsExceptionInputStreamUnableToWriteTry() throws Exception {
-    //     //Throw exception - unable to open the file.
-    //     OutputStream closedOutputStream = OutputStream.nullOutputStream();
-    //     closedOutputStream.close();
-    //     ArrayList<String> args = new  ArrayList<String>();
-    //     FileInputStream testInput = new FileInputStream(file1);
-
-    //     new Sort().exec(args, testInput, closedOutputStream, false);
-    //     assertEquals("sort: unable to write", outputStreamCaptor.toString().trim());
-    // }
-
     @Test
     public void testSafeThrowsExceptionCannotOpenFile() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
@@ -205,7 +183,6 @@ public class SortTest {
 
     @Test
     public void testUnsafeThrowsExceptionCannotOpenFile() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);

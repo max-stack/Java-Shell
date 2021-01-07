@@ -88,7 +88,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThrowsExceptionTooManyArguments() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add("-n");
         args.add(file1.getPath());
@@ -101,7 +100,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThrowsExceptionNoNFlag() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
         args.add(file2.getPath());
@@ -112,7 +110,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThreeArguments() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String num_lines_head = "6";
         args.add("-n");
@@ -125,7 +122,6 @@ public class HeadTest {
 
     @Test
     public void testSafeOneArgument() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
@@ -135,7 +131,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThrowsExceptionWrongNumber() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String num_lines_head = "6";
         args.add("-n");
@@ -148,7 +143,6 @@ public class HeadTest {
 
     @Test
     public void testSafeInputStream() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
 
@@ -158,7 +152,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThrowsExceptionInputStream() throws Exception {
-        //Throw exception - unable to open the file.
         OutputStream closedOutputStream = OutputStream.nullOutputStream();
         closedOutputStream.close();
         ArrayList<String> args = new  ArrayList<String>();
@@ -170,7 +163,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThrowsExceptionCannotOpenFile() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(dir.getPath());
 
@@ -180,7 +172,6 @@ public class HeadTest {
 
     @Test
     public void testSafeThrowsExceptionFileDoesNotExist() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
@@ -191,7 +182,6 @@ public class HeadTest {
 
     @Test
     public void testUnsafeThrowsExceptionFileDoesNotExist() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
@@ -202,7 +192,6 @@ public class HeadTest {
 
     @Test
     public void testSafeReaderIsNull() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file2.getPath());
 

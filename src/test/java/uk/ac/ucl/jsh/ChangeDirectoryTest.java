@@ -75,7 +75,6 @@ public class ChangeDirectoryTest {
 
     @Test
     public void testSafeThrowsExceptionNoArguments() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
 
         new ChangeDirectory().exec(args, null, System.out, false);
@@ -84,7 +83,6 @@ public class ChangeDirectoryTest {
 
     @Test
     public void testSafeThrowsExceptionMoreThanOneArgument() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(dir1.getPath());
         args.add(dir2.getPath());
@@ -95,7 +93,6 @@ public class ChangeDirectoryTest {
 
     @Test
     public void testSafeThrowsExceptionNotExistingDirectory() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String wrongDirectory = "wrongdirectory";
         args.add(wrongDirectory);
@@ -106,7 +103,6 @@ public class ChangeDirectoryTest {
 
     @Test
     public void testSafeThrowsExceptionNotDirectory() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
@@ -116,7 +112,6 @@ public class ChangeDirectoryTest {
 
     @Test
     public void testUnsafeThrowsExceptionNotExistingDirectory() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         String wrongDirectory = "wrongdirectory";
         args.add(wrongDirectory);
@@ -127,7 +122,6 @@ public class ChangeDirectoryTest {
 
     @Test
     public void testSafeChangeDirectory() throws Exception {
-        //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
         args.add(dir1.getPath());
 
