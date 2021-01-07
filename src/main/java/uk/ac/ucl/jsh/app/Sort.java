@@ -17,37 +17,17 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Sort implements Application {
 
-<<<<<<< HEAD
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-
-=======
-
-public class Sort implements Application{
-
-    private void handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 2) {
-            HelperMethods.outputError(unsafe, out, "sort: too many arguments");
-            return;
+            HelperMethods.outputError(unsafe, out, "sort: too many arguments"); return false;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-r")) {
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "sort: wrong argument " + appArgs.get(0)
-            );
-            return;
+            HelperMethods.outputError(unsafe, out, "sort: wrong argument " + appArgs.get(0)); return false;
         }
+        return true;
     }
 
-    private void handleInput(OutputStreamWriter writer, InputStream in, OutputStream out, Boolean unsafe, boolean reversed) throws IOException{
+    private boolean handleInput(OutputStreamWriter writer, InputStream in, OutputStream out, Boolean unsafe, boolean reversed) throws IOException{
         String[] pipeInput = HelperMethods.readInputStream(in);
         List<String> sortList = Arrays.asList(pipeInput);
         Collections.sort(sortList);
@@ -70,10 +50,10 @@ public class Sort implements Application{
                 
             }
         });
-
+        return true;
     }
 
-    private void handleOutput(ArrayList<String> appArgs, OutputStreamWriter writer, OutputStream out, Boolean unsafe, String sortArg, boolean reversed) throws IOException{
+    private boolean handleOutput(ArrayList<String> appArgs, OutputStreamWriter writer, OutputStream out, Boolean unsafe, String sortArg, boolean reversed) throws IOException{
         String sortFile = Jsh.currentDirectory + File.separator + sortArg;
 
         try (Stream<String> stream = Files.lines(Paths.get(sortFile))) {
@@ -115,15 +95,17 @@ public class Sort implements Application{
                 });              
             }
         } catch (IOException e) {
-            HelperMethods.outputError(unsafe, out, "sort: cannot open " + appArgs.get(0)); return;
+            HelperMethods.outputError(unsafe, out, "sort: cannot open " + appArgs.get(0)); return false;
         }
+        return true;
     }
     
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        handleArguments(appArgs, out, unsafe);
+        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
+        if(!successfullyPassed) {return; }
 
         boolean reversed = false;
         String sortArg = "";
@@ -139,117 +121,12 @@ public class Sort implements Application{
         }
 
         if (sortArg.isEmpty()) { // Take InputStream
-<<<<<<< HEAD
-            String[] pipeInput = HelperMethods.readInputStream(in);
-            List<String> sortList = Arrays.asList(pipeInput);
-            Collections.sort(sortList);
-            if (reversed) {
-                Collections.reverse(sortList);
-            }
-
-            sortList.forEach(
-                line -> {
-                    try {
-                        writer.write(line);
-                        writer.write(System.getProperty("line.separator"));
-                        writer.flush();
-                    } catch (IOException e) {
-                        /* Not sure why outputError doesn't work without the try-catch block */
-                        try {
-                            //throw new RuntimeException("sort: unable to write");
-                            HelperMethods.outputError(
-                                unsafe,
-                                out,
-                                "sort: unable to write"
-                            );
-                            return;
-                        } catch (Exception f) {
-                            throw new RuntimeException(
-                                "sort: unexpected error 1 - " + f
-                            );
-                        }
-                    }
-                }
-            );
-        } else { // Use file path
-            String sortFile = Jsh.currentDirectory + File.separator + sortArg;
-
-            try (Stream<String> stream = Files.lines(Paths.get(sortFile))) {
-                if (!reversed) {
-                    stream
-                        .sorted()
-                        .forEach(
-                            line -> {
-                                try {
-                                    writer.write(line);
-                                    writer.write(
-                                        System.getProperty("line.separator")
-                                    );
-                                    writer.flush();
-                                } catch (IOException e) {
-                                    /* Not sure why outputError doesn't work without the try-catch block */
-                                    try {
-                                        //throw new RuntimeException("sort: cannot open " + appArgs.get(0));
-                                        HelperMethods.outputError(
-                                            unsafe,
-                                            out,
-                                            "sort: cannot open " +
-                                            appArgs.get(0)
-                                        );
-                                        return;
-                                    } catch (Exception f) {
-                                        throw new RuntimeException(
-                                            "sort: unexpected error 2 - " + f
-                                        );
-                                    }
-                                }
-                            }
-                        );
-                } else {
-                    stream
-                        .sorted(Comparator.reverseOrder())
-                        .forEach(
-                            line -> {
-                                try {
-                                    writer.write(line);
-                                    writer.write(
-                                        System.getProperty("line.separator")
-                                    );
-                                    writer.flush();
-                                } catch (IOException e) {
-                                    /* Not sure why outputError doesn't work without the try-catch block */
-                                    try {
-                                        //throw new RuntimeException("sort: unchecked exception " + appArgs.get(0));
-                                        HelperMethods.outputError(
-                                            unsafe,
-                                            out,
-                                            "sort: unchecked exception " +
-                                            appArgs.get(0)
-                                        );
-                                        return;
-                                    } catch (Exception f) {
-                                        throw new RuntimeException(
-                                            "sort: unexpected error 3 - " + f
-                                        );
-                                    }
-                                }
-                            }
-                        );
-                }
-            } catch (IOException e) {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "sort: cannot open " + appArgs.get(0)
-                );
-                return;
-            }
-=======
-            handleInput(writer, in, out, unsafe, reversed);
+            successfullyPassed = handleInput(writer, in, out, unsafe, reversed);
+            if(!successfullyPassed) {return; }
 
         } else { // Use file path
-            handleOutput(appArgs, writer, out, unsafe, sortArg, reversed);
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
+            successfullyPassed = handleOutput(appArgs, writer, out, unsafe, sortArg, reversed);
+            if(!successfullyPassed) {return; }
         }
     }
 }

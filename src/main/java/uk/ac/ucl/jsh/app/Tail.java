@@ -16,35 +16,14 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Tail implements Application {
 
-<<<<<<< HEAD
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-
-=======
-    private void handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "tail: too many arguments");
-            return;
+            HelperMethods.outputError(unsafe, out, "tail: too many arguments"); return false;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-<<<<<<< HEAD
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "tail: wrong argument " + appArgs.get(0)
-            );
-            return;
-        }
-=======
-            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return;
+            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return false;
         }  
+        return true;
     }
 
     private void handleInput(OutputStreamWriter writer, InputStream in,  int tailLines) throws IOException{
@@ -67,7 +46,7 @@ public class Tail implements Application {
 
     }
 
-    private void handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, int tailLines, String tailArg) throws IOException{
+    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, int tailLines, String tailArg) throws IOException{
         File tailFile = new File(Jsh.currentDirectory + File.separator + tailArg);
         if (tailFile.exists()) {
             Charset encoding = StandardCharsets.UTF_8;
@@ -89,19 +68,20 @@ public class Tail implements Application {
                     writer.flush();
                 }            
             } catch (IOException e) {
-                HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return;
+                HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return false;
             }
         } else {
-            HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return;
+            HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return false;
         }
+        return true;
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        handleArguments(appArgs, out, unsafe);
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
-
+        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
+        if(!successfullyPassed) {return; }
+     
         int tailLines = 10;
         String tailArg = "";
         if (appArgs.size() == 3) { // Number of lines and file path provided
@@ -124,79 +104,11 @@ public class Tail implements Application {
         }
 
         if (tailArg.isEmpty()) { // Take InputStream
-<<<<<<< HEAD
-            String[] pipeInput = HelperMethods.readInputStream(in);
-            int index;
-            if (tailLines > pipeInput.length) {
-                index = 0;
-            } else {
-                index = pipeInput.length - tailLines;
-            }
-            for (int i = index; i < pipeInput.length; i++) {
-                try {
-                    writer.write(pipeInput[i]);
-                    writer.write(System.getProperty("line.separator"));
-                    writer.flush();
-                } catch (Exception e) {
-                    break;
-                }
-            }
-        } else { // Use file path
-            File tailFile = new File(
-                Jsh.currentDirectory + File.separator + tailArg
-            );
-            if (tailFile.exists()) {
-                Charset encoding = StandardCharsets.UTF_8;
-                Path filePath = Paths.get(
-                    (String) Jsh.currentDirectory + File.separator + tailArg
-                );
-                ArrayList<String> storage = new ArrayList<>();
-                try (
-                    BufferedReader reader = Files.newBufferedReader(
-                        filePath,
-                        encoding
-                    )
-                ) {
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        storage.add(line);
-                    }
-                    int index = 0;
-                    if (tailLines > storage.size()) {
-                        index = 0;
-                    } else {
-                        index = storage.size() - tailLines;
-                    }
-                    for (int i = index; i < storage.size(); i++) {
-                        writer.write(
-                            storage.get(i) +
-                            System.getProperty("line.separator")
-                        );
-                        writer.flush();
-                    }
-                } catch (IOException e) {
-                    HelperMethods.outputError(
-                        unsafe,
-                        out,
-                        "tail: cannot open " + tailArg
-                    );
-                    return;
-                }
-            } else {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "tail: " + tailArg + " does not exist"
-                );
-                return;
-            }
-=======
             handleInput(writer, in, tailLines);
-
         } else { // Use file path
-            handleOutput(writer, out, unsafe, tailLines, tailArg);
-            
->>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
+            successfullyPassed = handleOutput(writer, out, unsafe, tailLines, tailArg);
+            if(!successfullyPassed) {return; }
+        
         }
     }
 }
