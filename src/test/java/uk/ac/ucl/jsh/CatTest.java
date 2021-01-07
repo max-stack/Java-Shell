@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.Concatenate;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class CatTest {
@@ -72,7 +74,7 @@ public class CatTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir1/file1.txt");
 
-        new Concatenate().exec(args, null, System.out, false);
+        new Concatenate(new Safe()).exec(args, null, System.out);
         assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
 
@@ -80,7 +82,7 @@ public class CatTest {
     public void testCatUnsafe() throws Exception {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir1/file1.txt");
-        new Concatenate().exec(args, null, System.out, true);
+        new Concatenate(new Unsafe()).exec(args, null, System.out);
         assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
 
@@ -90,7 +92,7 @@ public class CatTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir3");
 
-        new Concatenate().exec(args, null, System.out, false);
+        new Concatenate(new Safe()).exec(args, null, System.out);
         assertEquals("cat: dir3 does not exist" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -100,7 +102,7 @@ public class CatTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir1");
 
-        new Concatenate().exec(args, null, System.out, false);
+        new Concatenate(new Safe()).exec(args, null, System.out);
         assertEquals("cat: cannot open dir1" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -111,7 +113,7 @@ public class CatTest {
         ArrayList<String> args = new  ArrayList<String>();
         String content = "dir1/file1.txt";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        new Concatenate().exec(args, in, System.out, false);
+        new Concatenate(new Safe()).exec(args, in, System.out);
         assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
 
@@ -121,7 +123,7 @@ public class CatTest {
         ArrayList<String> args = new  ArrayList<String>();
         String content = "dir1/file1.txt";
         InputStream in = new FileInputStream(content);
-        new Concatenate().exec(args, in, System.out, false);
+        new Concatenate(new Safe()).exec(args, in, System.out);
         assertEquals("AAA\nBBB\nCCC" , outputStreamCaptor.toString().trim());
     }
 

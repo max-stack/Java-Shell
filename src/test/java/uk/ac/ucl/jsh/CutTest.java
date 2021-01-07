@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.Cut;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class CutTest {
@@ -60,7 +62,7 @@ public class CutTest {
     public void testCutUnsafe() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new Cut().exec(args, null, System.out, true);
+        new Cut(new Unsafe()).exec(args, null, System.out);
         assertEquals("cut: missing arguments", outputStreamCaptor.toString().trim());
     }
 
@@ -68,7 +70,7 @@ public class CutTest {
     public void testCutEmptyArgs() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: missing arguments", outputStreamErrCaptor.toString().trim());
     }
 
@@ -82,7 +84,7 @@ public class CutTest {
         args.add("5");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: wrong arguments", outputStreamErrCaptor.toString().trim());
     }
 
@@ -94,7 +96,7 @@ public class CutTest {
         args.add("1,3,5");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: wrong argument -a", outputStreamErrCaptor.toString().trim());
     }
 
@@ -106,7 +108,7 @@ public class CutTest {
         args.add(",,,");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: wrong argument ,,,", outputStreamErrCaptor.toString().trim());
     }
 
@@ -118,7 +120,7 @@ public class CutTest {
         args.add("a,b,e-h");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: invalid argument a,b,e-h", outputStreamErrCaptor.toString().trim());
     }
 
@@ -130,7 +132,7 @@ public class CutTest {
         args.add("1,3,5,7,9,10,11");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("ACEGIJ\n135790\nABCDEE", outputStreamCaptor.toString().trim());
     }
 
@@ -142,7 +144,7 @@ public class CutTest {
         args.add("2-4,7-9");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("BCDGHI\n234789\nABBDDE", outputStreamCaptor.toString().trim());
     }
 
@@ -154,7 +156,7 @@ public class CutTest {
         args.add("-3,2-6,5-9,8-");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("ABCDEFGHIJ\n1234567890\nAABBCCDDEE", outputStreamCaptor.toString().trim());
     }
 
@@ -166,7 +168,7 @@ public class CutTest {
         args.add("8-2");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: invalid range 8-2", outputStreamErrCaptor.toString().trim());
     }
 
@@ -178,7 +180,7 @@ public class CutTest {
         args.add("2,-3,5,7-,10,11");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("ABCEGHIJ\n12357890\nAABCDDEE", outputStreamCaptor.toString().trim());
     }
 
@@ -190,7 +192,7 @@ public class CutTest {
         args.add("-2,-5,-4,8-,9-,6-");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("ABCDEFGHIJ\n1234567890\nAABBCCDDEE", outputStreamCaptor.toString().trim());
     }
 
@@ -202,7 +204,7 @@ public class CutTest {
         args.add("1,3,5");
         args.add("invalid.abc");
 
-        new Cut().exec(args, null, System.out, false);
+        new Cut(new Safe()).exec(args, null, System.out);
         assertEquals("cut: invalid.abc does not exist", outputStreamErrCaptor.toString().trim());
     }
 
@@ -216,7 +218,7 @@ public class CutTest {
         String content = "ABCDEF\nInput Stream\n123456";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
-        new Cut().exec(args, in, System.out, false);
+        new Cut(new Safe()).exec(args, in, System.out);
         assertEquals("CE\nptS\n35", outputStreamCaptor.toString().trim());
     }
 
@@ -230,7 +232,7 @@ public class CutTest {
         String content = "ABCDEF\nInput Stream\n123456";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
-        new Cut().exec(args, in, System.out, false);
+        new Cut(new Safe()).exec(args, in, System.out);
         assertEquals("ABCDEF\nInput Stream\n123456", outputStreamCaptor.toString().trim());
     }
 
@@ -245,7 +247,7 @@ public class CutTest {
         args.add("1,3,5,7");
         args.add("file1.txt");
 
-        new Cut().exec(args, null, closedOutputStream, false);
+        new Cut(new Safe()).exec(args, null, closedOutputStream);
         assertEquals("cut: cannot open file1.txt", outputStreamErrCaptor.toString().trim());
     }
 

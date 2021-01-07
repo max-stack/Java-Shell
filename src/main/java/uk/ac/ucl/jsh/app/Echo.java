@@ -8,24 +8,26 @@ import java.util.ArrayList;
 
 public class Echo implements Application {
 
-    private boolean handleArguments(
-        ArrayList<String> appArgs,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
+    private ErrorOutput error;
+
+    public Echo(ErrorOutput error) {
+        this.error = error;
+    }
+
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        if (!handleArguments(appArgs, out)) { return; }
+        handleOutput(appArgs, writer);
+    }
+
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out) throws IOException {
         if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "echo: missing arguments");
-            return false;
+            error.output(out, "echo: missing arguments"); return false;
         }
         return true;
     }
 
-    private void handleOutput(
-        ArrayList<String> appArgs,
-        OutputStreamWriter writer
-    )
-        throws IOException {
+    private void handleOutput(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
         for (int i = 0; i < appArgs.size() - 1; i++) {
             writer.write(appArgs.get(i));
             writer.write(" ");
@@ -35,18 +37,5 @@ public class Echo implements Application {
         writer.write(System.getProperty("line.separator"));
         writer.flush();
     }
-
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-        if (!handleArguments(appArgs, out, unsafe)) {
-            return;
-        }
-        handleOutput(appArgs, writer);
-    }
+    
 }

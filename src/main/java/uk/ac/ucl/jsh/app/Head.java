@@ -16,106 +16,16 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Head implements Application {
 
-    private boolean handleArguments(
-        ArrayList<String> appArgs,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
-        if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "head: too many arguments");
-            return false;
-        }
-        if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "head: wrong argument " + appArgs.get(0)
-            );
-            return false;
-        }
-        return true;
+    private ErrorOutput error;
+
+    public Head(ErrorOutput error) {
+        this.error = error;
     }
 
-    private void handleInput(
-        InputStream in,
-        OutputStreamWriter writer,
-        int headLines
-    )
-        throws IOException {
-        String[] pipeInput = HelperMethods.readInputStream(in);
-        for (int i = 0; i < headLines; i++) {
-            try {
-                writer.write(pipeInput[i]);
-                writer.write(System.getProperty("line.separator"));
-                writer.flush();
-            } catch (Exception e) {
-                break;
-            }
-        }
-    }
-
-    private boolean handleOutput(
-        OutputStreamWriter writer,
-        int headLines,
-        OutputStream out,
-        Boolean unsafe,
-        String headArg
-    )
-        throws IOException {
-        File headFile = new File(
-            Jsh.currentDirectory + File.separator + headArg
-        );
-        if (headFile.exists()) {
-            Charset encoding = StandardCharsets.UTF_8;
-            Path filePath = Paths.get(
-                (String) Jsh.currentDirectory + File.separator + headArg
-            );
-            try (
-                BufferedReader reader = Files.newBufferedReader(
-                    filePath,
-                    encoding
-                )
-            ) {
-                for (int i = 0; i < headLines; i++) {
-                    String line = null;
-                    if ((line = reader.readLine()) != null) {
-                        writer.write(line);
-                        writer.write(System.getProperty("line.separator"));
-                        writer.flush();
-                    }
-                }
-            } catch (IOException e) {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "head: cannot open " + headArg
-                );
-                return false;
-            }
-        } else {
-            HelperMethods.outputError(
-                unsafe,
-                out,
-                "head: " + headArg + " does not exist"
-            );
-            return false;
-        }
-        return true;
-    }
-
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        if (!handleArguments(appArgs, out, unsafe)) {
-            return;
-        }
+        if (!handleArguments(appArgs, out)) { return; }
 
         int headLines = 10;
         String headArg = "";
@@ -129,21 +39,61 @@ public class Head implements Application {
             try {
                 headLines = Integer.parseInt(appArgs.get(1));
             } catch (NumberFormatException e) {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "head: wrong number " + appArgs.get(1)
-                );
-                return;
+                error.output(out, "head: wrong number " + appArgs.get(1)); return;
             }
         }
 
         if (headArg.isEmpty()) { // Take InputStream
             handleInput(in, writer, headLines);
         } else { // Use file path
-            if (!handleOutput(writer, headLines, out, unsafe, headArg)) {
-                return;
+            if (!handleOutput(writer, headLines, out, headArg)) { return; }
+        }
+    }
+
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out) throws IOException {
+        if (appArgs.size() > 3) {
+            error.output(out, "head: too many arguments"); return false;
+        }
+        if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
+            error.output(out, "head: wrong argument " + appArgs.get(0)); return false;
+        }
+        return true;
+    }
+
+    private void handleInput(InputStream in, OutputStreamWriter writer, int headLines) throws IOException {
+        String[] pipeInput = HelperMethods.readInputStream(in);
+        for (int i = 0; i < headLines; i++) {
+            try {
+                writer.write(pipeInput[i]);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+            } catch (Exception e) {
+                break;
             }
         }
     }
+
+    private boolean handleOutput(OutputStreamWriter writer, int headLines, OutputStream out, String headArg) throws IOException {
+        File headFile = new File(Jsh.currentDirectory + File.separator + headArg);
+        if (headFile.exists()) {
+            Charset encoding = StandardCharsets.UTF_8;
+            Path filePath = Paths.get((String) Jsh.currentDirectory + File.separator + headArg);
+            try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
+                for (int i = 0; i < headLines; i++) {
+                    String line = null;
+                    if ((line = reader.readLine()) != null) {
+                        writer.write(line);
+                        writer.write(System.getProperty("line.separator"));
+                        writer.flush();
+                    }
+                }
+            } catch (IOException e) {
+                error.output(out, "head: cannot open " + headArg); return false;
+            }
+        } else {
+            error.output(out, "head: " + headArg + " does not exist"); return false;
+        }
+        return true;
+    }
+
 }

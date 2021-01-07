@@ -16,12 +16,46 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Tail implements Application {
 
-    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
+    private ErrorOutput error;
+
+    public Tail(ErrorOutput error) {
+        this.error = error;
+    }
+
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        
+        if (!handleArguments(appArgs, out)) { return; }
+     
+        int tailLines = 10;
+        String tailArg = "";
+        if (appArgs.size() == 3) { // Number of lines and file path provided
+            tailArg = appArgs.get(2);
+        } else if (appArgs.size() == 1) { // File path provided (use default number of lines: 10)
+            tailArg = appArgs.get(0);
+        }
+
+        if (appArgs.size() > 1) {
+            try {
+                tailLines = Integer.parseInt(appArgs.get(1));
+            } catch (NumberFormatException e) {
+                error.output(out, "tail: wrong number " + appArgs.get(1)); return;
+            }
+        }
+
+        if (tailArg.isEmpty()) { // Take InputStream
+            handleInput(writer, in, tailLines);
+        } else { // Use file path
+            if (!handleOutput(writer, out, tailLines, tailArg)) { return; }
+        }
+    }
+
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out) throws IOException{
         if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "tail: too many arguments"); return false;
+            error.output(out, "tail: too many arguments"); return false;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return false;
+            error.output(out, "tail: wrong argument " + appArgs.get(0)); return false;
         }  
         return true;
     }
@@ -46,7 +80,7 @@ public class Tail implements Application {
 
     }
 
-    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, int tailLines, String tailArg) throws IOException{
+    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, int tailLines, String tailArg) throws IOException{
         File tailFile = new File(Jsh.currentDirectory + File.separator + tailArg);
         if (tailFile.exists()) {
             Charset encoding = StandardCharsets.UTF_8;
@@ -54,9 +88,7 @@ public class Tail implements Application {
             ArrayList<String> storage = new ArrayList<>();
             try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
                 String line = null;
-                while ((line = reader.readLine()) != null) {
-                    storage.add(line);
-                }
+                while ((line = reader.readLine()) != null) { storage.add(line); }
                 int index = 0;
                 if (tailLines > storage.size()) {
                     index = 0;
@@ -68,47 +100,12 @@ public class Tail implements Application {
                     writer.flush();
                 }            
             } catch (IOException e) {
-                HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return false;
+                error.output(out, "tail: cannot open " + tailArg); return false;
             }
         } else {
-            HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return false;
+            error.output(out, "tail: " + tailArg + " does not exist"); return false;
         }
         return true;
     }
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-        
-        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
-        if(!successfullyPassed) {return; }
-     
-        int tailLines = 10;
-        String tailArg = "";
-        if (appArgs.size() == 3) { // Number of lines and file path provided
-            tailArg = appArgs.get(2);
-        } else if (appArgs.size() == 1) { // File path provided (use default number of lines: 10)
-            tailArg = appArgs.get(0);
-        }
-
-        if (appArgs.size() > 1) {
-            try {
-                tailLines = Integer.parseInt(appArgs.get(1));
-            } catch (NumberFormatException e) {
-                HelperMethods.outputError(
-                    unsafe,
-                    out,
-                    "tail: wrong number " + appArgs.get(1)
-                );
-                return;
-            }
-        }
-
-        if (tailArg.isEmpty()) { // Take InputStream
-            handleInput(writer, in, tailLines);
-        } else { // Use file path
-            successfullyPassed = handleOutput(writer, out, unsafe, tailLines, tailArg);
-            if(!successfullyPassed) {return; }
-        
-        }
-    }
 }

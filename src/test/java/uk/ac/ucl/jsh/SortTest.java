@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,6 +25,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.app.Sort;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class SortTest {
@@ -88,7 +91,7 @@ public class SortTest {
         args.add(file1.getPath());
         args.add(file2.getPath());
 
-        new Sort().exec(args, null, System.out, false);
+        new Sort(new Safe()).exec(args, null, System.out);
         assertEquals("sort: too many arguments", outputStreamCaptor.toString().trim());
     }
 
@@ -98,7 +101,7 @@ public class SortTest {
         args.add(file1.getPath());
         args.add(file2.getPath());
 
-        new Sort().exec(args, null, System.out, false);
+        new Sort(new Safe()).exec(args, null, System.out);
         assertEquals("sort: wrong argument " + args.get(0), outputStreamCaptor.toString().trim());
     }
 
@@ -108,7 +111,7 @@ public class SortTest {
         args.add("-r");
         args.add(file1.getPath());
 
-        new Sort().exec(args, null, System.out, false);
+        new Sort(new Safe()).exec(args, null, System.out);
         assertEquals("test\nhappy\na\nZebra\nMonopoly234\nA\n291\n19", outputStreamCaptor.toString().trim());
     }
 
@@ -120,7 +123,7 @@ public class SortTest {
         args.add("-r");
         args.add(file1.getPath());
 
-        assertThrows(RuntimeException.class, () -> new Sort().exec(args, null, closedOutputStream, true));
+        assertThrows(RuntimeException.class, () -> new Sort(new Unsafe()).exec(args, null, closedOutputStream));
     }
 
     @Test
@@ -128,7 +131,7 @@ public class SortTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
-        new Sort().exec(args, null, System.out, false);
+        new Sort(new Safe()).exec(args, null, System.out);
         assertEquals("19\n291\nA\nMonopoly234\nZebra\na\nhappy\ntest", outputStreamCaptor.toString().trim());
     }
 
@@ -139,7 +142,7 @@ public class SortTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
-        assertThrows(RuntimeException.class, () -> new Sort().exec(args, null, closedOutputStream, true));
+        assertThrows(RuntimeException.class, () -> new Sort(new Unsafe()).exec(args, null, closedOutputStream));
     }
 
     @Test
@@ -148,7 +151,7 @@ public class SortTest {
         FileInputStream testInput = new FileInputStream(file1);
         args.add("-r");
 
-        new Sort().exec(args, testInput, System.out, false);
+        new Sort(new Safe()).exec(args, testInput, System.out);
         assertEquals("test\nhappy\na\nZebra\nMonopoly234\nA\n291\n19", outputStreamCaptor.toString().trim());
     }
 
@@ -157,7 +160,7 @@ public class SortTest {
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
 
-        new Sort().exec(args, testInput, System.out, false);
+        new Sort(new Safe()).exec(args, testInput, System.out);
         assertEquals("19\n291\nA\nMonopoly234\nZebra\na\nhappy\ntest", outputStreamCaptor.toString().trim());
     }
 
@@ -168,7 +171,7 @@ public class SortTest {
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
 
-        assertThrows(RuntimeException.class, () -> new Sort().exec(args, testInput, closedOutputStream, true));
+        assertThrows(RuntimeException.class, () -> new Sort(new Unsafe()).exec(args, testInput, closedOutputStream));
     }
 
     @Test
@@ -177,7 +180,7 @@ public class SortTest {
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
 
-        new Sort().exec(args, null, System.out, false);
+        new Sort(new Safe()).exec(args, null, System.out);
         assertEquals("sort: cannot open " + args.get(0), outputStreamCaptor.toString().trim());
     }
 
@@ -187,7 +190,7 @@ public class SortTest {
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
 
-        new Sort().exec(args, null, System.out, true);
+        new Sort(new Unsafe()).exec(args, null, System.out);
         assertEquals("sort: cannot open " + args.get(0), outputStreamCaptor.toString().trim());
-    }   
+    }
 }

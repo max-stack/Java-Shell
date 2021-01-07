@@ -12,18 +12,11 @@ public class RunCommand implements Runnable {
     ArrayList<String> tokens;
     OutputStream out;
     InputStream in;
-    Boolean unsafe;
 
-    public RunCommand(
-        ArrayList<String> tokens,
-        OutputStream out,
-        InputStream in,
-        Boolean unsafe
-    ) {
+    public RunCommand(ArrayList<String> tokens, OutputStream out, InputStream in) {
         this.tokens = tokens;
         this.out = out;
         this.in = in;
-        this.unsafe = unsafe;
     }
 
     public void run() {
@@ -33,7 +26,7 @@ public class RunCommand implements Runnable {
                 tokens.subList(1, tokens.size())
             );
             Application app = ApplicationFactory.make(appName);
-            app.exec(appArgs, in, out, unsafe);
+            app.exec(appArgs, in, out);
             if (
                 out.getClass().getName().toString() ==
                 "java.io.PipedOutputStream"

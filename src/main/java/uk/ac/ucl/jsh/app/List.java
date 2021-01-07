@@ -10,7 +10,28 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class List implements Application {
 
-    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, File currDir) throws IOException{
+    private ErrorOutput error;
+
+    public List(ErrorOutput error) {
+        this.error = error;
+    }
+
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        
+        File currDir;
+        if (appArgs.isEmpty()) {
+            currDir = new File(Jsh.currentDirectory);
+        } else if (appArgs.size() == 1) {
+            currDir = new File(appArgs.get(0));
+        } else {
+            error.output(out, "ls: too many arguments"); return;
+        }
+
+        if (!handleOutput(writer, out, currDir)) { return; }
+    }
+
+    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, File currDir) throws IOException{
         try {
             File[] listOfFiles = currDir.listFiles();
             boolean atLeastOnePrinted = false;
@@ -27,25 +48,9 @@ public class List implements Application {
                 writer.flush();
             }
         } catch (NullPointerException e) {
-            HelperMethods.outputError(unsafe, out, "ls: no such directory"); return false;
+            error.output(out, "ls: no such directory"); return false;
         }
         return true;
-    }
-
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-        
-        File currDir;
-        if (appArgs.isEmpty()) {
-            currDir = new File(Jsh.currentDirectory);
-        } else if (appArgs.size() == 1) {
-            currDir = new File(appArgs.get(0));
-        } else {
-            HelperMethods.outputError(unsafe, out, "ls: too many arguments"); return;
-        }
-
-        boolean successfullyPassed = handleOutput(writer, out, unsafe, currDir);
-        if(!successfullyPassed) {return; }
     }
 
 }

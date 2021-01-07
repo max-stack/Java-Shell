@@ -24,6 +24,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.app.Head;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class HeadTest {
@@ -94,7 +96,7 @@ public class HeadTest {
         args.add(file2.getPath());
         args.add(file3.getPath());
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("head: too many arguments", outputStreamCaptor.toString().trim());
     }
 
@@ -104,7 +106,7 @@ public class HeadTest {
         args.add(file1.getPath());
         args.add(file2.getPath());
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("head: wrong argument " + args.get(0), outputStreamCaptor.toString().trim());
     }
 
@@ -116,7 +118,7 @@ public class HeadTest {
         args.add(num_lines_head);
         args.add(file1.getPath());
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("A A\nB B\nC C\nD D\nE E\nF F", outputStreamCaptor.toString().trim());
     }
 
@@ -125,7 +127,7 @@ public class HeadTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J", outputStreamCaptor.toString().trim());
     }
 
@@ -137,7 +139,7 @@ public class HeadTest {
         args.add(file1.getPath());
         args.add(num_lines_head);
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("head: wrong number " + args.get(1), outputStreamCaptor.toString().trim());
     }
 
@@ -146,7 +148,7 @@ public class HeadTest {
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
 
-        new Head().exec(args, testInput, System.out, false);
+        new Head(new Safe()).exec(args, testInput, System.out);
         assertEquals("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J", outputStreamCaptor.toString().trim());
     }
 
@@ -157,7 +159,7 @@ public class HeadTest {
         ArrayList<String> args = new  ArrayList<String>();
         FileInputStream testInput = new FileInputStream(file1);
 
-        new Head().exec(args, testInput, closedOutputStream, false);
+        new Head(new Safe()).exec(args, testInput, closedOutputStream);
         assertEquals("", outputStreamCaptor.toString().trim());
     }
 
@@ -166,7 +168,7 @@ public class HeadTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(dir.getPath());
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("head: cannot open " + args.get(0) , outputStreamCaptor.toString().trim());
     }
 
@@ -176,7 +178,7 @@ public class HeadTest {
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("head: " + args.get(0) +  " does not exist", outputStreamCaptor.toString().trim());
     }
 
@@ -186,7 +188,7 @@ public class HeadTest {
         String wrongFile = "wrongfile.txt";
         args.add(wrongFile);
 
-        new Head().exec(args, null, System.out, true);
+        new Head(new Unsafe()).exec(args, null, System.out);
         assertEquals("head: " + args.get(0) +  " does not exist", outputStreamCaptor.toString().trim());
     }
 
@@ -195,7 +197,7 @@ public class HeadTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file2.getPath());
 
-        new Head().exec(args, null, System.out, false);
+        new Head(new Safe()).exec(args, null, System.out);
         assertEquals("", outputStreamCaptor.toString().trim());
     }
 }

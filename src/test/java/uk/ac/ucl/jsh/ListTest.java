@@ -20,6 +20,8 @@ import java.io.PrintStream;
 import java.util.*;
 
 import uk.ac.ucl.jsh.app.List;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class ListTest {
@@ -67,7 +69,7 @@ public class ListTest {
 
         ArrayList<String> args = new  ArrayList<String>();
 
-        new List().exec(args, null, System.out, false);
+        new List(new Safe()).exec(args, null, System.out);
         assertEquals("src jsh Dockerfile tools pom.xml dir2 target dir1" , outputStreamCaptor.toString().trim().replaceAll("[\\n\\t ]", " "));
     }
 
@@ -78,7 +80,7 @@ public class ListTest {
         args.add("a");
         args.add("b");
 
-        new List().exec(args, null, System.out, false);
+        new List(new Safe()).exec(args, null, System.out);
         assertEquals("ls: too many arguments" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -86,7 +88,7 @@ public class ListTest {
     public void testListEmptyArgsUnsafe() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new List().exec(args, null, System.out, true);
+        new List(new Unsafe()).exec(args, null, System.out);
         assertEquals("src jsh Dockerfile tools pom.xml dir2 target dir1" , outputStreamCaptor.toString().trim().replaceAll("[\\n\\t ]", " "));
     }
 
@@ -96,7 +98,7 @@ public class ListTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir3");
 
-        new List().exec(args, null, System.out, false);
+        new List(new Safe()).exec(args, null, System.out);
         assertEquals("ls: no such directory" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -106,7 +108,7 @@ public class ListTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir1");
 
-        new List().exec(args, null, System.out, false);
+        new List(new Safe()).exec(args, null, System.out);
         assertEquals("file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -116,7 +118,7 @@ public class ListTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir3");
 
-        new List().exec(args, null, System.out, true);
+        new List(new Unsafe()).exec(args, null, System.out);
         assertEquals("ls: no such directory" , outputStreamCaptor.toString().trim());
     }
 
@@ -126,7 +128,7 @@ public class ListTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("dir2");
 
-        new List().exec(args, null, System.out, true);
+        new List(new Unsafe()).exec(args, null, System.out);
         assertEquals("" , outputStreamCaptor.toString().trim());
     }
 

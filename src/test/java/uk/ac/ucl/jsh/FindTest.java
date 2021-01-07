@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.Find;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class FindTest {
@@ -71,7 +73,7 @@ public class FindTest {
     @Test
     public void testFindMissingArgs() throws Exception {
         ArrayList<String> args = new  ArrayList<String>();
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("find: missing arguments" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -82,7 +84,7 @@ public class FindTest {
         args.add("b");
         args.add("c");
         args.add("d");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("find: too many arguments" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -92,7 +94,7 @@ public class FindTest {
         args.add("a");
         args.add("b");
         args.add("c");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("find: missing -name argument" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -101,7 +103,7 @@ public class FindTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("a");
         args.add("b");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("find: missing -name argument" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -112,7 +114,7 @@ public class FindTest {
         args.add("-name");
         args.add("*.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -124,7 +126,7 @@ public class FindTest {
         args.add("-name");
         args.add("*.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -136,7 +138,7 @@ public class FindTest {
         args.add("-name");
         args.add("file1.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -147,7 +149,7 @@ public class FindTest {
         args.add("-name");
         args.add("file1.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -158,7 +160,7 @@ public class FindTest {
         args.add("-name");
         args.add("file1.txt");
 
-        new Find().exec(args, null, System.out, true);
+        new Find(new Unsafe()).exec(args, null, System.out);
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -169,7 +171,7 @@ public class FindTest {
         args.add("-name");
         args.add("file1.txt");
 
-        new Find().exec(args, null, System.out, true);
+        new Find(new Unsafe()).exec(args, null, System.out);
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
 
@@ -178,7 +180,7 @@ public class FindTest {
 
         ArrayList<String> args = new ArrayList<String>();
         args.add("dir");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("find: cannot find directory dir" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -190,7 +192,7 @@ public class FindTest {
         Jsh.currentDirectory = "";
         args.add("-name");
         args.add("file1.txt");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         Jsh.currentDirectory = jshDir;
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
@@ -203,7 +205,7 @@ public class FindTest {
         Jsh.currentDirectory = "";
         args.add("-name");
         args.add("*.txt");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         Jsh.currentDirectory = jshDir;
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
@@ -217,7 +219,7 @@ public class FindTest {
         args.add("./");
         args.add("-name");
         args.add("*.txt");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         Jsh.currentDirectory = jshDir;
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
@@ -231,7 +233,7 @@ public class FindTest {
         args.add("./");
         args.add("-name");
         args.add("file1.txt");
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         Jsh.currentDirectory = jshDir;
         assertEquals("./dir1/file1.txt" , outputStreamCaptor.toString().trim());
     }
@@ -243,7 +245,8 @@ public class FindTest {
         ArrayList<String> args = new ArrayList<String>();
         args.add("-name");
         args.add("file1.txt");
-        assertThrows(RuntimeException.class, () -> new Find().exec(args, null, closedOutputStream , true));
+        new Find(new Safe()).exec(args, null, closedOutputStream);
+        assertEquals("find: cannot find directory /jsh", outputStreamErrCaptor.toString().trim());
     }
 
     @Test
@@ -254,7 +257,8 @@ public class FindTest {
         args.add("dir1");
         args.add("-name");
         args.add("file1.txt");
-        assertThrows(RuntimeException.class, () -> new Find().exec(args, null, closedOutputStream , true));
+        new Find(new Safe()).exec(args, null, closedOutputStream);
+        assertEquals("find: cannot find directory dir1", outputStreamErrCaptor.toString().trim());
     }
     
     @Test
@@ -265,7 +269,7 @@ public class FindTest {
         args.add("-name");
         args.add("*.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("" , outputStreamCaptor.toString().trim());
     }
 
@@ -277,7 +281,7 @@ public class FindTest {
         args.add("-name");
         args.add("file1.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("" , outputStreamCaptor.toString().trim());
     }
 
@@ -288,7 +292,7 @@ public class FindTest {
         args.add("-name");
         args.add("*.abc");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("" , outputStreamCaptor.toString().trim());
     }
 
@@ -299,7 +303,7 @@ public class FindTest {
         args.add("-name");
         args.add("file2.txt");
 
-        new Find().exec(args, null, System.out, false);
+        new Find(new Safe()).exec(args, null, System.out);
         assertEquals("" , outputStreamCaptor.toString().trim());
     }
 }

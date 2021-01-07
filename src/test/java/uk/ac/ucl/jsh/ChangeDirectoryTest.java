@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.app.ChangeDirectory;
 import uk.ac.ucl.jsh.app.PrintWorkingDirectory;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class ChangeDirectoryTest {
@@ -77,7 +79,7 @@ public class ChangeDirectoryTest {
     public void testSafeThrowsExceptionNoArguments() throws Exception {
         ArrayList<String> args = new  ArrayList<String>();
 
-        new ChangeDirectory().exec(args, null, System.out, false);
+        new ChangeDirectory(new Safe()).exec(args, null, System.out);
         assertEquals("cd: missing argument", outputStreamCaptor.toString().trim());
     }
 
@@ -87,7 +89,7 @@ public class ChangeDirectoryTest {
         args.add(dir1.getPath());
         args.add(dir2.getPath());
 
-        new ChangeDirectory().exec(args, null, System.out, false);
+        new ChangeDirectory(new Safe()).exec(args, null, System.out);
         assertEquals("cd: too many arguments", outputStreamCaptor.toString().trim());
     }
 
@@ -97,7 +99,7 @@ public class ChangeDirectoryTest {
         String wrongDirectory = "wrongdirectory";
         args.add(wrongDirectory);
 
-        new ChangeDirectory().exec(args, null, System.out, false);
+        new ChangeDirectory(new Safe()).exec(args, null, System.out);
         assertEquals("cd: " + args.get(0) + " is not an existing directory", outputStreamCaptor.toString().trim());
     }
 
@@ -106,7 +108,7 @@ public class ChangeDirectoryTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(file1.getPath());
 
-        new ChangeDirectory().exec(args, null, System.out, false);
+        new ChangeDirectory(new Safe()).exec(args, null, System.out);
         assertEquals("cd: " + args.get(0) + " is not an existing directory", outputStreamCaptor.toString().trim());
     }
 
@@ -116,7 +118,7 @@ public class ChangeDirectoryTest {
         String wrongDirectory = "wrongdirectory";
         args.add(wrongDirectory);
 
-        new ChangeDirectory().exec(args, null, System.out, true);
+        new ChangeDirectory(new Unsafe()).exec(args, null, System.out);
         assertEquals("cd: " + args.get(0) + " is not an existing directory", outputStreamCaptor.toString().trim());
     }
 
@@ -125,8 +127,8 @@ public class ChangeDirectoryTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add(dir1.getPath());
 
-        new ChangeDirectory().exec(args, null, System.out, false);
-        new PrintWorkingDirectory().exec(args, null, System.out, false);
+        new ChangeDirectory(new Safe()).exec(args, null, System.out);
+        new PrintWorkingDirectory().exec(args, null, System.out);
         assertEquals(dir1.getCanonicalPath(), outputStreamCaptor.toString().trim());
     }
 }

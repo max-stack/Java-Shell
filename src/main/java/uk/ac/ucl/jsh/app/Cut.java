@@ -17,17 +17,16 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Cut implements Application {
 
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
+    private ErrorOutput error;
+
+    public Cut(ErrorOutput error) {
+        this.error = error;
+    }
+
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
-        if (!successfullyPassed) { return; }
+        if (!handleArguments(appArgs, out)) { return; }
 
         String rangeArg = appArgs.get(1);
         String[] cutRanges = rangeArg.split("[,]+");
@@ -36,7 +35,7 @@ public class Cut implements Application {
         Integer start, end;
         int[] boundaries = getBoundaries(cutRanges);
         if (boundaries == null) {
-            HelperMethods.outputError(unsafe, out, "cut: invalid argument " + rangeArg); return;
+            error.output(out, "cut: invalid argument " + rangeArg); return;
         } else {
             start = boundaries[0];
             end = boundaries[1];
@@ -45,42 +44,39 @@ public class Cut implements Application {
         // Get individual and range values (e.g. 1,2,3-6)
         ArrayList<Integer> indexes = getIndexes(cutRanges, start, end);
         if (indexes == null) {
-            HelperMethods.outputError(unsafe, out, "cut: invalid range " + rangeArg); return;
+            error.output(out, "cut: invalid range " + rangeArg); return;
         }
         Collections.sort(indexes);
         
         if (appArgs.size() == 2) { // Take InputStream
             handleInput(writer, in, start, end, indexes);
         } else { // Use file path
-            handleOutput(out, appArgs, unsafe, start, end, indexes);
+            handleOutput(out, appArgs, start, end, indexes);
         }
     }
 
-
-    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException {
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out) throws IOException {
         if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); return false;
+            error.output(out, "cut: missing arguments"); return false;
         }
         if (appArgs.size() != 3 && appArgs.size() != 2) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); return false;
+            error.output(out, "cut: wrong arguments"); return false;
         }
         if (!appArgs.get(0).equals("-b")) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); return false;
+            error.output(out, "cut: wrong argument " + appArgs.get(0)); return false;
         }
         if (appArgs.get(1).split("[,]+").length == 0) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return false;
+            error.output(out, "cut: wrong argument " + appArgs.get(1)); return false;
         }
         return true;
     }
-
 
     private void handleInput(OutputStreamWriter writer, InputStream in, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
         String[] pipeInput = HelperMethods.readInputStream(in);
         for (String line : pipeInput) { cutFromLine(writer, line, start, end, indexes); }
     }
 
-
-    private void handleOutput(OutputStream out, ArrayList<String> appArgs, boolean unsafe, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
+    private void handleOutput(OutputStream out, ArrayList<String> appArgs, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
         String cutArg = appArgs.get(2);
@@ -93,13 +89,12 @@ public class Cut implements Application {
                 String line;
                 while ((line = reader.readLine()) != null) { cutFromLine(writer, line, start, end, indexes); }
             } catch (IOException e) {
-                HelperMethods.outputError(unsafe, out, "cut: cannot open " + cutArg); return;
+                error.output(out, "cut: cannot open " + cutArg); return;
             }
         } else {
-            HelperMethods.outputError(unsafe, out, "cut: " + cutArg + " does not exist"); return;
+            error.output(out, "cut: " + cutArg + " does not exist"); return;
         }
     }
-
 
     private int[] getBoundaries(String[] ranges) {
         Integer start = -1;
@@ -123,7 +118,6 @@ public class Cut implements Application {
 
         return new int[] {start, end};
     }
-
 
     private ArrayList<Integer> getIndexes(String[] ranges, Integer start, Integer end) {
         ArrayList<Integer> indexes = new ArrayList<Integer>();
@@ -149,7 +143,6 @@ public class Cut implements Application {
 
         return indexes;
     }
-
 
     private void cutFromLine(OutputStreamWriter writer, String line,
                              Integer startBound, Integer endBound, ArrayList<Integer> indexes) throws IOException {

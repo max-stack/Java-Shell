@@ -20,6 +20,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.app.Echo;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class EchoTest {
@@ -63,7 +65,7 @@ public class EchoTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("Hello World!");
 
-        new Echo().exec(args, null, System.out, false);
+        new Echo(new Safe()).exec(args, null, System.out);
         assertEquals("Hello World!" , outputStreamCaptor.toString().trim());
     }
 
@@ -74,7 +76,7 @@ public class EchoTest {
         args.add("Hello World!");
         args.add("Goodbye World!");
 
-        new Echo().exec(args, null, System.out, false);
+        new Echo(new Safe()).exec(args, null, System.out);
         assertEquals("Hello World! Goodbye World!" , outputStreamCaptor.toString().trim());
     }
 
@@ -82,7 +84,7 @@ public class EchoTest {
     public void testEchoEmptyArgs() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new Echo().exec(args, null, System.out, false);
+        new Echo(new Safe()).exec(args, null, System.out);
         assertEquals("echo: missing arguments" , outputStreamErrCaptor.toString().trim());
     }
 
@@ -90,7 +92,7 @@ public class EchoTest {
     public void testEchoEmptyArgsUnsafe() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new Echo().exec(args, null, System.out, true);
+        new Echo(new Unsafe()).exec(args, null, System.out);
         assertEquals("echo: missing arguments" , outputStreamCaptor.toString().trim());
     }
 
