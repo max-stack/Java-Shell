@@ -11,7 +11,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class List implements Application {
 
-    private void handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, File currDir) throws IOException{
+    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, File currDir) throws IOException{
         try {
             File[] listOfFiles = currDir.listFiles();
             boolean atLeastOnePrinted = false;
@@ -28,8 +28,9 @@ public class List implements Application {
                 writer.flush();
             }
         } catch (NullPointerException e) {
-            HelperMethods.outputError(unsafe, out, "ls: no such directory"); return;
+            HelperMethods.outputError(unsafe, out, "ls: no such directory"); return false;
         }
+        return true;
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
@@ -44,7 +45,8 @@ public class List implements Application {
             HelperMethods.outputError(unsafe, out, "ls: too many arguments"); return;
         }
 
-        handleOutput(writer, out, unsafe, currDir);
+        boolean successfullyPassed = handleOutput(writer, out, unsafe, currDir);
+        if(!successfullyPassed) {return; }
     }
 
 }

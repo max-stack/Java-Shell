@@ -20,16 +20,17 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Sort implements Application{
 
-    private void handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 2) {
-            HelperMethods.outputError(unsafe, out, "sort: too many arguments"); return;
+            HelperMethods.outputError(unsafe, out, "sort: too many arguments"); return false;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-r")) {
-            HelperMethods.outputError(unsafe, out, "sort: wrong argument " + appArgs.get(0)); return;
+            HelperMethods.outputError(unsafe, out, "sort: wrong argument " + appArgs.get(0)); return false;
         }
+        return true;
     }
 
-    private void handleInput(OutputStreamWriter writer, InputStream in, OutputStream out, Boolean unsafe, boolean reversed) throws IOException{
+    private boolean handleInput(OutputStreamWriter writer, InputStream in, OutputStream out, Boolean unsafe, boolean reversed) throws IOException{
         String[] pipeInput = HelperMethods.readInputStream(in);
         List<String> sortList = Arrays.asList(pipeInput);
         Collections.sort(sortList);
@@ -52,10 +53,10 @@ public class Sort implements Application{
                 
             }
         });
-
+        return true;
     }
 
-    private void handleOutput(ArrayList<String> appArgs, OutputStreamWriter writer, OutputStream out, Boolean unsafe, String sortArg, boolean reversed) throws IOException{
+    private boolean handleOutput(ArrayList<String> appArgs, OutputStreamWriter writer, OutputStream out, Boolean unsafe, String sortArg, boolean reversed) throws IOException{
         String sortFile = Jsh.currentDirectory + File.separator + sortArg;
 
         try (Stream<String> stream = Files.lines(Paths.get(sortFile))) {
@@ -97,15 +98,17 @@ public class Sort implements Application{
                 });              
             }
         } catch (IOException e) {
-            HelperMethods.outputError(unsafe, out, "sort: cannot open " + appArgs.get(0)); return;
+            HelperMethods.outputError(unsafe, out, "sort: cannot open " + appArgs.get(0)); return false;
         }
+        return true;
     }
     
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
 
-        handleArguments(appArgs, out, unsafe);
+        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
+        if(!successfullyPassed) {return; }
 
         boolean reversed = false;
         String sortArg = "";
@@ -121,10 +124,12 @@ public class Sort implements Application{
         }
 
         if (sortArg.isEmpty()) { // Take InputStream
-            handleInput(writer, in, out, unsafe, reversed);
+            successfullyPassed = handleInput(writer, in, out, unsafe, reversed);
+            if(!successfullyPassed) {return; }
 
         } else { // Use file path
-            handleOutput(appArgs, writer, out, unsafe, sortArg, reversed);
+            successfullyPassed = handleOutput(appArgs, writer, out, unsafe, sortArg, reversed);
+            if(!successfullyPassed) {return; }
         }
     }
 

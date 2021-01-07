@@ -17,13 +17,14 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Tail implements Application {
 
-    private void handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 3) {
-            HelperMethods.outputError(unsafe, out, "tail: too many arguments"); return;
+            HelperMethods.outputError(unsafe, out, "tail: too many arguments"); return false;
         }
         if (appArgs.size() > 1 && !appArgs.get(0).equals("-n")) {
-            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return;
+            HelperMethods.outputError(unsafe, out, "tail: wrong argument " + appArgs.get(0)); return false;
         }  
+        return true;
     }
 
     private void handleInput(OutputStreamWriter writer, InputStream in,  int tailLines) throws IOException{
@@ -46,7 +47,7 @@ public class Tail implements Application {
 
     }
 
-    private void handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, int tailLines, String tailArg) throws IOException{
+    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe, int tailLines, String tailArg) throws IOException{
         File tailFile = new File(Jsh.currentDirectory + File.separator + tailArg);
         if (tailFile.exists()) {
             Charset encoding = StandardCharsets.UTF_8;
@@ -68,17 +69,19 @@ public class Tail implements Application {
                     writer.flush();
                 }            
             } catch (IOException e) {
-                HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return;
+                HelperMethods.outputError(unsafe, out, "tail: cannot open " + tailArg); return false;
             }
         } else {
-            HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return;
+            HelperMethods.outputError(unsafe, out, "tail: " + tailArg + " does not exist"); return false;
         }
+        return true;
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        handleArguments(appArgs, out, unsafe);
+        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
+        if(!successfullyPassed) {return; }
 
         int tailLines = 10;
         String tailArg = "";
@@ -100,7 +103,9 @@ public class Tail implements Application {
             handleInput(writer, in, tailLines);
 
         } else { // Use file path
-            handleOutput(writer, out, unsafe, tailLines, tailArg);
+            successfullyPassed = handleOutput(writer, out, unsafe, tailLines, tailArg);
+            if(!successfullyPassed) {return; }
+            
             
         }
     }
