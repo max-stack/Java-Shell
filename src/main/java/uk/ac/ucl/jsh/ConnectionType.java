@@ -10,7 +10,7 @@ enum ConnectionType  {
 
     private final String name;
 
-    private ConnectionType(String s){
+    ConnectionType(String s){
         name = s;
     }
 

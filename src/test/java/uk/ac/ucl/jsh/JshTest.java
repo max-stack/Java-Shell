@@ -469,6 +469,12 @@ public class JshTest {
     }
 
     @Test
+    public void testSafeQuoteKeywordDouble() throws Exception {
+        Jsh.eval("echo \";\"");
+        assertEquals(";", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
     public void testSafeDoubleQuotes() throws Exception {
         Jsh.eval("");
         assertEquals("", outputStreamCaptor.toString().trim());
@@ -502,6 +508,24 @@ public class JshTest {
     public void testSafeSplitting() throws Exception {
         Jsh.eval("echo a\"b\"c");
         assertEquals("abc", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUnknownApp() throws Exception {
+        assertThrows(RuntimeException.class, () -> Jsh.eval("unknown"));
+    }
+
+
+    @Test
+    public void testMainWrongArgs() throws Exception {
+        Jsh.main(new String[] {""});
+        assertEquals("jsh: wrong number of arguments", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testMainUnexpectedArgs() throws Exception {
+        Jsh.main(new String[] {"a", "b"});
+        assertEquals("jsh: a: unexpected argument\njsh: b: unknown application", outputStreamCaptor.toString().trim());
     }
 
 

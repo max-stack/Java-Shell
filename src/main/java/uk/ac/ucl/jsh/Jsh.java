@@ -7,16 +7,11 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.nio.file.DirectoryStream;
@@ -24,26 +19,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Deque;
-import java.util.Deque;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Queue; 
 
-import java.io.FileWriter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import uk.ac.ucl.jsh.app.Application;
 import uk.ac.ucl.jsh.app.ApplicationFactory;
 
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 
 
@@ -78,7 +66,7 @@ public class Jsh {
                
                 String tempDir = currentDirectory;
                 String relativeDir = "";
-                if((nonQuote.indexOf("*") != -1) && !(nonQuote.charAt(0) == '*')){
+                if(nonQuote.indexOf("*") != -1 && !(nonQuote.charAt(0) == '*')){
                     relativeDir = nonQuote.substring(0, nonQuote.indexOf("*"));
                     tempDir = tempDir.concat("/");
                     tempDir = tempDir.concat(relativeDir);

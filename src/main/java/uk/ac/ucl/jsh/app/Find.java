@@ -14,8 +14,6 @@ import java.nio.file.PathMatcher;
 import java.nio.file.FileSystems;
 
 import uk.ac.ucl.jsh.Jsh;
-import uk.ac.ucl.jsh.app.HelperMethods;
-
 
 public class Find implements Application {
     
@@ -60,7 +58,7 @@ public class Find implements Application {
                         if (pathMatcher.matches(line)) {
                             if (finalFilePosition == 1) {
                                 relativePath.append(line.toString().replaceFirst(dir, ""));
-                                if ((relativePath.charAt(0) == '/')) {
+                                if (relativePath.charAt(0) == '/') {
                                     relativePath.insert(0, ".");
                                 } else {
                                     relativePath.insert(0, "./");
@@ -69,7 +67,7 @@ public class Find implements Application {
                             } else {
                                 relativePath.append(line.toString());
                             }
-                            writer.write((relativePath.toString()));
+                            writer.write(relativePath.toString());
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();    
                         }
@@ -77,7 +75,7 @@ public class Find implements Application {
                         if (folder.equals(file)) {
                             if (finalFilePosition == 1) {
                                 relativePath.append(line.toString().replaceFirst(dir, ""));
-                                if ((relativePath.charAt(0) == '/')) {
+                                if (relativePath.charAt(0) == '/') {
                                     relativePath.insert(0, ".");
                                 } else {
                                     relativePath.insert(0, "./");
@@ -85,7 +83,7 @@ public class Find implements Application {
                             } else {
                                 relativePath.append(line.toString());
                             }
-                            writer.write((relativePath.toString()));
+                            writer.write(relativePath.toString());
                             writer.write(System.getProperty("line.separator"));
                             writer.flush();
                         }  
