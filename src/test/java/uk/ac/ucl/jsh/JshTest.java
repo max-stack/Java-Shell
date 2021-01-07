@@ -504,5 +504,10 @@ public class JshTest {
         assertEquals("abc", outputStreamCaptor.toString().trim());
     }
 
+    @Test
+    public void testUnknownApp() throws Exception {
+        assertThrows(RuntimeException.class, () -> Jsh.eval("unknown"));
+    }
+
 
 }
