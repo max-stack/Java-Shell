@@ -21,9 +21,7 @@ public class CommandVisitor extends AbstractParseTreeVisitor<ExecutionPlan> {
             case "`":
                 return new ExecutionPlan(ConnectionType.SUBSTITUTION);
             default:
-                throw new RuntimeException(
-                    "Something is wrong with the grammar."
-                );
+                throw new RuntimeException("Something is wrong with the grammar.");
         }
     }
 
