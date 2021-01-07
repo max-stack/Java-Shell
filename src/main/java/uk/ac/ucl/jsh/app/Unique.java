@@ -11,6 +11,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Unique implements Application {
 
+<<<<<<< HEAD
     public void exec(
         ArrayList<String> appArgs,
         InputStream in,
@@ -19,7 +20,10 @@ public class Unique implements Application {
     )
         throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
+=======
+>>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
 
+    private void handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
         if (appArgs.size() > 2) {
             HelperMethods.outputError(unsafe, out, "uniq: too many arguments");
             return;
@@ -32,6 +36,60 @@ public class Unique implements Application {
             );
             return;
         }
+    }
+
+    private void handleInput(OutputStreamWriter writer, InputStream in,  boolean caseSensitive) throws IOException{
+        String previousLine = "";
+        String adjustedLine = "";
+        String[] pipeInput = HelperMethods.readInputStream(in);
+        
+        for (String line : pipeInput) {
+            adjustedLine = line;
+
+            if (!caseSensitive) {
+                adjustedLine = line.toLowerCase();
+            }
+            if (!adjustedLine.equals(previousLine)) {
+                writer.append(line);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+                previousLine = adjustedLine;
+            }
+        }
+    }
+
+    private void handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe,  boolean caseSensitive, String uniqArg) throws IOException{
+        String previousLine = "";
+        String uniqFile = Jsh.currentDirectory + File.separator + uniqArg;
+        String input = null;
+        String adjustedInput = null;
+        Scanner sc;
+
+        try {
+            sc = new Scanner(new File(uniqFile));
+        } catch (Exception e) {
+            HelperMethods.outputError(unsafe, out, "uniq: wrong file argument"); return;
+        }
+
+        while (sc.hasNextLine()) {
+            input = sc.nextLine();
+            adjustedInput = input;
+            if (!caseSensitive) {
+                adjustedInput = input.toLowerCase();
+            }
+            if (!adjustedInput.equals(previousLine)) {
+                writer.append(input);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+                previousLine = adjustedInput;
+            }
+        }
+    }
+
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+
+        handleArguments(appArgs, out, unsafe);
 
         boolean caseSensitive = true;
         String uniqArg = "";
@@ -46,9 +104,10 @@ public class Unique implements Application {
             }
         }
 
-        String previousLine = "";
+        
 
         if (uniqArg.isEmpty()) { // Take InputStream
+<<<<<<< HEAD
             String adjustedLine = "";
             String[] pipeInput = HelperMethods.readInputStream(in);
 
@@ -95,6 +154,13 @@ public class Unique implements Application {
                     previousLine = adjustedInput;
                 }
             }
+=======
+            handleInput(writer, in, caseSensitive);
+
+        } else {
+            handleOutput(writer, out, unsafe, caseSensitive, uniqArg);
+
+>>>>>>> 6bfcec97cb2eb0fd51092d817e0096e1d58dccc2
         }
     }
 }
