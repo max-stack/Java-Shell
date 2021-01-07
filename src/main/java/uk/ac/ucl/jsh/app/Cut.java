@@ -17,13 +17,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Cut implements Application {
 
-    public void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException {
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
         boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
@@ -59,16 +53,20 @@ public class Cut implements Application {
 
     private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException {
         if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); return false;
+            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); 
+            return false;
         }
         if (appArgs.size() != 3 && appArgs.size() != 2) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); return false;
+            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); 
+            return false;
         }
         if (!appArgs.get(0).equals("-b")) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); return false;
+            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); 
+            return false;
         }
         if (appArgs.get(1).split("[,]+").length == 0) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return false;
+            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); 
+            return false;
         }
         return true;
     }

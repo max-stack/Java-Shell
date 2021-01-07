@@ -6,11 +6,5 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 public interface Application {
-    void exec(
-        ArrayList<String> appArgs,
-        InputStream in,
-        OutputStream out,
-        Boolean unsafe
-    )
-        throws IOException;
+    void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException;
 }
