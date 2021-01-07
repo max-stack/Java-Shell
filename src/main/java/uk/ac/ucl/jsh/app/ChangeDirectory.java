@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.Jsh;
-import uk.ac.ucl.jsh.app.HelperMethods;
 
 public class ChangeDirectory implements Application {
 

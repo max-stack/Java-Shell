@@ -1,9 +1,7 @@
 package uk.ac.ucl.jsh;
 
-import java.io.PipedInputStream;
 import java.io.OutputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.io.IOException;
 import java.util.ArrayList;
 
