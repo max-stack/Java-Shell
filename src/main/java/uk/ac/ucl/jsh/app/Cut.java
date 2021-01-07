@@ -21,22 +21,11 @@ public class Cut implements Application {
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out);
         
-        if (appArgs.isEmpty()) {
-            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); return;
-        }
-        if (appArgs.size() != 3 && appArgs.size() != 2) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); return;
-        }
-        if (!appArgs.get(0).equals("-b")) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); return;
-        }
+        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
+        if (!successfullyPassed) { return; }
 
         String rangeArg = appArgs.get(1);
         String[] cutRanges = rangeArg.split("[,]+");
-
-        if (cutRanges.length == 0) {
-            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + rangeArg); return;
-        }
         
         // Get boundary values (e.g. -4,8-)
         Integer start, end;
@@ -53,36 +42,56 @@ public class Cut implements Application {
         if (indexes == null) {
             HelperMethods.outputError(unsafe, out, "cut: invalid range " + rangeArg); return;
         }
-
         Collections.sort(indexes);
         
         if (appArgs.size() == 2) { // Take InputStream
-
-            String[] pipeInput = HelperMethods.readInputStream(in);
-            for (String line : pipeInput) { cutFromLine(writer, line, start, end, indexes); }
-
+            handleInput(writer, in, start, end, indexes);
         } else { // Use file path
+            handleOutput(out, appArgs, unsafe, start, end, indexes);
+        }
+    }
 
-            String cutArg = appArgs.get(2);
-            String cutFile = Jsh.currentDirectory + File.separator + cutArg;
 
-            if (new File(cutFile).exists()) {
-                Charset encoding = StandardCharsets.UTF_8;
-                Path filePath = Paths.get(cutFile);
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException {
+        if (appArgs.isEmpty()) {
+            HelperMethods.outputError(unsafe, out, "cut: missing arguments"); return false;
+        }
+        if (appArgs.size() != 3 && appArgs.size() != 2) {
+            HelperMethods.outputError(unsafe, out, "cut: wrong arguments"); return false;
+        }
+        if (!appArgs.get(0).equals("-b")) {
+            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(0)); return false;
+        }
+        if (appArgs.get(1).split("[,]+").length == 0) {
+            HelperMethods.outputError(unsafe, out, "cut: wrong argument " + appArgs.get(1)); return false;
+        }
+        return true;
+    }
 
-                try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
 
-                    String line;
-                    while ((line = reader.readLine()) != null) { cutFromLine(writer, line, start, end, indexes); }
+    private void handleInput(OutputStreamWriter writer, InputStream in, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
+        String[] pipeInput = HelperMethods.readInputStream(in);
+        for (String line : pipeInput) { cutFromLine(writer, line, start, end, indexes); }
+    }
 
-                } catch (IOException e) {
-                    HelperMethods.outputError(unsafe, out, "cut: cannot open " + cutArg); return;
-                }
 
-            } else {
-                HelperMethods.outputError(unsafe, out, "cut: " + cutArg + " does not exist"); return;
+    private void handleOutput(OutputStream out, ArrayList<String> appArgs, boolean unsafe, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+
+        String cutArg = appArgs.get(2);
+        String cutFile = Jsh.currentDirectory + File.separator + cutArg;
+
+        if (new File(cutFile).exists()) {
+            Charset encoding = StandardCharsets.UTF_8;
+            Path filePath = Paths.get(cutFile);
+            try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
+                String line;
+                while ((line = reader.readLine()) != null) { cutFromLine(writer, line, start, end, indexes); }
+            } catch (IOException e) {
+                HelperMethods.outputError(unsafe, out, "cut: cannot open " + cutArg); return;
             }
-
+        } else {
+            HelperMethods.outputError(unsafe, out, "cut: " + cutArg + " does not exist"); return;
         }
     }
 
