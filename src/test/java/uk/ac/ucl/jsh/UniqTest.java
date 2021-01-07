@@ -122,7 +122,18 @@ public class UniqTest {
     }
 
     @Test
-    public void testUniqStdin() throws Exception {
+    public void testUniqStdinCaseSensitive() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        String content = "AAAA\naaaa\nBBBB\nbbbb";
+        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+
+        new Unique().exec(args, in, System.out, false);
+        assertEquals("AAAA\naaaa\nBBBB\nbbbb", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testUniqStdinCaseInsensitive() throws Exception {
 
         ArrayList<String> args = new ArrayList<String>();
         args.add("-i");

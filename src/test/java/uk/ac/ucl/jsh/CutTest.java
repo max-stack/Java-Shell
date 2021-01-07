@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.io.InputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
@@ -118,7 +119,7 @@ public class CutTest {
         args.add("file1.txt");
 
         new Cut().exec(args, null, System.out, false);
-        assertEquals("cut: wrong argument a,b,e-h", outputStreamErrCaptor.toString().trim());
+        assertEquals("cut: invalid argument a,b,e-h", outputStreamErrCaptor.toString().trim());
     }
 
     @Test
@@ -146,6 +147,18 @@ public class CutTest {
     }
 
     @Test
+    public void testCutByteRangeOverlap() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("-b");
+        args.add("-3,2-6,5-9,8-");
+        args.add("file1.txt");
+
+        new Cut().exec(args, null, System.out, false);
+        assertEquals("ABCDEFGHIJ\n1234567890\nAABBCCDDEE", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
     public void testCutInvalidByteRange() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
@@ -162,11 +175,23 @@ public class CutTest {
 
         ArrayList<String> args = new  ArrayList<String>();
         args.add("-b");
-        args.add("2,-3,5,7-,8-,10,11");
+        args.add("2,-3,5,7-,10,11");
         args.add("file1.txt");
 
         new Cut().exec(args, null, System.out, false);
         assertEquals("ABCEGHIJ\n12357890\nAABCDDEE", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testCutByteStartAndEndOverlaps() throws Exception {
+
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add("-b");
+        args.add("-2,-5,-4,8-,9-,6-");
+        args.add("file1.txt");
+
+        new Cut().exec(args, null, System.out, false);
+        assertEquals("ABCDEFGHIJ\n1234567890\nAABBCCDDEE", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -182,17 +207,46 @@ public class CutTest {
     }
 
     @Test
-    public void testCutStdin() throws Exception {
+    public void testCutStdinIndividualBytes() throws Exception {
 
         ArrayList<String> args = new ArrayList<String>();
         args.add("-b");
-        args.add("1,3,5,7");
+        args.add("3,5,7");
 
         String content = "ABCDEF\nInput Stream\n123456";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
         new Cut().exec(args, in, System.out, false);
-        assertEquals("ACE\nIptS\n135", outputStreamCaptor.toString().trim());
+        assertEquals("CE\nptS\n35", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testCutStdinByteRange() throws Exception {
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-b");
+        args.add("-2,3-4,5-");
+
+        String content = "ABCDEF\nInput Stream\n123456";
+        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+
+        new Cut().exec(args, in, System.out, false);
+        assertEquals("ABCDEF\nInput Stream\n123456", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testCutClosedOutput() throws Exception {
+
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+
+        ArrayList<String> args = new ArrayList<String>();
+        args.add("-b");
+        args.add("1,3,5,7");
+        args.add("file1.txt");
+
+        new Cut().exec(args, null, closedOutputStream, false);
+        assertEquals("cut: cannot open file1.txt", outputStreamErrCaptor.toString().trim());
     }
 
 }
