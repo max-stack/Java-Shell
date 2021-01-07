@@ -11,13 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.io.PrintStream;
 
 
@@ -511,6 +514,27 @@ public class JshTest {
     }
 
     @Test
+    public void testSafeSplitting2() throws Exception {
+        Jsh.eval("echo \"a\"b\"c");
+        assertEquals("abc", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testRedirectMissingFile() throws Exception {
+        assertThrows(IOException.class, () -> Jsh.eval("cat < abc.txt"));
+    }
+
+    @Test
+    public void testRedirectMissingFile2() throws Exception {
+        assertThrows(IOException.class, () -> Jsh.eval("< abc.txt echo AA"));
+    }
+
+    @Test
+    public void testRedirectMissingFile3() throws Exception {
+        assertThrows(IOException.class, () -> Jsh.eval("cat < file1.txt > abc.txt"));
+    }
+
+    @Test
     public void testUnknownApp() throws Exception {
         assertThrows(RuntimeException.class, () -> Jsh.eval("unknown"));
     }
@@ -528,5 +552,18 @@ public class JshTest {
         assertEquals("jsh: a: unexpected argument\njsh: b: unknown application", outputStreamCaptor.toString().trim());
     }
 
+    @Test
+    public void testMainEcho() throws Exception {
+        Jsh.main(new String[] {"-c", "echo foo"});
+        assertEquals("foo", outputStreamCaptor.toString().trim());
+    }
 
+    //> test.txt < test.txt > test.txt
+    @Test
+    public void MultiRedirect() throws Exception {
+        Jsh.eval("cat > test1.txt < test1.txt > test1.txt");
+        assertEquals("", outputStreamCaptor.toString().trim());
+    }
+    
+    
 }
