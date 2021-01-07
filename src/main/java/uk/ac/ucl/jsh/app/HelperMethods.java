@@ -24,22 +24,5 @@ public class HelperMethods {
 
         return pipeStr.toString().split("\n");
     }
-
-    public static void outputError(
-        Boolean unsafe,
-        OutputStream out,
-        String message
-    )
-        throws IOException {
-        if (unsafe) {
-            OutputStreamWriter writer = new OutputStreamWriter(out);
-
-            writer.write(message);
-            writer.write(System.getProperty("line.separator"));
-            writer.flush();
-        } else {
-            Jsh.quitCommand = true;
-            System.err.println(message);
-        }
-    }
+    
 }

@@ -33,14 +33,15 @@ class ExecutionPlan {
         if (topElement.equals(" ")) {
             return;
         }
-        if (
-            topElement == ConnectionType.SEQUENCE.toString() ||
+        if (topElement == ConnectionType.SEQUENCE.toString() ||
             topElement == ConnectionType.PIPE.toString() ||
             topElement == ConnectionType.REDIRECT_FROM.toString() ||
-            topElement == ConnectionType.REDIRECT_TO.toString()
-        ) {
-            if ( findNextQuote || !subCommands.isEmpty() && (StringUtils.countMatches(subCommands.getLast(), "\"") == 1 || StringUtils.countMatches(subCommands.getLast(), "'") == 1))
-            {
+            topElement == ConnectionType.REDIRECT_TO.toString()) {
+
+            if ( findNextQuote || !subCommands.isEmpty() && 
+                (StringUtils.countMatches(subCommands.getLast(), "\"") == 1 || 
+                StringUtils.countMatches(subCommands.getLast(), "'") == 1)){
+
                 findNextQuote = true;
                 subCommands.add(subCommands.removeLast() + topElement);
             } else {
@@ -72,10 +73,9 @@ class ExecutionPlan {
         } else {
             if (findNextQuote) {
                 subCommands.add(subCommands.removeLast() + topElement);
-                if (
-                    StringUtils.countMatches(topElement, "\"") == 1 ||
-                    StringUtils.countMatches(topElement, "'") == 1
-                ) {
+                if (StringUtils.countMatches(topElement, "\"") == 1 ||
+                    StringUtils.countMatches(topElement, "'") == 1) {
+                        
                     findNextQuote = false;
                 }
             } else {

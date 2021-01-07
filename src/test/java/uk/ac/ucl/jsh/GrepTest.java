@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.GlobalRegExPrint;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class GrepTest {
@@ -71,7 +73,7 @@ public class GrepTest {
     public void testGrepUnsafe() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new GlobalRegExPrint().exec(args, null, System.out, true);
+        new GlobalRegExPrint(new Unsafe()).exec(args, null, System.out);
         assertEquals("grep: missing arguments", outputStreamCaptor.toString().trim());
     }
 
@@ -79,7 +81,7 @@ public class GrepTest {
     public void testGrepEmptyArgs() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new GlobalRegExPrint().exec(args, null, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, System.out);
         assertEquals("grep: missing arguments", outputStreamErrCaptor.toString().trim());
     }
 
@@ -90,7 +92,7 @@ public class GrepTest {
         args.add("{}");
         args.add("fruits.txt");
 
-        new GlobalRegExPrint().exec(args, null, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, System.out);
         assertEquals("grep: wrong pattern syntax {}", outputStreamErrCaptor.toString().trim());
     }
 
@@ -101,7 +103,7 @@ public class GrepTest {
         args.add("Banana");
         args.add("fruits.txt");
 
-        new GlobalRegExPrint().exec(args, null, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, System.out);
         assertEquals("B is for Banana", outputStreamCaptor.toString().trim());
     }
 
@@ -113,7 +115,7 @@ public class GrepTest {
         args.add("fruits.txt");
         args.add("vegetables.txt");
 
-        new GlobalRegExPrint().exec(args, null, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, System.out);
         assertEquals("fruits.txt:C is for Cherry\nvegetables.txt:C is for Carrot", 
                      outputStreamCaptor.toString().trim());
     }
@@ -125,7 +127,7 @@ public class GrepTest {
         args.add("[a-z]");
         args.add("invalid.abc");
 
-        new GlobalRegExPrint().exec(args, null, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, System.out);
         assertEquals("grep: wrong file argument", outputStreamErrCaptor.toString().trim());
     }
 
@@ -136,7 +138,7 @@ public class GrepTest {
         args.add("[a-z]");
         args.add("dir1");
 
-        new GlobalRegExPrint().exec(args, null, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, System.out);
         assertEquals("grep: wrong file argument", outputStreamErrCaptor.toString().trim());
     }
 
@@ -149,7 +151,7 @@ public class GrepTest {
         String content = "ABCDEF\nabcdef\n123456";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
-        new GlobalRegExPrint().exec(args, in, System.out, false);
+        new GlobalRegExPrint(new Safe()).exec(args, in, System.out);
         assertEquals("abcdef", outputStreamCaptor.toString().trim());
     }
 
@@ -163,7 +165,7 @@ public class GrepTest {
         args.add("[a-z]");
         args.add("fruits.txt");
 
-        new GlobalRegExPrint().exec(args, null, closedOutputStream, false);
+        new GlobalRegExPrint(new Safe()).exec(args, null, closedOutputStream);
         assertEquals("grep: cannot open fruits.txt", outputStreamErrCaptor.toString().trim());
     }
 

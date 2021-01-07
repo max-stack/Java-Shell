@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 
 import uk.ac.ucl.jsh.app.Unique;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class UniqTest {

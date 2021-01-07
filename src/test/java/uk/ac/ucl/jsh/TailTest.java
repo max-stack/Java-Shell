@@ -23,6 +23,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.app.Tail;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class TailTest {

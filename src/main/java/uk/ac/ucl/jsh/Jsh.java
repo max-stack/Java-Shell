@@ -71,17 +71,10 @@ public class Jsh {
                     tempDir = tempDir.concat("/");
                     tempDir = tempDir.concat(relativeDir);
                     dir = Paths.get(tempDir);
-                    nonQuote =
-                        nonQuote.substring(
-                            nonQuote.indexOf("*"),
-                            nonQuote.length()
-                        );
+                    nonQuote =nonQuote.substring(nonQuote.indexOf("*"), nonQuote.length());
                 }
 
-                DirectoryStream<Path> stream = Files.newDirectoryStream(
-                    dir,
-                    nonQuote
-                );
+                DirectoryStream<Path> stream = Files.newDirectoryStream(dir, nonQuote);
 
                 for (Path entry : stream) {
                     if (tempDir.equals(currentDirectory)) {
@@ -164,9 +157,7 @@ public class Jsh {
             filePath = commands.poll().trim();
             readFile = createRedirectFile(filePath);
             if (!readFile.exists()) {
-                throw new IOException(
-                    "File " + readFile.getName() + " Does not exist."
-                );
+                throw new IOException("File " + readFile.getName() + " Does not exist.");
             }
         } while (commands.peek() == ConnectionType.REDIRECT_FROM.toString());
         return readFile;
@@ -181,10 +172,9 @@ public class Jsh {
             writeFile = createRedirectFile(filePath);
             emptyFile(writeFile);
         } while (commands.peek() == ConnectionType.REDIRECT_TO.toString());
-        while (
-            commands.peek() == ConnectionType.REDIRECT_FROM.toString() ||
-            commands.peek() == ConnectionType.REDIRECT_TO.toString()
-        ) {
+
+        while (commands.peek() == ConnectionType.REDIRECT_FROM.toString() ||
+            commands.peek() == ConnectionType.REDIRECT_TO.toString()) {
             if (commands.peek() == ConnectionType.REDIRECT_FROM.toString()) {
                 commands.poll();
                 commands.poll();
@@ -199,11 +189,7 @@ public class Jsh {
         return writeFile;
     }
 
-    private static String createSubstitutionCommand(
-        Queue<String> commands,
-        String subCommand,
-        boolean appSub
-    ) {
+    private static String createSubstitutionCommand(Queue<String> commands, String subCommand, boolean appSub) {
         String command = commands.poll();
         if (subCommand.charAt(0) == '\'') {
             subCommand = "\"" + subCommand + "\"";
@@ -283,11 +269,7 @@ public class Jsh {
                     } else {
                         substitution = false;
                         command = commands.peek();
-                        String updatedCommand = createSubstitutionCommand(
-                            commands,
-                            subCommand,
-                            appSub
-                        );
+                        String updatedCommand = createSubstitutionCommand(commands, subCommand, appSub);
                         if (updatedCommand.equals(command)) {
                             input = wholeSubInput;
                         } else {
@@ -305,10 +287,7 @@ public class Jsh {
                 }
 
                 if (command == ConnectionType.REDIRECT_TO.toString()) {
-                    String[] redirectArray = commands
-                        .poll()
-                        .trim()
-                        .split(" ", 2);
+                    String[] redirectArray = commands.poll().trim().split(" ", 2);
                     command = redirectArray[1];
                     String filePath = redirectArray[0];
                     File writeFile = createRedirectFile(filePath);
@@ -317,26 +296,19 @@ public class Jsh {
                 }
 
                 if (command == ConnectionType.REDIRECT_FROM.toString()) {
-                    String[] redirectArray = commands
-                        .poll()
-                        .trim()
-                        .split(" ", 2);
+                    String[] redirectArray = commands.poll().trim().split(" ", 2);
                     command = redirectArray[1];
                     String filePath = redirectArray[0];
                     File readFile = createRedirectFile(filePath);
                     if (!readFile.exists()) {
-                        throw new IOException(
-                            "File " + readFile.getName() + " Does not exist."
-                        );
+                        throw new IOException("File " + readFile.getName() + " Does not exist.");
                     }
                     input = new FileInputStream(readFile);
                 }
             }
 
             if (ConnectionType.connectionExists(commands.peek())) {
-                if (
-                    commands.peek() == ConnectionType.REDIRECT_FROM.toString()
-                ) {
+                if (commands.peek() == ConnectionType.REDIRECT_FROM.toString()) {
                     File readFile = redirectFrom(commands);
                     input = new FileInputStream(readFile);
                 }
@@ -356,16 +328,10 @@ public class Jsh {
             ArrayList<String> tokens = tokenSplit(command);
             String appName = tokens.get(0);
             ApplicationFactory.make(appName);
-            Boolean unsafe = false;
-            if (appName.length() > 1 && appName.substring(0, 1).equals("_")) {
-                unsafe = true;
-            }
-            executor.execute(new RunCommand(tokens, output, input, unsafe));
+            executor.execute(new RunCommand(tokens, output, input));
 
-            if (
-                command == ConnectionType.SEQUENCE.toString() ||
-                !ConnectionType.connectionExists(command)
-            ) {
+            if (command == ConnectionType.SEQUENCE.toString() ||
+                !ConnectionType.connectionExists(command)) {
                 if (executorShutdown(executor)) {
                     break;
                 } else {

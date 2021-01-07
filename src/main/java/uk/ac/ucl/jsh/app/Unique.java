@@ -11,12 +11,43 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Unique implements Application {
 
-    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out, Boolean unsafe) throws IOException{
+    private ErrorOutput error;
+
+    public Unique(ErrorOutput error) {
+        this.error = error;
+    }
+
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+
+        if (!handleArguments(appArgs, out)) { return; }
+
+        boolean caseSensitive = true;
+        String uniqArg = "";
+        if (appArgs.size() == 2) { // -i tag AND file path provided
+            caseSensitive = false;
+            uniqArg = appArgs.get(1);
+        } else if (appArgs.size() == 1) {
+            if (appArgs.get(0).equals("-i")) { // Use InputStream
+                caseSensitive = false;
+            } else { // Use file path
+                uniqArg = appArgs.get(0);
+            }
+        }
+
+        if (uniqArg.isEmpty()) { // Take InputStream
+            handleInput(writer, in, caseSensitive);
+        } else {
+            if (!handleOutput(writer, out, caseSensitive, uniqArg)) { return; }
+        }
+    }
+
+    private boolean handleArguments(ArrayList<String> appArgs, OutputStream out) throws IOException{
         if (appArgs.size() > 2) {
-            HelperMethods.outputError(unsafe, out, "uniq: too many arguments"); return false;
+            error.output(out, "uniq: too many arguments"); return false;
         }
         if (appArgs.size() == 2 && !appArgs.get(0).equals("-i")) {
-            HelperMethods.outputError(unsafe, out, "uniq: wrong argument " + appArgs.get(0)); return false;
+            error.output(out, "uniq: wrong argument " + appArgs.get(0)); return false;
         }
         return true;
     }
@@ -41,7 +72,7 @@ public class Unique implements Application {
         }
     }
 
-    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, Boolean unsafe,  boolean caseSensitive, String uniqArg) throws IOException{
+    private boolean handleOutput(OutputStreamWriter writer, OutputStream out, boolean caseSensitive, String uniqArg) throws IOException{
         String previousLine = "";
         String uniqFile = Jsh.currentDirectory + File.separator + uniqArg;
         String input = null;
@@ -51,7 +82,7 @@ public class Unique implements Application {
         try {
             sc = new Scanner(new File(uniqFile));
         } catch (Exception e) {
-            HelperMethods.outputError(unsafe, out, "uniq: wrong file argument"); return false;
+            error.output(out, "uniq: wrong file argument"); return false;
         }
 
         while (sc.hasNextLine()) {
@@ -70,34 +101,4 @@ public class Unique implements Application {
         return true;
     }
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
-
-        boolean successfullyPassed = handleArguments(appArgs, out, unsafe);
-        if(!successfullyPassed) {return; }
-
-        boolean caseSensitive = true;
-        String uniqArg = "";
-        if (appArgs.size() == 2) { // -i tag AND file path provided
-            caseSensitive = false;
-            uniqArg = appArgs.get(1);
-        } else if (appArgs.size() == 1) {
-            if (appArgs.get(0).equals("-i")) { // Use InputStream
-                caseSensitive = false;
-            } else { // Use file path
-                uniqArg = appArgs.get(0);
-            }
-        }
-
-        
-
-        if (uniqArg.isEmpty()) { // Take InputStream
-            handleInput(writer, in, caseSensitive);
-
-        } else {
-            successfullyPassed = handleOutput(writer, out, unsafe, caseSensitive, uniqArg);
-            if(!successfullyPassed) {return; }
-
-        }
-    }
 }

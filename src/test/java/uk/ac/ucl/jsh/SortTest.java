@@ -25,6 +25,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import uk.ac.ucl.jsh.app.Sort;
+import uk.ac.ucl.jsh.app.Safe;
+import uk.ac.ucl.jsh.app.Unsafe;
 
 
 public class SortTest {
