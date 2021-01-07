@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -197,5 +198,15 @@ public class HeadTest {
 
         new Head().exec(args, null, System.out, true);
         assertEquals("head: " + args.get(0) +  " does not exist", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testSafeReaderIsNull() throws Exception {
+        //Throw exception - unable to open the file.
+        ArrayList<String> args = new  ArrayList<String>();
+        args.add(file2.getPath());
+
+        new Head().exec(args, null, System.out, false);
+        assertEquals("", outputStreamCaptor.toString().trim());
     }
 }
