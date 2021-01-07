@@ -50,7 +50,7 @@ public class PwdTest {
     public void testPwdSafe() throws Exception {
 
         ArrayList<String> args = new  ArrayList<String>();
-        new PrintWorkingDirectory().exec(args, null, System.out, false);
+        new PrintWorkingDirectory().exec(args, null, System.out);
         assertEquals("/jsh", outputStreamCaptor.toString().trim());
     }
 }

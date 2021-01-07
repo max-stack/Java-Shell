@@ -63,7 +63,7 @@ public class UniqTest {
         args.add("file1.txt");
         args.add("extraArg");
 
-        new Unique().exec(args, null, System.out, true);
+        new Unique(new Unsafe()).exec(args, null, System.out);
         assertEquals("uniq: too many arguments", outputStreamCaptor.toString().trim());
     }
 
@@ -75,7 +75,7 @@ public class UniqTest {
         args.add("file1.txt");
         args.add("extraArg");
 
-        new Unique().exec(args, null, System.out, false);
+        new Unique(new Safe()).exec(args, null, System.out);
         assertEquals("uniq: too many arguments", outputStreamErrCaptor.toString().trim());
     }
 
@@ -86,7 +86,7 @@ public class UniqTest {
         args.add("-j");
         args.add("file1.txt");
 
-        new Unique().exec(args, null, System.out, false);
+        new Unique(new Safe()).exec(args, null, System.out);
         assertEquals("uniq: wrong argument -j", outputStreamErrCaptor.toString().trim());
     }
 
@@ -96,7 +96,7 @@ public class UniqTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("file1.txt");
 
-        new Unique().exec(args, null, System.out, false);
+        new Unique(new Safe()).exec(args, null, System.out);
         assertEquals("UNIQ test\nuniq test\nThis is line 4\nuniq test", outputStreamCaptor.toString().trim());
     }
 
@@ -107,7 +107,7 @@ public class UniqTest {
         args.add("-i");
         args.add("file1.txt");
 
-        new Unique().exec(args, null, System.out, false);
+        new Unique(new Safe()).exec(args, null, System.out);
         assertEquals("UNIQ test\nThis is line 4\nuniq test", outputStreamCaptor.toString().trim());
     }
 
@@ -117,7 +117,7 @@ public class UniqTest {
         ArrayList<String> args = new  ArrayList<String>();
         args.add("invalid.abc");
 
-        new Unique().exec(args, null, System.out, false);
+        new Unique(new Safe()).exec(args, null, System.out);
         assertEquals("uniq: wrong file argument", outputStreamErrCaptor.toString().trim());
     }
 
@@ -128,7 +128,7 @@ public class UniqTest {
         String content = "AAAA\naaaa\nBBBB\nbbbb";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
-        new Unique().exec(args, in, System.out, false);
+        new Unique(new Safe()).exec(args, in, System.out);
         assertEquals("AAAA\naaaa\nBBBB\nbbbb", outputStreamCaptor.toString().trim());
     }
 
@@ -141,7 +141,7 @@ public class UniqTest {
         String content = "AAAA\naaaa\nBBBB\nbbbb";
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
-        new Unique().exec(args, in, System.out, false);
+        new Unique(new Safe()).exec(args, in, System.out);
         assertEquals("AAAA\nBBBB", outputStreamCaptor.toString().trim());
     }
 
