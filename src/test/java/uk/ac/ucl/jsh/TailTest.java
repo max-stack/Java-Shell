@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.util.Scanner;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -113,13 +114,26 @@ public class TailTest {
     public void testSafeThreeArguments() throws Exception {
         //Throw exception - unable to open the file.
         ArrayList<String> args = new  ArrayList<String>();
-        String num_lines_head = "6";
+        String num_lines_tail = "6";
         args.add("-n");
-        args.add(num_lines_head);
+        args.add(num_lines_tail);
         args.add(file1.getPath());
 
         new Tail().exec(args, null, System.out, false);
         assertEquals("F F\nG G\nH H\nI I\nJ J\nK K", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testSafeGreaterThanStorageSize() throws Exception {
+        //Throw exception - unable to open the file.
+        ArrayList<String> args = new  ArrayList<String>();
+        String num_lines_tail = "100";
+        args.add("-n");
+        args.add(num_lines_tail);
+        args.add(file1.getPath());
+
+        new Tail().exec(args, null, System.out, false);
+        assertEquals("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J\nK K", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -155,15 +169,30 @@ public class TailTest {
         assertEquals("B B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J\nK K", outputStreamCaptor.toString().trim());
     }
 
-    // @Test
-    // public void testSafeThrowsExceptionInputStream() throws Exception {
-    //     //Throw exception - unable to open the file.
-    //     ArrayList<String> args = new  ArrayList<String>();
-    //     FileInputStream testInput = new FileInputStream(dir);
+    @Test
+    public void testSafeInputStreamGreaterThanStorageSize() throws Exception {
+        //Throw exception - unable to open the file.
+        ArrayList<String> args = new  ArrayList<String>();
+        FileInputStream testInput = new FileInputStream(file1);
+        String num_lines_tail = "100";
+        args.add("-n");
+        args.add(num_lines_tail);
 
-    //     new Tail().exec(args, testInput, System.out, false);
-    //     assertEquals("" + args.get(1), outputStreamCaptor.toString().trim());
-    // }
+        new Tail().exec(args, testInput, System.out, false);
+        assertEquals("A A\nB B\nC C\nD D\nE E\nF F\nG G\nH H\nI I\nJ J\nK K", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testSafeThrowsExceptionInputStream() throws Exception {
+        //Throw exception - unable to open the file.
+        OutputStream closedOutputStream = OutputStream.nullOutputStream();
+        closedOutputStream.close();
+        ArrayList<String> args = new  ArrayList<String>();
+        FileInputStream testInput = new FileInputStream(file1);
+
+        new Tail().exec(args, testInput, closedOutputStream, false);
+        assertEquals("", outputStreamCaptor.toString().trim());
+    }
 
     @Test
     public void testSafeThrowsExceptionCannotOpenFile() throws Exception {
