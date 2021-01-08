@@ -24,7 +24,7 @@ public class Cut implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
         
         if (!handleArguments(appArgs, out)) { return; }
 
@@ -77,7 +77,7 @@ public class Cut implements Application {
     }
 
     private void handleOutput(OutputStream out, ArrayList<String> appArgs, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
 
         String cutArg = appArgs.get(2);
         String cutFile = Jsh.currentDirectory + File.separator + cutArg;

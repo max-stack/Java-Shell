@@ -23,7 +23,7 @@ public class Head implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
 
         if (!handleArguments(appArgs, out)) { return; }
 

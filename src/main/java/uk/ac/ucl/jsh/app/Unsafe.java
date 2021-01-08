@@ -3,6 +3,7 @@ package uk.ac.ucl.jsh.app;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 public class Unsafe implements ErrorOutput {
 
@@ -18,7 +19,7 @@ public class Unsafe implements ErrorOutput {
      */
     
     public void output(OutputStream out, String message) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
 
         writer.write(message);
         writer.write(System.getProperty("line.separator"));

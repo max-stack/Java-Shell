@@ -154,7 +154,7 @@ public class Jsh {
 
     private static void emptyFile(File file) throws IOException {
         if (file.exists()) {
-            PrintWriter writer = new PrintWriter(file, "UTF-8");
+            PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
             writer.print("");
             writer.close();
         } else {
@@ -178,7 +178,7 @@ public class Jsh {
                 pipeStr.insert(0, buffer, 0, charsRead);
             }
             String inputText = pipeStr.toString();
-            output.write(inputText.getBytes("UTF-8"));
+            output.write(inputText.getBytes());
             inputText = inputText.replace("\n", "");
             return inputText;
         }
@@ -415,7 +415,7 @@ public class Jsh {
                 System.out.println("jsh: " + e.getMessage());
             }
         } else {
-            Scanner input = new Scanner(System.in, "UTF-8");
+            Scanner input = new Scanner(System.in);
             try {
                 while (true) {
                     String prompt = currentDirectory + "> ";

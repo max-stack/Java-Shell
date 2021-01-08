@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import uk.ac.ucl.jsh.Jsh;
+import java.nio.charset.StandardCharsets;
 
 public class List implements Application {
 
@@ -17,7 +18,7 @@ public class List implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
         
         File currDir;
         if (appArgs.isEmpty()) {
