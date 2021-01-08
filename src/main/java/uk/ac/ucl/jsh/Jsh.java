@@ -35,6 +35,18 @@ public class Jsh {
     public static String currentDirectory = System.getProperty("user.dir");
     public static boolean quitCommand = false;
 
+    /**
+     * This method takes in a raw command and performs globbing if * is
+     * found within the the command as well as splitting the command up
+     * into individual tokens.
+     *
+     * @param rawCommand The command after it has been parsed
+     *
+     * @return An ArrayList of the tokens
+     *
+     * @exception IOException If an error occurs
+     */
+    
     public static ArrayList<String> tokenSplit(String rawCommand)
         throws IOException {
         String spaceRegex = "\"([^\"]*)\"|'([^']*)'|[^\\s]+";
@@ -94,6 +106,16 @@ public class Jsh {
         return tokens;
     }
 
+    /**
+     * This method takes in the command line input from a user and returns
+     * an ExeceptionPlan (result of walking through the command with visitor)
+     * which splits the command up to be processed by JSH eval
+     *
+     * @param cmdline The command line input from the user
+     *
+     * @return An ExecutionPlan which is the result of visiting the tree from input
+     *
+     */
     public static ExecutionPlan parse(String cmdline) {
         CharStream parserInput = CharStreams.fromString(cmdline);
         JshGrammarLexer lexer = new JshGrammarLexer(parserInput);
@@ -103,6 +125,17 @@ public class Jsh {
         CommandVisitor visitor = new CommandVisitor();
         return visitor.visit(tree);
     }
+
+    /**
+     * This method creates a that doesn't exist for when we redirect to
+     * a file so any output can be written to the file.
+     * 
+     *
+     * @param filePath The filePath of where we want to create a file
+     *
+     * @return The desired File after creating it.
+     *
+     */
 
     private static File createRedirectFile(String filePath) {
         File returnFile;
@@ -209,6 +242,17 @@ public class Jsh {
         }
         return command;
     }
+    /**
+     * This method takes in the current executor service and shuts it down.
+     * It waits for all the previous threads to finish terminating as unsafe
+     * applications shouldn't effect any other command in the execution chain.
+     *
+     * @param executor The executor service that is running multiple threads.
+     *
+     * @return A boolean to either break from the while loop or create a new 
+     * newCachedThreadPool
+     * 
+     */
 
     private static boolean executorShutdown(ExecutorService executor) {
         executor.shutdown();
@@ -225,6 +269,17 @@ public class Jsh {
         }
     }
 
+    /**
+     * This method takes in the command line input from the user, parses
+     * it and runs any of the necessary applications.
+     *
+     *
+     * @param cmdline The command line input from the user of which command
+     * they wish to run.
+     *
+     * @exception IOException If an error occurs
+     */
+    
     public static void eval(String cmdline) throws IOException {
         Queue<String> commands = parse(cmdline).getCommandQueue();
         ExecutorService executor = Executors.newCachedThreadPool();

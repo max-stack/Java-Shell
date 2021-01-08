@@ -19,6 +19,12 @@ public class RunCommand implements Runnable {
         this.in = in;
     }
 
+    /**
+     * This method is ran when a new thread is added to the executor service.
+     * The thread will then begin to run the Application. The PipedOutputStream
+     * is closed here to prevent any broken pipe errors.
+     */
+    
     public void run() {
         try {
             String appName = tokens.get(0);

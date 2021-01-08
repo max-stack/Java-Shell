@@ -7,6 +7,17 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class CommandVisitor extends AbstractParseTreeVisitor<ExecutionPlan> {
 
+    /**
+     * This method takes the current node when walking the tree and if
+     * it is a terminal, an ExecutionPlan is returned so it can be built up
+     * to form a command segment.
+     *
+     * @param node Current node of the tree when visiting.
+     *
+     * @return ExecutionPlan that will be joined to the command queue.
+     *
+     */
+
     @Override
     public ExecutionPlan visitTerminal(TerminalNode node) {
         switch (node.getText()) {
