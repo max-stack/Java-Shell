@@ -2,6 +2,15 @@ package uk.ac.ucl.jsh.app;
 
 public class ApplicationFactory {
 
+    /**
+     * This method takes an a string which acts as a way to identify which
+     * Application object needs to be generated. This occurs at Runtime.
+     *
+     * @param name The name of a potential application to be returned.
+     *
+     * @return Application object for specified app
+     *
+     */
     public static Application make(String name) {
         switch (name) {
             case "cd":

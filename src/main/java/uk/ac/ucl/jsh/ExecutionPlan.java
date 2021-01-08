@@ -28,6 +28,16 @@ class ExecutionPlan {
         return commands;
     }
 
+    /**
+     * This method is invoked by ANTLR when it is walking the tree of a
+     * command and collating it's arguments together until a terminal is found.
+     * The method then takes that command and adds it to the command queue based
+     * on what type of command it is.
+     *
+     * @param joinPlan group arguments from ANTLR which need to be added to the
+     * command queue.
+     *
+     */
     public void join(ExecutionPlan joinPlan) {
         String topElement = joinPlan.getCommandQueue().peek();
         if (topElement.equals(" ")) {

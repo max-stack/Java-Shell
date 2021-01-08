@@ -8,6 +8,18 @@ import java.nio.charset.StandardCharsets;
 
 public class HelperMethods {
 
+    /**
+     * This method takes in an InputStream and goes line by line populating
+     * a String array with each line. This is needed to convert the input stream
+     * to a String as most Applications work on String based manipulations.
+     *
+     * @param in The inputstream that is going to be read.
+     *
+     * @return Array string of data from input stream seperated by newline.
+     *
+     * @exception IOException If an error occurs
+     */
+
     public static String[] readInputStream(InputStream in) throws IOException {
         final int bufferSize = 1024 * 1024; // buffer size constant
 
