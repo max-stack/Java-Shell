@@ -17,5 +17,4 @@ public class PrintWorkingDirectory implements Application {
         writer.write(System.getProperty("line.separator"));
         writer.flush();
     }
-
 }
