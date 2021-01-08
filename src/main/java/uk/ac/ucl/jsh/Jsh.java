@@ -150,7 +150,7 @@ public class Jsh {
 
     private static void emptyFile(File file) throws IOException {
         if (file.exists()) {
-            PrintWriter writer = new PrintWriter(file);
+            PrintWriter writer = new PrintWriter(file, "UTF-8");
             writer.print("");
             writer.close();
         } else {
@@ -411,7 +411,7 @@ public class Jsh {
                 System.out.println("jsh: " + e.getMessage());
             }
         } else {
-            Scanner input = new Scanner(System.in);
+            Scanner input = new Scanner(System.in, "UTF-8");
             try {
                 while (true) {
                     String prompt = currentDirectory + "> ";

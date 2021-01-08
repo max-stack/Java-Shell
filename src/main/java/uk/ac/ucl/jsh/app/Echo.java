@@ -15,7 +15,8 @@ public class Echo implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        System.out.println(writer.getEncoding().toString());
         if (!handleArguments(appArgs, out)) { return; }
         handleOutput(appArgs, writer);
     }

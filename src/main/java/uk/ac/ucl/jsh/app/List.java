@@ -17,7 +17,7 @@ public class List implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
         
         File currDir;
         if (appArgs.isEmpty()) {
