@@ -178,7 +178,7 @@ public class Jsh {
                 pipeStr.insert(0, buffer, 0, charsRead);
             }
             String inputText = pipeStr.toString();
-            output.write(inputText.getBytes());
+            output.write(inputText.getBytes(StandardCharsets.UTF_8));
             inputText = inputText.replace("\n", "");
             return inputText;
         }
@@ -415,7 +415,7 @@ public class Jsh {
                 System.out.println("jsh: " + e.getMessage());
             }
         } else {
-            Scanner input = new Scanner(System.in);
+            Scanner input = new Scanner(System.in, StandardCharsets.UTF_8);
             try {
                 while (true) {
                     String prompt = currentDirectory + "> ";
