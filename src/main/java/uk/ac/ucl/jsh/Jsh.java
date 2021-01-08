@@ -29,6 +29,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import uk.ac.ucl.jsh.app.ApplicationFactory;
+import org.apache.commons.lang3.StringUtils;
 
 public class Jsh {
 
@@ -196,7 +197,7 @@ public class Jsh {
             if (!readFile.exists()) {
                 throw new IOException("File " + readFile.getName() + " Does not exist.");
             }
-        } while (commands.peek() == ConnectionType.REDIRECT_FROM.toString());
+        } while (StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_FROM.toString()));
         return readFile;
     }
 
@@ -208,15 +209,15 @@ public class Jsh {
             filePath = commands.poll().trim();
             writeFile = createRedirectFile(filePath);
             emptyFile(writeFile);
-        } while (commands.peek() == ConnectionType.REDIRECT_TO.toString());
+        } while (StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_TO.toString()));
 
-        while (commands.peek() == ConnectionType.REDIRECT_FROM.toString() ||
-            commands.peek() == ConnectionType.REDIRECT_TO.toString()) {
-            if (commands.peek() == ConnectionType.REDIRECT_FROM.toString()) {
+        while (StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_FROM.toString()) ||
+               StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_TO.toString())) {
+            if (StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_FROM.toString())) {
                 commands.poll();
                 commands.poll();
             } else if (
-                commands.peek() == ConnectionType.REDIRECT_TO.toString()
+                StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_TO.toString())
             ) {
                 commands.poll();
                 filePath = commands.poll().trim();
@@ -367,17 +368,17 @@ public class Jsh {
             }
 
             if (ConnectionType.connectionExists(commands.peek())) {
-                if (commands.peek() == ConnectionType.REDIRECT_FROM.toString()) {
+                if (StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_FROM.toString())) {
                     File readFile = redirectFrom(commands);
                     input = new FileInputStream(readFile);
                 }
 
-                if (commands.peek() == ConnectionType.REDIRECT_TO.toString()) {
+                if (StringUtils.equals(commands.peek(), ConnectionType.REDIRECT_TO.toString())) {
                     File writeFile = redirectTo(commands);
                     output = new FileOutputStream(writeFile, true);
                 }
 
-                if (commands.peek() == ConnectionType.PIPE.toString()) {
+                if (StringUtils.equals(commands.peek(), ConnectionType.PIPE.toString())) {
                     pipedInput = new PipedInputStream();
                     output = new PipedOutputStream(pipedInput);
                     lastInput = pipedInput;
