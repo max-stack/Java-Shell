@@ -77,7 +77,7 @@ public class Cut implements Application {
     }
 
     private void handleOutput(OutputStream out, ArrayList<String> appArgs, Integer start, Integer end, ArrayList<Integer> indexes) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
 
         String cutArg = appArgs.get(2);
         String cutFile = Jsh.currentDirectory + File.separator + cutArg;

@@ -26,7 +26,7 @@ public class Concatenate implements Application {
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
 
-        if (in != null && in.getClass().getName().toString() == "java.io.FileInputStream") { // Take file InputStream
+        if (in != null && in.getClass().getName().toString().equals("java.io.FileInputStream")) { // Take file InputStream
             handleFileInput(in, writer);
         } else {
             if (appArgs.isEmpty()) { // Take InputStream

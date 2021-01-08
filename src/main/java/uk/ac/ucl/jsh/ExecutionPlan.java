@@ -43,10 +43,10 @@ class ExecutionPlan {
         if (topElement.equals(" ")) {
             return;
         }
-        if (topElement == ConnectionType.SEQUENCE.toString() ||
-            topElement == ConnectionType.PIPE.toString() ||
-            topElement == ConnectionType.REDIRECT_FROM.toString() ||
-            topElement == ConnectionType.REDIRECT_TO.toString()) {
+        if (topElement.equals(ConnectionType.SEQUENCE.toString()) ||
+            topElement.equals(ConnectionType.PIPE.toString()) ||
+            topElement.equals(ConnectionType.REDIRECT_FROM.toString()) ||
+            topElement.equals(ConnectionType.REDIRECT_TO.toString())) {
 
             if ( findNextQuote || !subCommands.isEmpty() && 
                 (StringUtils.countMatches(subCommands.getLast(), "\"") == 1 || 
@@ -59,7 +59,7 @@ class ExecutionPlan {
                 subCommands.clear();
                 commands.addAll(joinPlan.getCommandQueue());
             }
-        } else if (topElement == ConnectionType.SUBSTITUTION.toString()) {
+        } else if (topElement.equals(ConnectionType.SUBSTITUTION.toString())) {
             if (substitutionCommand == null) {
                 if (!subCommands.isEmpty()) {
                     substitutionCommand = subCommands.remove();
@@ -77,7 +77,7 @@ class ExecutionPlan {
                 }
                 substitutionCommand = null;
             }
-        } else if (topElement == ConnectionType.END_COMMAND.toString()) {
+        } else if (topElement.equals(ConnectionType.END_COMMAND.toString())) {
             commands.addAll(subCommands);
             subCommands.clear();
         } else {

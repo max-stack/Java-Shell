@@ -56,7 +56,7 @@ public class GlobalRegExPrint implements Application {
     }
 
     private void handleOutput(OutputStream out, ArrayList<String> appArgs, Pattern grepPattern) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
         
         int numOfFiles = appArgs.size() - 1;
         Path filePath;

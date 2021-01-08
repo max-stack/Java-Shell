@@ -80,7 +80,7 @@ public class Unique implements Application {
         Scanner sc;
 
         try {
-            sc = new Scanner(new File(uniqFile));
+            sc = new Scanner(new File(uniqFile), "UTF-8");
         } catch (Exception e) {
             error.output(out, "uniq: wrong file argument"); return false;
         }

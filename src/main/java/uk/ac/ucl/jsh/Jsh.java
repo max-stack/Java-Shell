@@ -35,6 +35,10 @@ public class Jsh {
     public static String currentDirectory = System.getProperty("user.dir");
     public static boolean quitCommand = false;
 
+    public static void setQuitCommand (boolean val){
+        quitCommand = val;
+    }
+
     /**
      * This method takes in a raw command and performs globbing if * is
      * found within the the command as well as splitting the command up
@@ -174,7 +178,7 @@ public class Jsh {
                 pipeStr.insert(0, buffer, 0, charsRead);
             }
             String inputText = pipeStr.toString();
-            output.write(inputText.getBytes());
+            output.write(inputText.getBytes("UTF-8"));
             inputText = inputText.replace("\n", "");
             return inputText;
         }
@@ -192,7 +196,7 @@ public class Jsh {
             if (!readFile.exists()) {
                 throw new IOException("File " + readFile.getName() + " Does not exist.");
             }
-        } while (commands.peek() == ConnectionType.REDIRECT_FROM.toString());
+        } while (commands.peek().equals(ConnectionType.REDIRECT_FROM.toString()));
         return readFile;
     }
 
@@ -204,15 +208,15 @@ public class Jsh {
             filePath = commands.poll().trim();
             writeFile = createRedirectFile(filePath);
             emptyFile(writeFile);
-        } while (commands.peek() == ConnectionType.REDIRECT_TO.toString());
+        } while (commands.peek().equals(ConnectionType.REDIRECT_TO.toString()));
 
-        while (commands.peek() == ConnectionType.REDIRECT_FROM.toString() ||
-            commands.peek() == ConnectionType.REDIRECT_TO.toString()) {
-            if (commands.peek() == ConnectionType.REDIRECT_FROM.toString()) {
+        while (commands.peek().equals(ConnectionType.REDIRECT_FROM.toString()) ||
+            commands.peek().equals(ConnectionType.REDIRECT_TO.toString())) {
+            if (commands.peek().equals(ConnectionType.REDIRECT_FROM.toString())) {
                 commands.poll();
                 commands.poll();
             } else if (
-                commands.peek() == ConnectionType.REDIRECT_TO.toString()
+                commands.peek().equals(ConnectionType.REDIRECT_TO.toString())
             ) {
                 commands.poll();
                 filePath = commands.poll().trim();
@@ -314,7 +318,7 @@ public class Jsh {
             }
 
             if (ConnectionType.connectionExists(command)) {
-                if (command == ConnectionType.SUBSTITUTION.toString()) {
+                if (command.equals(ConnectionType.SUBSTITUTION.toString())) {
                     if (!substitution) {
                         substitution = true;
                         pipedInput = new PipedInputStream();
@@ -336,12 +340,12 @@ public class Jsh {
                     }
                 }
 
-                if (command == ConnectionType.SEQUENCE.toString()) {
+                if (command.equals(ConnectionType.SEQUENCE.toString())) {
                     lastInput = null;
                     continue;
                 }
 
-                if (command == ConnectionType.REDIRECT_TO.toString()) {
+                if (command.equals(ConnectionType.REDIRECT_TO.toString())) {
                     String[] redirectArray = commands.poll().trim().split(" ", 2);
                     command = redirectArray[1];
                     String filePath = redirectArray[0];
@@ -350,7 +354,7 @@ public class Jsh {
                     output = new FileOutputStream(writeFile, true);
                 }
 
-                if (command == ConnectionType.REDIRECT_FROM.toString()) {
+                if (command.equals(ConnectionType.REDIRECT_FROM.toString())) {
                     String[] redirectArray = commands.poll().trim().split(" ", 2);
                     command = redirectArray[1];
                     String filePath = redirectArray[0];
@@ -363,17 +367,17 @@ public class Jsh {
             }
 
             if (ConnectionType.connectionExists(commands.peek())) {
-                if (commands.peek() == ConnectionType.REDIRECT_FROM.toString()) {
+                if (commands.peek().equals(ConnectionType.REDIRECT_FROM.toString())) {
                     File readFile = redirectFrom(commands);
                     input = new FileInputStream(readFile);
                 }
 
-                if (commands.peek() == ConnectionType.REDIRECT_TO.toString()) {
+                if (commands.peek().equals(ConnectionType.REDIRECT_TO.toString())) {
                     File writeFile = redirectTo(commands);
                     output = new FileOutputStream(writeFile, true);
                 }
 
-                if (commands.peek() == ConnectionType.PIPE.toString()) {
+                if (commands.peek().equals(ConnectionType.PIPE.toString())) {
                     pipedInput = new PipedInputStream();
                     output = new PipedOutputStream(pipedInput);
                     lastInput = pipedInput;
@@ -385,7 +389,7 @@ public class Jsh {
             ApplicationFactory.make(appName);
             executor.execute(new RunCommand(tokens, output, input));
 
-            if (command == ConnectionType.SEQUENCE.toString() ||
+            if (command.equals(ConnectionType.SEQUENCE.toString()) ||
                 !ConnectionType.connectionExists(command)) {
                 if (executorShutdown(executor)) {
                     break;

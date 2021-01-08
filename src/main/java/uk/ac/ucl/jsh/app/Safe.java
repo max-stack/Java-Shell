@@ -6,7 +6,7 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class Safe implements ErrorOutput {
     public void output(OutputStream out, String message) throws IOException {
-        Jsh.quitCommand = true;
+        Jsh.setQuitCommand(true);
         System.err.println(message);
     }
 }
