@@ -25,7 +25,7 @@ public class HelperMethods {
 
         final char[] buffer = new char[bufferSize];
         final StringBuilder pipeStr = new StringBuilder();
-        Reader rdr = new InputStreamReader(in);
+        Reader rdr = new InputStreamReader(in,StandardCharsets.UTF_8);
         int charsRead;
         while ((charsRead = rdr.read(buffer, 0, buffer.length)) > 0) {
             pipeStr.append(buffer, 0, charsRead);
