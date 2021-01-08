@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 import uk.ac.ucl.jsh.Jsh;
+import java.nio.charset.StandardCharsets;
 
 public class Sort implements Application {
 
@@ -24,7 +25,7 @@ public class Sort implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
 
         if (!handleArguments(appArgs, out)) { return; }
 

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 
 public class Echo implements Application {
 
@@ -15,8 +16,7 @@ public class Echo implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
-        System.out.println(writer.getEncoding().toString());
+        OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
         if (!handleArguments(appArgs, out)) { return; }
         handleOutput(appArgs, writer);
     }
