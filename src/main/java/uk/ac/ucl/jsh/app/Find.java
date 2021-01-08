@@ -52,7 +52,7 @@ public class Find implements Application {
     }
 
     private boolean handleOutput(ArrayList<String> appArgs, OutputStream out, int filePosition, String dir) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
         final int finalFilePosition = filePosition;
         try (Stream<Path> stream = Files.walk(Paths.get(dir))) {
             stream.forEach(

@@ -18,7 +18,7 @@ public class Unsafe implements ErrorOutput {
      */
     
     public void output(OutputStream out, String message) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
 
         writer.write(message);
         writer.write(System.getProperty("line.separator"));

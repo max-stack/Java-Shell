@@ -9,8 +9,8 @@ import uk.ac.ucl.jsh.Jsh;
 
 public class PrintWorkingDirectory implements Application {
 
-    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out, Boolean unsafe) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+    public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
 
         writer.write(Jsh.currentDirectory);
         writer.write(System.getProperty("line.separator"));

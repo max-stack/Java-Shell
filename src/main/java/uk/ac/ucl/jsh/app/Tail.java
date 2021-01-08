@@ -23,7 +23,7 @@ public class Tail implements Application {
     }
 
     public void exec(ArrayList<String> appArgs, InputStream in, OutputStream out) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(out);
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
         
         if (!handleArguments(appArgs, out)) { return; }
      
